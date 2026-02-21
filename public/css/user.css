@@ -1,0 +1,209 @@
+:root {
+    --blood-red: #e63946;
+    --blood-dark: #9b1c1c;
+    --sidebar-gradient: linear-gradient(180deg, #e63946, #9b1c1c);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f8f9fa, #ffe6e6);
+    min-height: 100vh;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar-modern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--sidebar-gradient);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    overflow-y: auto;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Logo */
+.sidebar-modern .brand-logo {
+    width: 140px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-modern .brand-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Navigation */
+.sidebar-modern .nav-link {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+    border-radius: 12px;
+    padding: 12px 16px;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-modern .nav-link i {
+    font-size: 1.2rem;
+    transition: transform 0.25s ease;
+}
+
+/* Hover */
+.sidebar-modern .nav-link:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateX(6px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-modern .nav-link:hover i {
+    transform: scale(1.15);
+}
+
+/* Active link */
+.sidebar-modern .nav-link.active {
+    background: rgba(255, 255, 255, 0.25);
+    font-weight: 600;
+}
+
+.sidebar-modern .nav-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 12%;
+    width: 4px;
+    height: 76%;
+    background: #fff;
+    border-radius: 4px;
+}
+
+/* Badge glow */
+.sidebar-modern .badge {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* Logout button */
+.sidebar-modern .btn-outline-light {
+    border-radius: 30px;
+    transition: all 0.25s ease;
+}
+
+.sidebar-modern .btn-outline-light:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Scrollbar */
+.sidebar-modern::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-modern::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+/* ================= MAIN CONTENT ================= */
+.dashboard-wrapper {
+    display: flex;
+}
+
+.content-area {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+@media (max-width: 991px) {
+    .sidebar-modern {
+        display: none;
+    }
+
+    .content-area {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* Glass cards */
+.glass-card {
+    background: rgba(255, 255, 255, 0.08);
+    /* slightly more visible */
+    backdrop-filter: blur(12px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* make border always visible */
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.12);
+    /* lighter on hover */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.glass-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.glass-card {
+    position: relative;
+}
+
+.glass-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: var(--blood-red);
+    border-radius: 2px;
+}
+
+
+/* Profile Avatar */
+.profile-avatar {
+    font-size: 2rem;
+}
+
+/* Centering and Spacing */
+.tracking-wider {
+    letter-spacing: 2px;
+}
+
+/* Icon box matching sidebar gradient */
+.icon-box-alert {
+    width: 70px;
+    height: 70px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sidebar-gradient);
+    box-shadow: 0 8px 20px rgba(230, 57, 70, 0.3);
+}
+
+/* Hover Animation */
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-3px);
+    background-color: var(--blood-dark);
+    box-shadow: 0 10px 20px rgba(230, 57, 70, 0.4);
+}
+
+/* Card Specifics */
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+}

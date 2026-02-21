@@ -1,0 +1,120 @@
+:root {
+    --blood-red: #e63946;
+    --blood-dark: #9b1c1c;
+    --blood-gradient: linear-gradient(135deg, #e63946, #9b1c1c);
+    --page-gradient: linear-gradient(135deg, rgba(248, 249, 250, 0.2), rgba(255, 230, 230, 0.2));
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    /* Layer 1: The Gradient (Top), Layer 2: The Image (Bottom) */
+    background: var(--page-gradient), url("../background-img.png");
+    backdrop-filter: blur(10px);
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+}
+
+/* Navbar & Brand */
+.navbar-brand {
+    font-weight: 700;
+    color: var(--blood-red) !important;
+}
+
+.brand-logo {
+    width: 140px;
+    transition: transform 0.3s ease;
+}
+
+.brand-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Buttons */
+.btn-danger {
+    background: var(--blood-red);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background: var(--blood-dark);
+}
+
+.btn-outline-danger {
+    border-color: var(--blood-red);
+    color: var(--blood-red);
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+    background: var(--blood-red);
+    color: #fff;
+}
+
+/* Hero Section */
+.hero-section {
+    background: var(--blood-gradient);
+    color: #fff;
+    padding: 6rem 1rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Glass Card (Login/Forms) */
+.glass-card {
+    /* Increase opacity to 0.85 for better contrast */
+    background: rgba(255, 255, 255, 0.85);
+
+    /* Reduce blur to 4px for a subtle, clear "frosted" look */
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 2rem 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    color: #212529;
+    /* Darker text for readability */
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-5px);
+}
+
+/* Stats & Steps */
+.stat-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 15px;
+    padding: 2rem 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.step-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--blood-red);
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    margin: 0 auto 1rem auto;
+    border-radius: 50%;
+    background: rgba(230, 57, 70, 0.15);
+}
+
+/* Footer */
+footer {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+}

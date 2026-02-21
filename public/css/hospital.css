@@ -1,0 +1,130 @@
+:root {
+    --blood-red: #e63946;
+    --blood-dark: #9b1c1c;
+    --sidebar-gradient: linear-gradient(180deg, #e63946, #9b1c1c);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f8f9fa, #ffe6e6);
+    min-height: 100vh;
+}
+
+.dashboard-wrapper {
+    display: flex;
+}
+
+.sidebar-modern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--sidebar-gradient);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    overflow-y: auto;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar-modern .brand-logo {
+    width: 100px;
+    /* Adjusted to match your admin logo size */
+    transition: transform 0.3s ease;
+}
+
+.sidebar-modern .nav-link {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+    border-radius: 12px;
+    padding: 12px 16px;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.sidebar-modern .nav-link:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateX(6px);
+}
+
+.sidebar-modern .nav-link.active {
+    background: rgba(255, 255, 255, 0.25);
+    font-weight: 600;
+}
+
+.sidebar-modern .nav-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 15%;
+    width: 4px;
+    height: 70%;
+    background: #fff;
+    border-radius: 4px;
+}
+
+.sidebar-modern .btn-outline-light {
+    border-radius: 30px;
+    transition: all 0.25s ease;
+}
+
+/* Content */
+.content-area {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+/* Glass Card */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    /* Translucent White */
+    backdrop-filter: blur(12px);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 1.5rem;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.glass-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 20px;
+    width: 40px;
+    height: 4px;
+    background: var(--blood-red);
+    border-radius: 0 0 4px 4px;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.content-area {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    padding: 2rem;
+}
+
+/* Stat icon */
+.icon-box {
+    width: 55px;
+    height: 55px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* Tables */
+.table thead {
+    background: #f1f1f1;
+}

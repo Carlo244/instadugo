@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Auth;
+
+class HospitalAdminLoginController extends Controller
+{
+    public function showLoginForm()
+    {
+        return view('auth.hospital-login');
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (Auth::guard('hospital_admin')->attempt($credentials)) {
+            $request->session()->regenerate();
+
+            // Redirect to loader page after login
+            return redirect()->route('hospital.loader');
+        }
+
+        return back()->withErrors(['email' => 'Invalid credentials']);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::guard('hospital_admin')->logout();
+
+        // Clear all session data on logout
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/hospital/login');
+    }
+}
