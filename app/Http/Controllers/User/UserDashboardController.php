@@ -39,10 +39,6 @@ class UserDashboardController extends Controller
         $compatibleBloodTypes = $compatibility[$user->blood_type] ?? [];
 
         $compatibleDonors = User::whereIn('blood_type', $compatibleBloodTypes)->where('id', '!=', $user->id)->get()->filter(fn($donor) => $donor->isEligible());
-        $notifications = Notification::where('user_id', $user->id)
-                                     ->orderBy('created_at', 'desc')
-                                     ->take(5)
-                                     ->get();
-        return view('user.dashboard', compact('hospitals', 'userRequests', 'donations', 'compatibleDonors', 'notifications'));
+        return view('user.dashboard', compact('hospitals', 'userRequests', 'donations', 'compatibleDonors'));
     }
 }

@@ -118,3 +118,18 @@ footer {
         font-size: 2rem;
     }
 }
+
+.input-group>.invalid-feedback {
+    display: block;
+    /* Ensures errors show up even inside input groups */
+}
+
+.input-group .btn {
+    border-color: #dee2e6;
+    /* Match standard Bootstrap input borders */
+}
+
+.btntoggle {
+    border: none;
+    transition: all 0.3s ease;
+}

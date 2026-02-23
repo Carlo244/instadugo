@@ -2,7 +2,7 @@
 
 @section('content')
     <main class="content-area">
-        <h3 class="mb-4 fw-bold text-danger">My Profile</h3>
+        <h3 class="fw-bold mb-0 text-uppercase tracking-wide">MY PROFILE</h3>
 
         {{-- Profile Card --}}
         <div class="row mt-4">

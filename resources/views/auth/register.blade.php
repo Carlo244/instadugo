@@ -40,19 +40,31 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 mb-3">
                                         <label for="password" class="form-label">Password</label>
-                                        <input type="password" name="password" id="password"
-                                            class="form-control @error('password') is-invalid @enderror" required>
-                                        @error('password')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <div class="input-group">
+                                            <input type="password" name="password" id="password"
+                                                class="form-control @error('password') is-invalid @enderror" required>
+                                            <button class="btntoggle btn-outline-secondary toggle-password" type="button"
+                                                data-target="password">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            @error('password')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 mb-3">
                                         <label for="password_confirmation" class="form-label">Confirm Password</label>
-                                        <input type="password" name="password_confirmation" id="password_confirmation"
-                                            class="form-control" required>
+                                        <div class="input-group">
+                                            <input type="password" name="password_confirmation" id="password_confirmation"
+                                                class="form-control" required>
+                                            <button class="btntoggle btn-outline-secondary toggle-password" type="button"
+                                                data-target="password_confirmation">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div class="col-md-8">
@@ -107,12 +119,16 @@
                                     <div class="col-12 mt-4">
                                         <button type="submit"
                                             class="btn btn-danger w-100 py-3 fw-bold shadow-sm">Register</button>
-                                        <p class="text-muted small text-center mt-3">
-                                            By registering, you agree that your information will be used solely for
-                                            blood donation scheduling and compatibility matching in accordance with data
-                                            privacy
-                                            regulations.
-                                        </p>
+                                        <div class="col-12 mt-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                                <label class="form-check-label small text-muted" for="agreeTerms">
+                                                    I agree that my information will be used solely for blood donation
+                                                    scheduling
+                                                    and compatibility matching in accordance with data privacy regulations.
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="col-12 mt-3 text-center">
                                         <p class="small text-muted mb-0">
@@ -128,7 +144,28 @@
                 </div>
             </div>
 
+
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                document.querySelectorAll('.toggle-password').forEach(button => {
+                    button.addEventListener('click', function() {
+                        // Find the input associated with this button
+                        const targetId = this.getAttribute('data-target');
+                        const input = document.getElementById(targetId);
+                        const icon = this.querySelector('i');
+
+                        // Toggle the type attribute
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            icon.classList.replace('bi-eye', 'bi-eye-slash');
+                        } else {
+                            input.type = 'password';
+                            icon.classList.replace('bi-eye-slash', 'bi-eye');
+                        }
+                    });
+                });
+            </script>
+
     </body>
 
     </html>

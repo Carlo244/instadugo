@@ -2,115 +2,74 @@
 
 @section('content')
     <main class="content-area">
-        <h3 class="mb-4">Multilevel Queue: Blood Requests</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">Blood Request Management</h3>
+                <p class="text-muted small">Manage live queues by priority level.</p>
+            </div>
+            <span class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">
+                <i class="bi bi-activity me-2"></i>
+                Active:
+                {{ ($queues['Emergency']->count() ?? 0) + ($queues['High']->count() ?? 0) + ($queues['Normal']->count() ?? 0) }}
+            </span>
+        </div>
 
-        @forelse($queues as $level => $requests)
-            <div class="card mb-4 shadow-sm border-0">
+        <ul class="nav nav-pills mb-4 gap-2" id="main-tabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active rounded-pill px-4 shadow-sm" data-bs-toggle="pill"
+                    data-bs-target="#tab-live-queue">
+                    <i class="bi bi-list-stars me-2"></i>Live Queue
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link rounded-pill px-4 shadow-sm" data-bs-toggle="pill" data-bs-target="#tab-history">
+                    <i class="bi bi-clock-history me-2"></i>History
+                </button>
+            </li>
+        </ul>
 
-                <div
-                    class="card-header 
-                @if ($level == 'Emergency') bg-danger text-white 
-                @elseif($level == 'High') bg-warning text-dark 
-                @else bg-success text-white @endif">
-                    <h5 class="mb-0">
-                        <i class="fas fa-layer-group me-2"></i> {{ $level }} Priority Queue
-                    </h5>
-                </div>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-live-queue">
+                <div class="glass-card border-0 shadow-sm p-4">
 
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0 align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Date Requested</th>
-                                    <th>Blood Type</th>
-                                    <th>Quantity</th>
-                                    <th>Urgency</th>
-                                    <th>Date Needed</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
+                    <ul class="nav nav-tabs nav-fill mb-4 border-bottom-0 gap-2" id="priority-tabs" role="tablist">
+                        @foreach (['Emergency', 'High', 'Normal'] as $level)
+                            <li class="nav-item">
+                                <button
+                                    class="nav-link {{ $level == 'Emergency' ? 'active' : '' }} rounded-3 border shadow-sm py-3"
+                                    data-bs-toggle="tab" data-bs-target="#priority-{{ strtolower($level) }}">
+                                    <div class="small text-uppercase fw-bold">{{ $level }}</div>
+                                    <h4 class="mb-0">{{ ($queues[$level] ?? collect())->count() }}</h4>
+                                </button>
+                            </li>
+                        @endforeach
+                    </ul>
 
-                            <tbody>
-                                @forelse($requests as $request)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
+                    <div class="tab-content mt-3">
+                        @foreach (['Emergency', 'High', 'Normal'] as $level)
+                            <div class="tab-pane fade {{ $level == 'Emergency' ? 'show active' : '' }}"
+                                id="priority-{{ strtolower($level) }}">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="vr me-2 {{ $level == 'Emergency' ? 'text-danger' : ($level == 'High' ? 'text-warning' : 'text-success') }}"
+                                        style="width: 4px; opacity: 1; border-radius: 4px;"></div>
+                                    <h5 class="fw-bold mb-0">{{ $level }} Priority List</h5>
+                                </div>
 
-                                        <td>{{ $request->created_at->format('M d, Y') }}</td>
-
-                                        <td class="fw-semibold text-danger">
-                                            {{ $request->blood_type }}
-                                        </td>
-
-                                        <td>{{ $request->quantity }}</td>
-
-                                        <td>
-                                            <span
-                                                class="badge
-                                            {{ $request->urgency == 'Emergency'
-                                                ? 'bg-danger'
-                                                : ($request->urgency == 'High'
-                                                    ? 'bg-warning text-dark'
-                                                    : 'bg-secondary') }}">
-                                                {{ $request->urgency }}
-                                            </span>
-                                        </td>
-
-                                        <td>{{ \Carbon\Carbon::parse($request->date_needed)->format('M d, Y') }}</td>
-
-                                        <td>
-                                            <span
-                                                class="badge
-                                            {{ $request->status == 'pending'
-                                                ? 'bg-warning text-dark'
-                                                : ($request->status == 'approved'
-                                                    ? 'bg-info'
-                                                    : ($request->status == 'fulfilled'
-                                                        ? 'bg-success'
-                                                        : 'bg-danger')) }}">
-                                                {{ ucfirst($request->status) }}
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            @if ($request->status == 'pending')
-                                                <form method="POST"
-                                                    action="{{ url('/hospital/requests/' . $request->id . '/approve') }}"
-                                                    class="d-inline">
-                                                    @csrf
-                                                    <button class="btn btn-sm btn-primary">Approve</button>
-                                                </form>
-                                            @endif
-
-                                            @if ($request->status == 'approved')
-                                                <form method="POST"
-                                                    action="{{ url('/hospital/requests/' . $request->id . '/fulfill') }}"
-                                                    class="d-inline">
-                                                    @csrf
-                                                    <button class="btn btn-sm btn-success">Fulfill</button>
-                                                </form>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center py-3 text-muted">
-                                            No {{ strtolower($level) }} requests in queue.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-
-                        </table>
+                                @include('partials.hospital-bloodrequest-table', [
+                                    'requests' => $queues[$level] ?? collect(),
+                                ])
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
-        @empty
-            <div class="alert alert-info text-center">
-                All queues are currently empty.
+
+            <div class="tab-pane fade" id="tab-history">
+                <div class="glass-card border-0 shadow-sm opacity-90">
+                    <h5 class="fw-bold mb-3 text-muted"><i class="bi bi-archive me-2"></i>Fulfilled Logs</h5>
+                    @include('partials.hospital-bloodrequest-table', ['requests' => $fulfilledRequests])
+                </div>
             </div>
-        @endforelse
+        </div>
     </main>
 @endsection

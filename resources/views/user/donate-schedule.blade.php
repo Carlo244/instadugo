@@ -3,7 +3,7 @@
 @section('content')
     <main class="content-area">
 
-        <h3 class="fw-bold mb-4">Donate & Schedule Appointment</h3>
+        <h3 class="fw-bold mb-0 text-uppercase tracking-wide">DONATE & SCHEDULE APPOINTMENT</h3>
         <!-- DONATION / SCHEDULING FORM -->
         <div class="glass-card mb-4">
             @if (!$isEligible)

@@ -29,12 +29,18 @@
 
                                 <div class="col-12">
                                     <label for="password" class="form-label fw-semibold">Password</label>
-                                    <input id="password" type="password"
-                                        class="form-control @error('password') is-invalid @enderror" name="password"
-                                        required>
-                                    @error('password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <div class="input-group">
+                                        <input id="password" type="password"
+                                            class="form-control @error('password') is-invalid @enderror" name="password"
+                                            required>
+                                        <button class="btn btn-outline-secondary border-start-0" type="button"
+                                            id="togglePassword" style="border-left: none;">
+                                            <i class="bi bi-eye" id="toggleIcon"></i>
+                                        </button>
+                                        @error('password')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 <div class="col-12 d-flex justify-content-between align-items-center">
@@ -70,4 +76,21 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.querySelector('#togglePassword');
+            const password = document.querySelector('#password');
+            const icon = document.querySelector('#toggleIcon');
+
+            togglePassword.addEventListener('click', function() {
+                // Toggle the type attribute
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+
+                // Toggle the icon
+                icon.classList.toggle('bi-eye');
+                icon.classList.toggle('bi-eye-slash');
+            });
+        });
+    </script>
 @endsection

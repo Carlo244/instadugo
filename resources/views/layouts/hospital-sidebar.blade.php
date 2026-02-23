@@ -19,12 +19,7 @@
             <i class="bi bi-droplet-fill me-2"></i> Blood Requests
         </a>
 
-        <a href=""
-            class="nav-link d-flex align-items-center {{ Request::is('hospital/matching*') ? 'active' : '' }}">
-            <i class="bi bi-check2-circle me-2"></i> Compatibility Matching
-        </a>
-
-        <a href=""
+        <a href="{{ route('hospital.donations') }}"
             class="nav-link d-flex align-items-center {{ Request::is('hospital/donations*') ? 'active' : '' }}">
             <i class="bi bi-heart-pulse-fill me-2"></i> Donations
         </a>

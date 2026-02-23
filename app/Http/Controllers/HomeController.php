@@ -2,33 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Auth\LoginController;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth:web,hospital_admin');
     }
-
 
     public function index()
     {
-        return redirect()->action([LoginController::class, 'login']);
-    }
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    protected function redirectTo()
-    {
-        // Redirect verified users to dashboard
-        return route('user.dashboard');
+        // 1. Check if it's a Hospital Admin
+        if (Auth::guard('hospital_admin')->check()) {
+            return redirect()->route('hospital.dashboard');
+        }
+
+        // 2. Check if it's a regular User
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('user.dashboard');
+        }
+
+        // 3. Fallback to login if somehow they got here without a guard
+        return redirect()->route('login');
     }
 }

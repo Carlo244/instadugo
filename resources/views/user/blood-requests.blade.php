@@ -3,7 +3,7 @@
 @section('content')
     <main class="content-area">
 
-        <h3 class="fw-bold mb-4">My Blood Requests</h3>
+        <h3 class="fw-bold mb-0 text-uppercase tracking-wide">My Blood Requests</h3>
 
         <!-- NEW REQUEST FORM -->
         <div class="glass-card mb-4">

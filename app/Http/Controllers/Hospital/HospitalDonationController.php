@@ -14,14 +14,22 @@ class HospitalDonationController extends Controller
      */
     public function index()
     {
-        // If you want only donations for this hospital, filter by hospital_admin_id
-        $hospitalId = auth()->id(); // assuming hospital admin's ID matches donations
-        $donations = Donation::with('user', 'hospitalAdmin')
-            ->orderBy('donation_date', 'desc')
-            ->orderBy('donation_time', 'desc')
-            ->get();
+        $hospitalId = auth()->id();
+        $today = now()->toDateString();
 
-        return view('hospital.donations.index', compact('donations'));
+        $query = Donation::with('user')->where('hospital_admin_id', $hospitalId);
+
+        return view('hospital.donations', [
+            // 1. Scheduled for today
+            'todayQueue' => (clone $query)->whereDate('donation_date', $today)->where('status', 'scheduled')->orderBy('donation_time', 'asc')->get(),
+            // 2. Scheduled for future dates
+            'upcoming' => (clone $query)->whereDate('donation_date', '>', $today)->where('status', 'scheduled')->orderBy('donation_date', 'asc')->get(),
+            // 3. Any completed or cancelled
+            'history' => (clone $query)
+                ->whereIn('status', ['completed', 'cancelled'])
+                ->latest()
+                ->get(),
+        ]);
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Hospital\HospitalBloodRequestController;
 use App\Http\Controllers\Hospital\HospitalDashboardController;
 use App\Http\Controllers\Hospital\HospitalDonationController;
+use App\Http\Controllers\Hospital\HospitalMatchingController;
 use App\Http\Controllers\User\UserBloodRequestController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\UserDonationController;
@@ -41,31 +42,43 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 | User Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:web'])->prefix('user')->name('user.')->group(function () {
-    // Dashboard
-    Route::get('dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+Route::middleware(['auth:web', 'verified'])
+    ->prefix('user')
+    ->name('user.')
+    ->group(function () {
+        // Dashboard
+        Route::get('dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
 
-    // Profile
-    Route::get('profile', [UserProfileController::class, 'index'])->name('profile');
-    Route::match(['post', 'put'], 'profile/update', [UserProfileController::class, 'update'])->name('profile.update');
+        // Profile
+        Route::get('profile', [UserProfileController::class, 'index'])->name('profile');
 
-    // Blood Requests
-    Route::get('blood-requests', [UserBloodRequestController::class, 'userIndex'])->name('blood-requests');
-    Route::post('blood-requests', [UserBloodRequestController::class, 'store'])->name('blood-requests.store');
+        Route::match(['post', 'put'], 'profile/update', [UserProfileController::class, 'update'])->name('profile.update');
 
-    // Donations / Scheduling
-    Route::get('donate-schedule', [UserDonationController::class, 'index'])->name('donate-schedule');
-    Route::post('donate-schedule', [UserDonationController::class, 'store'])->name('donate-schedule.store');
+        // Blood Requests
+        Route::get('blood-requests', [UserBloodRequestController::class, 'userIndex'])->name('blood-requests');
 
-    // Respond to a blood request
-    Route::post('donate-schedule/respond/{bloodRequestId}', [UserDonationController::class, 'respond'])->name('donate-schedule.respond');
+        Route::post('blood-requests', [UserBloodRequestController::class, 'store'])->name('blood-requests.store');
 
-    // Occupied donation times (AJAX)
-    Route::get('donations/occupied-times', [UserDonationController::class, 'getOccupiedTimes'])->name('donate-schedule.occupied-times');
+        // Donate & Schedule
+        Route::get('donate-schedule', [UserDonationController::class, 'index'])->name('donate-schedule');
 
-    // Cancel a scheduled donation
-    Route::patch('donations/{donation}/cancel', [UserDonationController::class, 'cancel'])->name('donations.cancel');
-});
+        Route::post('donate-schedule', [UserDonationController::class, 'store'])->name('donate-schedule.store');
+
+        // Respond to blood request
+        Route::post('donate-schedule/respond/{bloodRequestId}', [UserDonationController::class, 'respond'])->name('donate-schedule.respond');
+
+        // AJAX: occupied times
+        Route::get('donations/occupied-times', [UserDonationController::class, 'getOccupiedTimes'])->name('donate-schedule.occupied-times');
+
+        // Cancel donation
+        Route::patch('donations/{donation}/cancel', [UserDonationController::class, 'cancel'])->name('donations.cancel');
+
+        //Notify
+        Route::post('notifications/mark-all-read', function () {
+            auth()->user()->unreadNotifications->markAsRead();
+            return back();
+        })->name('notifications.markAllRead');
+    });
 /*
 |--------------------------------------------------------------------------
 | Hospital Admin Routes
@@ -85,8 +98,18 @@ Route::prefix('hospital')
         Route::post('requests/{id}/cancel', [HospitalBloodRequestController::class, 'cancel'])->name('requests.cancel');
 
         // Donations
-        Route::get('donations', [HospitalDonationController::class, 'index'])->name('donations.index');
+        Route::get('donations', [HospitalDonationController::class, 'index'])->name('donations');
         Route::get('donations/{id}', [HospitalDonationController::class, 'show'])->name('donations.show');
         Route::post('donations/{id}/complete', [HospitalDonationController::class, 'complete'])->name('donations.complete');
         Route::post('donations/{id}/cancel', [HospitalDonationController::class, 'cancel'])->name('donations.cancel');
+
+        //Matching
+        Route::get('/matching', [HospitalMatchingController::class, 'index'])->name('matching');
     });
+
+Route::post('/notifications/mark-all-read', function () {
+    auth()->user()->unreadNotifications->markAsRead();
+    return back();
+})
+    ->name('notifications.markAllRead')
+    ->middleware('auth');

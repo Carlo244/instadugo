@@ -1,12 +1,13 @@
 :root {
     --blood-red: #e63946;
     --blood-dark: #9b1c1c;
-    --sidebar-gradient: linear-gradient(180deg, #e63946, #9b1c1c);
+    --insta-red: #8b0000;
+    --sidebar-gradient: linear-gradient(180deg, #fef5f5, #ffebea);
 }
 
 body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #f8f9fa, #ffe6e6);
+    background: #f6f6f6;
     min-height: 100vh;
 }
 
@@ -18,15 +19,15 @@ body {
     width: 260px;
     height: 100vh;
     background: var(--sidebar-gradient);
-    color: #fff;
+    color: #3c3c3c;
     display: flex;
     flex-direction: column;
     z-index: 1000;
     overflow-y: auto;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    /* Slightly softer shadow */
 }
 
-/* Logo */
 .sidebar-modern .brand-logo {
     width: 140px;
     transition: transform 0.3s ease;
@@ -36,82 +37,38 @@ body {
     transform: scale(1.05);
 }
 
-/* Navigation */
 .sidebar-modern .nav-link {
-    color: rgba(255, 255, 255, 0.95);
+    color: rgba(0, 0, 0, 0.8);
     font-weight: 500;
     border-radius: 12px;
     padding: 12px 16px;
     transition: all 0.25s ease;
     position: relative;
-    overflow: hidden;
 }
 
-.sidebar-modern .nav-link i {
-    font-size: 1.2rem;
-    transition: transform 0.25s ease;
-}
-
-/* Hover */
 .sidebar-modern .nav-link:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.5);
     transform: translateX(6px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
-.sidebar-modern .nav-link:hover i {
-    transform: scale(1.15);
-}
-
-/* Active link */
 .sidebar-modern .nav-link.active {
-    background: rgba(255, 255, 255, 0.25);
+    background: white;
     font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .sidebar-modern .nav-link.active::before {
     content: "";
     position: absolute;
     left: 0;
-    top: 12%;
+    top: 20%;
     width: 4px;
-    height: 76%;
-    background: #fff;
+    height: 60%;
+    background: var(--blood-red);
     border-radius: 4px;
 }
 
-/* Badge glow */
-.sidebar-modern .badge {
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-}
-
-/* Logout button */
-.sidebar-modern .btn-outline-light {
-    border-radius: 30px;
-    transition: all 0.25s ease;
-}
-
-.sidebar-modern .btn-outline-light:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.15);
-}
-
-/* Scrollbar */
-.sidebar-modern::-webkit-scrollbar {
-    width: 6px;
-}
-
-.sidebar-modern::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
-}
-
-/* ================= MAIN CONTENT ================= */
-.dashboard-wrapper {
-    display: flex;
-}
-
+/* ================= MAIN CONTENT AREA ================= */
 .content-area {
     margin-left: 260px;
     width: calc(100% - 260px);
@@ -130,33 +87,28 @@ body {
     }
 }
 
-/* Glass cards */
+/* ================= CARDS & UI COMPONENTS ================= */
+
+/* Standard Glass Card */
 .glass-card {
-    background: rgba(255, 255, 255, 0.08);
-    /* slightly more visible */
-    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
     border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    /* make border always visible */
-    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .glass-card:hover {
-    background: rgba(255, 255, 255, 0.12);
-    /* lighter on hover */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-.glass-card {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.glass-card {
-    position: relative;
-}
-
-.glass-card::before {
+/* Red Accent for generic glass cards */
+.glass-card:not(.profile-status-card)::before {
     content: "";
     position: absolute;
     top: 0;
@@ -167,43 +119,87 @@ body {
     border-radius: 2px;
 }
 
-
-/* Profile Avatar */
-.profile-avatar {
-    font-size: 2rem;
+/* The Solid Red Profile Card */
+.profile-status-card {
+    background: linear-gradient(145deg, #a50000, #8b0000);
+    color: #ffffff;
+    border: none !important;
 }
 
-/* Centering and Spacing */
-.tracking-wider {
-    letter-spacing: 2px;
+.profile-status-card::before {
+    display: none;
 }
 
-/* Icon box matching sidebar gradient */
+/* Remove red accent bar on red background */
+
+.profile-status-card .profile-avatar {
+    width: 80px;
+    height: 80px;
+    background-color: #ffffff;
+    color: var(--insta-red);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.profile-status-card .user-email {
+    opacity: 0.8;
+}
+
+/* Profile Footer (The stats part) */
+.profile-card-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ================= BUTTONS & TABLES ================= */
+.btn {
+    background-color: var(--insta-red);
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #c10202;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(230, 57, 70, 0.05);
+    /* Light blood-red hover */
+}
+
+/* Icon Box for Stats */
 .icon-box-alert {
-    width: 70px;
-    height: 70px;
-    border-radius: 18px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--sidebar-gradient);
-    box-shadow: 0 8px 20px rgba(230, 57, 70, 0.3);
+    color: var(--blood-red);
 }
 
-/* Hover Animation */
-.hover-lift {
-    transition: all 0.3s ease;
+/* Change the active tab to Red */
+.nav-pills .nav-link.active,
+.nav-pills .show>.nav-link {
+    background-color: var(--blood-red) !important;
+    color: white !important;
 }
 
-.hover-lift:hover {
-    transform: translateY(-3px);
-    background-color: var(--blood-dark);
-    box-shadow: 0 10px 20px rgba(230, 57, 70, 0.4);
+/* Change the inactive tab text color */
+.nav-pills .nav-link {
+    color: var(--blood-dark);
+    font-weight: 500;
 }
 
-/* Card Specifics */
-.glass-card {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+.nav-pills .nav-link:hover {
+    background-color: #ffebea;
+    color: var(--blood-red);
 }
