@@ -8,7 +8,7 @@
                 <p class="text-muted small">Organize and process blood donor schedules.</p>
             </div>
             <div class="text-end">
-                <span class="badge bg-blood-gradient px-3 py-2 shadow-sm">
+                <span class="badge bg-blood-gradient px-3 py-2 shadow-sm rounded-pill">
                     <i class="bi bi-calendar-check me-2"></i> {{ now()->format('M d, Y') }}
                 </span>
             </div>
@@ -38,7 +38,7 @@
             <!-- 1. TODAY'S QUEUE -->
             <div class="tab-pane fade show active" id="tab-today">
                 <div class="glass-card border-0 shadow-sm">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-droplet-half me-2 text-danger"></i>Active Today</h5>
+                    <h5 class="fw-bold mb-3 text-danger"><i class="bi bi-droplet-half me-2"></i>Active Today</h5>
                     @include('partials.hospital-donations-table', [
                         'donations' => $todayQueue,
                         'showActions' => true,
@@ -49,7 +49,7 @@
             <!-- 2. UPCOMING -->
             <div class="tab-pane fade" id="tab-upcoming">
                 <div class="glass-card border-0 shadow-sm opacity-90">
-                    <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-calendar-week me-2"></i>Future Schedules</h5>
+                    <h5 class="fw-bold mb-3 text-blood-dark"><i class="bi bi-calendar-week me-2"></i>Future Schedules</h5>
                     @include('partials.hospital-donations-table', [
                         'donations' => $upcoming,
                         'showActions' => false,

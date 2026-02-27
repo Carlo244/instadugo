@@ -6,7 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Hospital\HospitalBloodRequestController;
 use App\Http\Controllers\Hospital\HospitalDashboardController;
 use App\Http\Controllers\Hospital\HospitalDonationController;
-use App\Http\Controllers\Hospital\HospitalMatchingController;
+use App\Http\Controllers\Hospital\HospitalManageUsersController;
 use App\Http\Controllers\User\UserBloodRequestController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\UserDonationController;
@@ -78,6 +78,10 @@ Route::middleware(['auth:web', 'verified'])
             auth()->user()->unreadNotifications->markAsRead();
             return back();
         })->name('notifications.markAllRead');
+
+        Route::post('notify-donor', [UserDashboardController::class, 'notifyDonor'])->name('notify-donor');
+
+        Route::post('send-donor-request', [UserDashboardController::class, 'sendDonorRequest'])->name('send-donor-request');
     });
 /*
 |--------------------------------------------------------------------------
@@ -91,20 +95,22 @@ Route::prefix('hospital')
         // Dashboard
         Route::get('dashboard', [HospitalDashboardController::class, 'index'])->name('dashboard');
 
+        // Manage Users (Added this)
+        Route::get('manageusers', [HospitalManageUsersController::class, 'index'])->name('manageusers');
+
         // Blood Requests
         Route::get('requests', [HospitalBloodRequestController::class, 'index'])->name('requests');
         Route::post('requests/{id}/approve', [HospitalBloodRequestController::class, 'approve'])->name('requests.approve');
         Route::post('requests/{id}/fulfill', [HospitalBloodRequestController::class, 'fulfill'])->name('requests.fulfill');
         Route::post('requests/{id}/cancel', [HospitalBloodRequestController::class, 'cancel'])->name('requests.cancel');
+        Route::post('requests/{request}/notify/{donor}', [HospitalBloodRequestController::class, 'notify'])->name('request.notify');
+        Route::post('requests/{request}/notify-all', [HospitalBloodRequestController::class, 'bulkNotify'])->name('request.bulk');
 
         // Donations
         Route::get('donations', [HospitalDonationController::class, 'index'])->name('donations');
         Route::get('donations/{id}', [HospitalDonationController::class, 'show'])->name('donations.show');
         Route::post('donations/{id}/complete', [HospitalDonationController::class, 'complete'])->name('donations.complete');
         Route::post('donations/{id}/cancel', [HospitalDonationController::class, 'cancel'])->name('donations.cancel');
-
-        //Matching
-        Route::get('/matching', [HospitalMatchingController::class, 'index'])->name('matching');
     });
 
 Route::post('/notifications/mark-all-read', function () {

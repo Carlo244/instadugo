@@ -12,46 +12,39 @@ use Illuminate\Support\Facades\Auth;
 
 class UserDonationController extends Controller
 {
-    public function index()
-    {
-        $user = Auth::user();
-        $userId = Auth::id();
+   public function index()
+{
+    $user = Auth::user();
+    $userId = Auth::id();
 
-        // 1. Get user's donations
-        $donations = Donation::where('user_id', $userId)->orderBy('donation_date', 'desc')->orderBy('donation_time', 'desc')->get();
+    // 1. Get user's donations
+    $donations = Donation::where('user_id', $userId)
+        ->orderBy('donation_date', 'desc')
+        ->orderBy('donation_time', 'desc')
+        ->get();
 
-        // 2. Calculate eligibility
-        $lastCompleted = Donation::where('user_id', $userId)->where('status', 'completed')->latest('donation_date')->first();
+    // 2. Calculate eligibility
+    $lastCompleted = Donation::where('user_id', $userId)
+        ->where('status', 'completed')
+        ->latest('donation_date')
+        ->first();
 
-        $isEligible = true;
-        $nextEligibleDate = null;
+    $isEligible = true;
+    $nextEligibleDate = null;
 
-        if ($lastCompleted) {
-            $lastDate = Carbon::parse($lastCompleted->donation_date)->setTimeFromTimeString($lastCompleted->donation_time);
-            $nextDate = $lastDate->copy()->addDays(56);
-            $isEligible = now()->greaterThanOrEqualTo($nextDate);
-            $nextEligibleDate = $nextDate->format('M d, Y');
-        }
-
-        // Compatible blood requests
-        $compatibility = [
-            'O-' => ['O-'],
-            'O+' => ['O+', 'O-'],
-            'A-' => ['A-', 'O-'],
-            'A+' => ['A+', 'A-', 'O+', 'O-'],
-            'B-' => ['B-', 'O-'],
-            'B+' => ['B+', 'B-', 'O+', 'O-'],
-            'AB-' => ['AB-', 'A-', 'B-', 'O-'],
-            'AB+' => ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'],
-        ];
-
-        $compatibleBloodTypes = $compatibility[$user->blood_type] ?? [];
-        $compatibleRequests = BloodRequest::with('hospitalAdmin')->whereIn('blood_type', $compatibleBloodTypes)->where('status', 'pending')->where('user_id', '!=', $userId)->get();
-
-        $hospitals = HospitalAdmin::all();
-
-        return view('user.donate-schedule', compact('donations', 'compatibleRequests', 'hospitals', 'isEligible', 'nextEligibleDate'));
+    if ($lastCompleted) {
+        $lastDate = Carbon::parse($lastCompleted->donation_date)
+            ->setTimeFromTimeString($lastCompleted->donation_time);
+        $nextDate = $lastDate->copy()->addDays(56);
+        $isEligible = now()->greaterThanOrEqualTo($nextDate);
+        $nextEligibleDate = $nextDate->format('M d, Y');
     }
+
+    $hospitals = HospitalAdmin::all();
+
+    // Removed compatibleRequests from the return
+    return view('user.donate-schedule', compact('donations', 'hospitals', 'isEligible', 'nextEligibleDate'));
+}
 
     public function store(Request $request)
     {

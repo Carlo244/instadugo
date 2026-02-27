@@ -20,13 +20,18 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        // Try login as normal user (donor)
-        if (Auth::guard('web')->attempt($credentials)) {
+        // Check if the "remember" checkbox was ticked
+        $remember = $request->has('remember');
+
+        // Try login as normal user (donor) - Added $remember here
+        if (Auth::guard('web')->attempt($credentials, $remember)) {
+            $request->session()->regenerate();
             return redirect()->route('user.dashboard');
         }
 
-        // Try login as hospital admin
-        if (Auth::guard('hospital_admin')->attempt($credentials)) {
+        // Try login as hospital admin - Added $remember here
+        if (Auth::guard('hospital_admin')->attempt($credentials, $remember)) {
+            $request->session()->regenerate();
             return redirect()->route('hospital.dashboard');
         }
 

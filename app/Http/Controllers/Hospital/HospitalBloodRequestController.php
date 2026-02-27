@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BloodRequest;
 use App\Models\User;
 use App\Notifications\BloodRequestApproved;
+use App\Notifications\BloodRequestNotification;
 use Illuminate\Http\Request;
 
 class HospitalBloodRequestController extends Controller
@@ -22,31 +23,21 @@ class HospitalBloodRequestController extends Controller
 
         // Attach matched donors to each request
         foreach ($requests as $request) {
-            $request->matchedDonors = User::whereIn(
-                    'blood_type',
-                    $this->compatibleDonors($request->blood_type)
-                )
-                ->where('id', '!=', $request->user_id)
-                ->get();
+            $compatibleBloodTypes = $this->compatibleDonors($request->blood_type);
+
+            $request->matchedDonors = User::whereIn('blood_type', $compatibleBloodTypes)->where('id', '!=', $request->user_id)->get()->filter(fn($donor) => $donor->isEligible());
         }
 
         // Group requests by urgency and active status
         $queues = [
-            'Emergency' => $requests->where('urgency', 'Emergency')
-                                    ->whereIn('status', ['pending', 'approved']),
-            'High'      => $requests->where('urgency', 'High')
-                                    ->whereIn('status', ['pending', 'approved']),
-            'Normal'    => $requests->where('urgency', 'Normal')
-                                    ->whereIn('status', ['pending', 'approved']),
+            'Emergency' => $requests->where('urgency', 'Emergency')->whereIn('status', ['pending', 'approved']),
+            'High' => $requests->where('urgency', 'High')->whereIn('status', ['pending', 'approved']),
+            'Normal' => $requests->where('urgency', 'Normal')->whereIn('status', ['pending', 'approved']),
         ];
 
         $fulfilledRequests = $requests->where('status', 'fulfilled');
 
-        return view('hospital.requests', compact(
-            'requests',
-            'queues',
-            'fulfilledRequests'
-        ));
+        return view('hospital.requests', compact('requests', 'queues', 'fulfilledRequests'));
     }
 
     /**
@@ -56,13 +47,9 @@ class HospitalBloodRequestController extends Controller
     {
         $request = BloodRequest::with('user')->findOrFail($id);
 
-        if ($request->hospital_admin_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorizeRequestOwner($request);
 
         $request->update(['status' => 'approved']);
-
-        // Notify user via email/notification
         $request->user->notify(new BloodRequestApproved($request));
 
         return back()->with('success', 'Blood request approved and user notified.');
@@ -75,9 +62,7 @@ class HospitalBloodRequestController extends Controller
     {
         $request = BloodRequest::findOrFail($id);
 
-        if ($request->hospital_admin_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorizeRequestOwner($request);
 
         $request->update(['status' => 'fulfilled']);
 
@@ -91,13 +76,36 @@ class HospitalBloodRequestController extends Controller
     {
         $request = BloodRequest::findOrFail($id);
 
-        if ($request->hospital_admin_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorizeRequestOwner($request);
 
         $request->update(['status' => 'cancelled']);
 
         return back()->with('success', "Blood request #{$id} has been cancelled.");
+    }
+
+    /**
+     * Notify a single compatible donor
+     */
+    public function notify(BloodRequest $request, User $donor)
+    {
+        // Make sure $request is passed here!
+        $donor->notify(new BloodRequestNotification($request));
+
+        return back()->with('success', "Notification sent to {$donor->name}");
+    }
+
+    /**
+     * Bulk notify all compatible donors
+     */
+    public function bulkNotify(BloodRequest $request)
+    {
+        $eligibleDonors = $request->matchedDonors->filter(fn($donor) => $donor->isEligible());
+
+        foreach ($eligibleDonors as $donor) {
+            $donor->notify(new BloodRequestNotification($request));
+        }
+
+        return back()->with('success', 'Notifications sent to all eligible donors.');
     }
 
     /**
@@ -107,29 +115,37 @@ class HospitalBloodRequestController extends Controller
     {
         $request = BloodRequest::with('user', 'hospitalAdmin')->findOrFail($id);
 
-        if ($request->hospital_admin_id !== auth()->id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        $this->authorizeRequestOwner($request);
 
         return view('hospital.requests.show', compact('request'));
     }
 
     /**
-     * Rule-based compatibility function
+     * Rule-based blood type compatibility
      */
     private function compatibleDonors($bloodType)
     {
         $compatibility = [
-            'O-'  => ['O-'],
-            'O+'  => ['O+', 'O-'],
-            'A-'  => ['A-', 'O-'],
-            'A+'  => ['A+', 'A-', 'O+', 'O-'],
-            'B-'  => ['B-', 'O-'],
-            'B+'  => ['B+', 'B-', 'O+', 'O-'],
+            'O-' => ['O-'],
+            'O+' => ['O+', 'O-'],
+            'A-' => ['A-', 'O-'],
+            'A+' => ['A+', 'A-', 'O+', 'O-'],
+            'B-' => ['B-', 'O-'],
+            'B+' => ['B+', 'B-', 'O+', 'O-'],
             'AB-' => ['AB-', 'A-', 'B-', 'O-'],
             'AB+' => ['AB+', 'AB-', 'A+', 'A-', 'B+', 'B-', 'O+', 'O-'],
         ];
 
         return $compatibility[$bloodType] ?? [];
+    }
+
+    /**
+     * Ensure the logged-in hospital admin owns the request
+     */
+    private function authorizeRequestOwner(BloodRequest $request)
+    {
+        if ($request->hospital_admin_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
     }
 }

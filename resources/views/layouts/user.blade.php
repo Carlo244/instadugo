@@ -3,20 +3,31 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>{{ config('app.name') }} | User Dashboard</title>
+
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/user.css') }}" rel="stylesheet">
 
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=1">
 </head>
 
 <body>
     <div id="dashboard-wrapper">
         @include('layouts.user-sidebar')
         <div>
+            <button id="sidebarToggler" class="sidebar-toggler d-lg-none" onclick="toggleSidebar()">
+                <i class="bi bi-list fs-3 text-danger"></i>
+            </button>
+
+            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
             @yield('content')
         </div>
     </div>
@@ -32,7 +43,7 @@
                 </div>
                 <div class="modal-body p-0">
                     <div class="list-group list-group-flush">
-                        @forelse (auth()->user()->notifications()->latest()->take(10)->get() as $notification)
+                        @forelse (auth()->user()->unreadNotifications()->latest()->take(10)->get() as $notification)
                             <a href="{{ $notification->data['link'] ?? '#' }}"
                                 class="list-group-item list-group-item-action {{ $notification->read_at ? 'opacity-75' : 'bg-light border-start border-danger border-4' }}">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -72,6 +83,23 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar-modern');
+            const overlay = document.getElementById('sidebarOverlay');
+            const body = document.body;
+
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+
+            // Set a data attribute on the body to tell CSS the sidebar is open
+            if (sidebar.classList.contains('show')) {
+                body.setAttribute('data-sidebar-open', 'true');
+            } else {
+                body.removeAttribute('data-sidebar-open');
+            }
+        }
+    </script>
 </body>
 
 </html>

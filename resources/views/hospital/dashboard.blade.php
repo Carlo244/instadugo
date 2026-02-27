@@ -2,61 +2,69 @@
 
 @section('content')
     <main class="content-area">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <div>
                 <h3 class="fw-bold text-dark mb-1">Hospital Management</h3>
-                <p class="text-muted small">Monitor blood requests, donor schedules, and user activity.</p>
+                <p class="text-muted small mb-0">Monitor blood requests, donor schedules, and user activity.</p>
             </div>
-            <div class="text-end">
-                <span class="badge bg-danger px-3 py-2 shadow-sm rounded-pill">
-                    <i class="bi bi-calendar-check me-2"></i> {{ now()->format('M d, Y') }}
-                </span>
-            </div>
+
+            <span class="badge bg-danger px-3 py-2 shadow-sm rounded-pill">
+                <i class="bi bi-calendar-check me-2"></i> {{ now()->format('M d, Y') }}
+            </span>
         </div>
-        <div class="row g-4 mb-4">
-            <div class="col-md-3">
-                <div class="glass-card d-flex align-items-center gap-3 h-100">
-                    <div class="icon-box bg-primary"><i class="bi bi-people"></i></div>
-                    <div>
-                        <small class="text-muted d-block">Registered Users</small>
+
+        <!-- STATS -->
+        <div class="row g-3 mb-4 stats-row">
+
+            <div class="col-md-3 col-6">
+                <div class="glass-card stat-card-users h-100 mb-0">
+                    <div class="icon-box"><i class="bi bi-people"></i></div>
+                    <div class="text-part">
+                        <small class="text-muted">Registered Users</small>
                         <h5 class="fw-bold mb-0">{{ $totalUsers }}</h5>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-3">
-                <div class="glass-card d-flex align-items-center gap-3 h-100">
-                    <div class="icon-box bg-warning text-dark"><i class="bi bi-clock-history"></i></div>
-                    <div>
-                        <small class="text-muted d-block">Requests Pending Approval</small>
+            <div class="col-md-3 col-6">
+                <div class="glass-card stat-card-pending h-100 mb-0">
+                    <div class="icon-box"><i class="bi bi-clock-history"></i></div>
+                    <div class="text-part">
+                        <small class="text-muted">Pending Requests</small>
                         <h5 class="fw-bold mb-0">{{ $activeRequests }}</h5>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-3">
-                <div class="glass-card d-flex align-items-center gap-3 h-100">
-                    <div class="icon-box bg-success"><i class="bi bi-check2-circle"></i></div>
-                    <div>
-                        <small class="text-muted d-block">Requests Fulfilled</small>
+            <div class="col-md-3 col-6">
+                <div class="glass-card stat-card-done h-100 mb-0">
+                    <div class="icon-box"><i class="bi bi-check2-circle"></i></div>
+                    <div class="text-part">
+                        <small class="text-muted">Fulfilled Requests</small>
                         <h5 class="fw-bold mb-0">{{ $matchesCompleted }}</h5>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-3">
-                <div class="glass-card d-flex align-items-center gap-3 h-100">
-                    <div class="icon-box bg-danger"><i class="bi bi-calendar-check"></i></div>
-                    <div>
-                        <small class="text-muted d-block">Today’s Appointments</small>
+            <div class="col-md-3 col-6">
+                <div class="glass-card stat-card-appt h-100 mb-0">
+                    <div class="icon-box"><i class="bi bi-calendar-check"></i></div>
+                    <div class="text-part">
+                        <small class="text-muted">Today's Appointments</small>
                         <h5 class="fw-bold mb-0">{{ $totalDonations }}</h5>
                     </div>
                 </div>
             </div>
+
         </div>
+
+        <!-- TABS -->
         <div class="glass-card mb-4">
-            <ul class="nav nav-pills mb-4 gap-2 p-1 bg-light rounded-pill d-inline-flex shadow-sm" id="pills-tab"
-                role="tablist">
+
+            {{-- Removed flex-wrap so pills scroll horizontally instead of wrapping on mobile --}}
+            <ul class="nav nav-pills mb-4 gap-2 p-1 bg-light rounded-pill shadow-sm" role="tablist">
                 <li class="nav-item">
                     <button class="nav-link active rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tab-requests">
                         <i class="bi bi-exclamation-diamond-fill me-2"></i>Urgent Requests
@@ -74,45 +82,68 @@
                 </li>
             </ul>
 
-            <div class="tab-content" id="pills-tabContent">
+            <div class="tab-content">
+
+                <!-- URGENT REQUESTS -->
                 <div class="tab-pane fade show active" id="tab-requests">
-                    <div class="glass-card border-0 shadow-sm mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="fw-bold mb-0"><i class="bi bi-droplet-fill text-danger me-2"></i>Top 5 Urgent
-                                Requests
-                            </h5>
-                            <a href="#" class="btn btn-sm btn-outline-danger rounded-pill px-3">View All</a>
+
+                    <div class="p-0 p-md-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <i class="bi bi-droplet-fill text-danger me-2"></i>Urgent Blood Requests
+                                </h5>
+                                <p class="text-muted small mb-0">High-priority queue based on urgency.</p>
+                            </div>
+                            <a href="{{ route('hospital.requests') }}"
+                                class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                View All
+                            </a>
                         </div>
+
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Qty</th>
+                                        <th>ID / Date</th>
+                                        <th class="text-center">Type</th>
+                                        <th class="hide-mobile">Qty</th>
                                         <th>Urgency</th>
-                                        <th>Needed</th>
-                                        <th>Status</th>
+                                        <th class="hide-mobile">Deadline</th>
+                                        <th class="text-end">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($queueRequests->take(5) as $request)
                                         <tr>
-                                            <td>{{ $request->created_at->format('M d') }}</td>
-                                            <td class="fw-bold text-danger">{{ $request->blood_type }}</td>
-                                            <td>{{ $request->quantity }} units</td>
+                                            <td>
+                                                <strong>#{{ $request->id }}</strong><br>
+                                                <small
+                                                    class="text-muted">{{ $request->created_at->diffForHumans() }}</small>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-danger px-3 py-2">{{ $request->blood_type }}</span>
+                                            </td>
+                                            <td class="hide-mobile">{{ $request->quantity }} Units</td>
                                             <td>
                                                 <span
-                                                    class="badge {{ $request->urgency == 'Emergency' ? 'bg-danger' : 'bg-warning text-dark' }}">
+                                                    class="badge rounded-pill
+                                                    {{ $request->urgency == 'Emergency' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning' }}">
                                                     {{ $request->urgency }}
                                                 </span>
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($request->date_needed)->format('M d') }}</td>
-                                            <td><span class="badge bg-info">{{ ucfirst($request->status) }}</span></td>
+                                            <td class="hide-mobile">
+                                                {{ \Carbon\Carbon::parse($request->date_needed)->format('M d') }}
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="badge bg-info-subtle text-info rounded-pill">
+                                                    {{ ucfirst($request->status) }}
+                                                </span>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center py-4">No active requests</td>
+                                            <td colspan="6" class="text-center py-4 text-muted">No active requests.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -120,66 +151,74 @@
                         </div>
                     </div>
 
-                    <div class="glass-card border-0 shadow-sm opacity-90">
-                        <h5 class="fw-bold mb-3 text-success"><i class="bi bi-check-circle-fill me-2"></i>Recently Fulfilled
-                        </h5>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Blood Type</th>
-                                        <th>Qty</th>
-                                        <th>Urgency</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($fulfilledRequests->take(5) as $request)
-                                        <tr>
-                                            <td>#{{ $request->id }}</td>
-                                            <td class="fw-semibold">{{ $request->blood_type }}</td>
-                                            <td>{{ $request->quantity }}</td>
-                                            <td><small>{{ $request->urgency }}</small></td>
-                                            <td><span class="badge bg-success">Fulfilled</span></td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
 
+                <!-- DONATIONS -->
                 <div class="tab-pane fade" id="tab-appointments">
-                    <div class="glass-card border-0 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="fw-bold mb-0"><i class="bi bi-calendar-event text-primary me-2"></i>Today's Schedules
-                            </h5>
-                            <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">Manage All</a>
+                    <div class="p-0 p-md-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <i class="bi bi-calendar2-check text-primary me-2"></i>Today's Donation Queue
+                                </h5>
+                                <p class="text-muted small mb-0">Scheduled donors for today.</p>
+                            </div>
+                            <a href="{{ route('hospital.donations') }}"
+                                class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                View All
+                            </a>
                         </div>
+
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
                                     <tr>
                                         <th>Donor</th>
-                                        <th>Type</th>
-                                        <th>Center</th>
-                                        <th>Date</th>
+                                        <th class="hide-mobile">Schedule</th>
+                                        <th class="text-center">Blood Type</th>
                                         <th>Status</th>
+                                        <th class="text-end">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($schedules->take(10) as $schedule)
+                                    @forelse($donations as $donation)
                                         <tr>
-                                            <td>{{ $schedule->donor_name }}</td>
-                                            <td class="fw-bold">{{ $schedule->blood_type }}</td>
-                                            <td>{{ $schedule->hospital }}</td>
-                                            <td>{{ $schedule->schedule_date }}</td>
-                                            <td><span class="badge bg-primary">{{ ucfirst($schedule->status) }}</span></td>
+                                            <td>
+                                                <strong>{{ $donation->user->name }}</strong><br>
+                                                <small class="text-muted">{{ $donation->user->email }}</small>
+                                            </td>
+                                            <td class="hide-mobile">
+                                                {{ \Carbon\Carbon::parse($donation->donation_date)->format('M d') }}<br>
+                                                <small class="text-muted">
+                                                    {{ \Carbon\Carbon::parse($donation->donation_time)->format('h:i A') }}
+                                                </small>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-danger px-3 py-2">{{ $donation->blood_type }}</span>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge rounded-pill
+                                                    {{ $donation->status == 'completed' ? 'bg-success-subtle text-success' : 'bg-info-subtle text-info' }}">
+                                                    {{ ucfirst($donation->status) }}
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                @if ($donation->status == 'scheduled')
+                                                    <form method="POST"
+                                                        action="{{ route('hospital.donations.complete', $donation->id) }}">
+                                                        @csrf
+                                                        <button class="btn btn-sm btn-success rounded-pill">Done</button>
+                                                    </form>
+                                                @else
+                                                    <span class="text-muted small">—</span>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center py-4">No appointments scheduled</td>
+                                            <td colspan="5" class="text-center py-4 text-muted">No donations today.
+                                            </td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -188,49 +227,64 @@
                     </div>
                 </div>
 
+                <!-- USERS -->
                 <div class="tab-pane fade" id="tab-users">
-                    <div class="glass-card border-0 shadow-sm">
-                        <h5 class="fw-bold mb-3"><i class="bi bi-person-badge me-2"></i>New Registrations</h5>
+                    <div class="p-0 p-md-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <i class="bi bi-people-fill text-primary me-2"></i>New Users
+                                </h5>
+                                <p class="text-muted small mb-0">Recently registered members.</p>
+                            </div>
+                            <a href="{{ route('hospital.manageusers') }}"
+                                class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                View All
+                            </a>
+                        </div>
+
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>Role</th>
-                                        <th>Blood Type</th>
-                                        <th>Status</th>
+                                        <th class="hide-mobile">Contact</th>
+                                        <th class="text-center">Blood Type</th>
+                                        <th class="hide-mobile">Status</th>
+                                        <th class="text-end">Joined</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($users->take(10) as $user)
+                                    @forelse($users->take(10) as $user)
                                         <tr>
-                                            <td>{{ $user->name }}</td>
-                                            <td><span class="badge bg-light text-dark">{{ ucfirst($user->role) }}</span>
+                                            <td>
+                                                {{ $user->name }}<br>
+                                                <small class="text-muted">{{ $user->email }}</small>
                                             </td>
-                                            <td class="fw-bold text-danger">{{ $user->blood_type }}</td>
-                                            <td><span class="text-success small"><i class="bi bi-circle-fill me-1"
-                                                        style="font-size: 8px;"></i> Active</span></td>
+                                            <td class="hide-mobile">{{ $user->contact ?? 'N/A' }}</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-danger-subtle text-danger">
+                                                    {{ $user->blood_type ?? 'Unknown' }}
+                                                </span>
+                                            </td>
+                                            <td class="hide-mobile">
+                                                {{ $user->isEligible() ? 'Eligible' : $user->daysUntilEligible() . ' days' }}
+                                            </td>
+                                            <td class="text-end text-muted small">
+                                                {{ $user->created_at->diffForHumans() }}
+                                            </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4 text-muted">No users yet.</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- NOTIFICATIONS -->
-        <div class="glass-card mb-4">
-            <h5 class="fw-bold mb-3">Recent Notifications</h5>
-            <ul class="list-group list-group-flush">
-                @forelse($notifications->take(5) as $note)
-                    <li class="list-group-item">🔔 {{ $note->message }}</li>
-                @empty
-                    <li class="list-group-item text-muted">No notifications</li>
-                @endforelse
-            </ul>
-            <div class="text-end mt-2">
-                <a href="" class="btn btn-sm btn-outline-primary">View All</a>
+
             </div>
         </div>
 

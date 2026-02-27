@@ -106,43 +106,6 @@
                 </tbody>
             </table>
         </div>
-        <!-- COMPATIBLE BLOOD REQUESTS -->
-        <div class="glass-card">
-            <h5 class="fw-bold mb-3">Compatible Blood Requests I Can Help With</h5>
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Date Requested</th>
-                        <th>Blood Type Needed</th>
-                        <th>Hospital</th>
-                        <th>Urgency</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($compatibleRequests as $request)
-                        <tr>
-                            <td>{{ $request->created_at->format('M d, Y') }}</td>
-                            <td>{{ $request->blood_type }}</td>
-                            <td>{{ $request->hospitalAdmin->hospital_name }}</td>
-                            <td>
-                                <span
-                                    class="badge 
-            {{ $request->urgency == 'Emergency' ? 'bg-danger' : ($request->urgency == 'High' ? 'bg-warning' : 'bg-secondary') }}">
-                                    {{ $request->urgency }}
-                                </span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">
-                                No compatible requests at the moment.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-
-            </table>
-        </div>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 const hospitalSelect = document.getElementById('hospital_admin_id');

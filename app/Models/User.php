@@ -28,16 +28,42 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isEligible()
     {
-        $lastDonation = $this->donations()->where('status', 'completed')->orderBy('donation_date', 'desc')->orderBy('donation_time', 'desc')->first();
+        // We only need the date for the 56-day rule usually
+        $lastDonation = $this->donations()
+            ->where('status', 'completed')
+            ->latest('donation_date') // latest() is shorthand for orderBy desc
+            ->first();
 
         if ($lastDonation) {
-            $donationDateTime = \Carbon\Carbon::parse($lastDonation->donation_date)->setTimeFromTimeString($lastDonation->donation_time);
-            $daysSinceLast = now()->diffInDays($donationDateTime);
-            if ($daysSinceLast < 56) {
-                return false;
-            }
+            $nextDate = \Carbon\Carbon::parse($lastDonation->donation_date)->addDays(56);
+            // Use isPast() or greaterThan to see if we've reached that day
+            return now()->startOfDay()->greaterThanOrEqualTo($nextDate->startOfDay());
         }
+
         return true;
+    }
+
+    public function nextEligibleDate()
+    {
+        $lastDonation = $this->donations()->where('status', 'completed')->latest('donation_date')->first();
+
+        if (!$lastDonation) {
+            return now()->startOfDay();
+        }
+
+        return \Carbon\Carbon::parse($lastDonation->donation_date)->addDays(56)->startOfDay();
+    }
+
+    public function daysUntilEligible()
+    {
+        $nextDate = $this->nextEligibleDate();
+
+        if (now()->startOfDay()->greaterThanOrEqualTo($nextDate)) {
+            return 0;
+        }
+
+        // diffInDays on startOfDay gives you the exact number of midnights between now and then
+        return (int) now()->startOfDay()->diffInDays($nextDate);
     }
 
     public function sendEmailVerificationNotification()
@@ -46,7 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function sendPasswordResetNotification($token)
-{
-    $this->notify(new CustomResetPassword($token));
-}
+    {
+        $this->notify(new CustomResetPassword($token));
+    }
 }
