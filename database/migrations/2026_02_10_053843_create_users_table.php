@@ -19,7 +19,11 @@ Schema::create('users', function (Blueprint $table) {
     $table->enum('sex', ['Male', 'Female']);
     $table->enum('blood_type', ['A+','A-','B+','B-','AB+','AB-','O+','O-']);
     $table->text('address');
+
     $table->timestamps();
+
+    $table->index('blood_type', 'idx_users_blood_type');
+    $table->index('created_at', 'idx_users_created_at');
 });
     }
 

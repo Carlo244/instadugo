@@ -37,29 +37,31 @@ class DonorRequestNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
+    // ... inside DonorRequestNotification.php
+
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
-            ->subject('URGENT: Blood Request from ' . $this->sender->name)
-            ->view('emails.send_request', [
-                'donor'           => $notifiable,
-                'sender'          => $this->sender,
-                'urgency'         => $this->requestData['urgency'] ?? 'Normal',
-                'personalMessage' => $this->requestData['message'] ?? 'No additional message provided.',
-            ]);
+        return new MailMessage()->subject('URGENT: Blood Request from ' . $this->sender->name)->view('emails.send_request', [
+            'donor' => $notifiable,
+            'sender' => $this->sender,
+            'urgency' => $this->requestData['urgency'] ?? 'Normal',
+            'personalMessage' => $this->requestData['message'] ?? 'No additional message provided.',
+            'hospital' => $this->requestData['hospital'] ?? 'N/A',
+            // Passing the ID to the email view for buttons
+            'requestId' => $this->requestData['request_id'],
+        ]);
     }
 
-    /**
-     * Get the array representation of the notification for database.
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            'title' => 'New Blood Request',
-            'message' => "{$this->sender->name} sent a {$this->requestData['urgency']} request.",
-            'link' => route('user.dashboard'),
-            'sender_id' => $this->sender->id,
-            'urgency' => $this->requestData['urgency'] ?? 'Normal',
-        ];
-    }
+public function toArray(object $notifiable): array
+{
+    return [
+        'title' => 'New Blood Request',
+        'message' => "{$this->sender->name} requested blood via {$this->requestData['hospital']}.",
+        // Updated to match your route name: user.requests.show
+        'link' => route('user.requests.show', $this->requestData['request_id']), 
+        'request_id' => $this->requestData['request_id'],
+        'sender_id' => $this->sender->id,
+        'urgency' => $this->requestData['urgency'] ?? 'Normal',
+    ];
+}
 }

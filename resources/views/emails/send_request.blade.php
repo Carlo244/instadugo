@@ -111,6 +111,10 @@
                                     <strong style="color:#718096;">From:</strong><br>
                                     <span style="color:#1a1a1a;">{{ $sender->name }}</span>
                                 </div>
+                                <div style="margin-bottom: 10px;">
+                                    <strong style="color:#718096;">Location:</strong><br>
+                                    <span style="color:#1a1a1a;">{{ $hospital }}</span>
+                                </div>
 
                                 <div
                                     style="background: #ffffff; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; color: #4a5568;">
@@ -133,9 +137,9 @@
                     <table border="0" cellpadding="0" cellspacing="0" width="100%">
                         <tr>
                             <td align="center" style="padding: 15px 0;">
-                                <a href="{{ url('/login') }}"
+                                <a href="{{ url('user.dashboard') }}"
                                     style="background-color: #dc3545; color: #ffffff; padding: 16px 35px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
-                                    View Request Details
+                                    View Invitation on Dashboard
                                 </a>
                             </td>
                         </tr>

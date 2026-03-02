@@ -13,7 +13,7 @@
         </thead>
         <tbody>
             @forelse($donations as $donation)
-                <tr>
+                <tr data-blood-type="{{ $donation->blood_type }}">
                     <td class="ps-3">
                         <div class="d-flex align-items-center">
                             <div class="avatar-sm bg-blood-subtle rounded-circle me-3 d-flex align-items-center justify-content-center"
@@ -83,11 +83,16 @@
                                             <i class="bi bi-check2 me-1"></i> Mark Done
                                         </button>
                                     </form>
-                                    <button
-                                        class="btn btn-sm btn-outline-light text-danger rounded-circle border shadow-sm"
-                                        title="Cancel">
-                                        <i class="bi bi-x-lg"></i>
-                                    </button>
+                                    <form method="POST"
+                                        action="{{ route('hospital.donations.cancel', $donation->id) }}"
+                                        onsubmit="return confirm('Cancel this donation schedule?');">
+                                        @csrf
+                                        <button type="submit"
+                                            class="btn btn-sm btn-outline-light text-danger rounded-circle border shadow-sm"
+                                            title="Cancel">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             @else
                                 <span class="text-muted small">Processed</span>

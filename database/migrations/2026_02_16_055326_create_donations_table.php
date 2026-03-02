@@ -4,25 +4,27 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('donations', function (Blueprint $table) {
             $table->id();
-
-            // Relations
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('hospital_admin_id')->constrained('hospital_admins')->onDelete('cascade');
 
-            // Donation details
-            $table->enum('blood_type', ['A+','A-','B+','B-','AB+','AB-','O+','O-']);
+            // Link to request (Keep nullable, remove unique here)
+            $table->foreignId('blood_request_id')->nullable()->constrained('blood_requests')->onDelete('set null');
+
+            $table->enum('blood_type', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
             $table->date('donation_date');
             $table->time('donation_time');
-
-            // Status & notes
             $table->enum('status', ['scheduled', 'completed', 'cancelled'])->default('scheduled');
             $table->text('notes')->nullable();
+
+            $table->index('hospital_admin_id', 'idx_donations_hospital');
+            $table->index('status', 'idx_donations_status');
+            $table->index('donation_date', 'idx_donations_date');
+            $table->index(['hospital_admin_id', 'donation_date', 'status'], 'idx_donations_hospital_date_status');
 
             $table->timestamps();
         });

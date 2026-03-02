@@ -9,15 +9,22 @@ class Donation extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
+protected $fillable = [
         'user_id',
         'hospital_admin_id',
+        'blood_request_id', 
         'blood_type',
         'donation_date',
         'donation_time',
         'status',
         'notes',
     ];
+
+
+    public function bloodRequest()
+    {
+        return $this->belongsTo(BloodRequest::class);
+    }
 
     public function user()
     {
@@ -28,8 +35,8 @@ class Donation extends Model
     {
         return $this->belongsTo(HospitalAdmin::class);
     }
-    
+
     protected $casts = [
-    'donation_date' => 'date',
-];
+        'donation_date' => 'date',
+    ];
 }

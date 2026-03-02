@@ -7,7 +7,6 @@ use App\Models\BloodRequest;
 use App\Models\Donation;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class HospitalDashboardController extends Controller
 {
@@ -15,56 +14,86 @@ class HospitalDashboardController extends Controller
     {
         $hospitalId = auth()->id();
 
-        // 1. SYSTEM SUMMARY (Filtered by this Hospital where applicable)
-        $totalUsers = User::count();
-        $activeRequests = BloodRequest::where('status', 'pending')->count();
-        $matchesCompleted = BloodRequest::where('status', 'fulfilled')->count();
+        // Get dashboard configuration
+        $statsConfig = config('dashboard.stats');
 
-        // Count ONLY this hospital's scheduled donations
-        $totalDonations = Donation::where('hospital_admin_id', $hospitalId)->where('status', 'scheduled')->count();
+        // Build stats with metadata
+        $stats = [
+            'users' => [
+                'value' => User::count(),
+                'config' => $statsConfig['users'],
+            ],
+            'pending' => [
+                'value' => BloodRequest::where('status', 'pending')->count(),
+                'config' => $statsConfig['pending'],
+            ],
+            'fulfilled' => [
+                'value' => BloodRequest::where('status', 'fulfilled')->count(),
+                'config' => $statsConfig['fulfilled'],
+            ],
+            'appointments' => [
+                'value' => Donation::where('hospital_admin_id', $hospitalId)
+                    ->where('status', 'scheduled')
+                    ->whereDate('donation_date', Carbon::today())
+                    ->count(),
+                'config' => $statsConfig['appointments'],
+            ],
+        ];
 
-        // 2. USER DATA
-        $users = User::latest()->take(10)->get();
+        // User directory
+        $users = User::latest()->paginate(10);
 
-        // 3. QUEUE LOGIC (Triage ordering)
-        $queueRequests = BloodRequest::where('status', 'pending')
+        // Priority queue - with blood type filter
+        $priorityOrder = config('priorities.order');
+        $queueRequests = BloodRequest::with(['user', 'hospitalAdmin'])
+            ->where('status', 'pending')
+            ->when(request('blood_type'), function ($query, $bloodType) {
+                return $query->where('blood_type', $bloodType);
+            })
             ->orderByRaw(
                 "CASE
                 WHEN urgency = 'Emergency' THEN 1
                 WHEN urgency = 'High' THEN 2
                 WHEN urgency = 'Normal' THEN 3
-                ELSE 4 END",
+                ELSE 4 END"
             )
             ->orderBy('created_at', 'asc')
-            ->get();
+            ->paginate(10, ['*'], 'requests_page');
 
-        // 4. DONATION SCHEDULING (Optimized for your new Table)
+        // Today's donations schedule
         $donations = Donation::with('user')
             ->where('hospital_admin_id', $hospitalId)
             ->whereDate('donation_date', Carbon::today())
             ->whereIn('status', ['scheduled', 'confirmed', 'completed'])
             ->orderBy('donation_time', 'asc')
             ->get();
-            
-        // 5. MATCHES & FULFILLED
-        $fulfilledRequests = BloodRequest::where('status', 'fulfilled')->latest()->take(10)->get();
 
-        $matches = BloodRequest::whereIn('status', ['fulfilled', 'matched'])
+        // Recent activity
+        $fulfilledRequests = BloodRequest::with(['user', 'hospitalAdmin'])
+            ->where('status', 'fulfilled')
             ->latest()
             ->take(10)
             ->get();
 
-        // 6. NOTIFICATIONS
+        // Notifications
         $notifications = BloodRequest::latest()
             ->take(5)
             ->get()
             ->map(function ($req) {
                 return (object) [
                     'message' => "Blood request #{$req->id} ({$req->blood_type}) - {$req->status}",
+                    'time' => $req->created_at->diffForHumans(),
                 ];
             });
 
-        // 7. COMPACT (Pass $donations instead of $schedules to match your Blade)
-        return view('hospital.dashboard', compact('totalUsers', 'activeRequests', 'totalDonations', 'matchesCompleted', 'users', 'queueRequests', 'matches', 'donations', 'notifications', 'fulfilledRequests'));
+        return view('hospital.dashboard', compact(
+            'stats',
+            'users',
+            'queueRequests',
+            'donations',
+            'notifications',
+            'fulfilledRequests',
+            'priorityOrder'
+        ));
     }
 }

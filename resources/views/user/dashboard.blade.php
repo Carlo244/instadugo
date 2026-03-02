@@ -82,22 +82,134 @@
                 <div class="glass-card border-0 shadow-sm">
                     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                         <li class="nav-item">
-                            <button
-                                class="nav-link active rounded-pill btn-sm me-2 tab-request d-flex align-items-center gap-2"
+                            <button class="nav-link active rounded-pill btn-sm me-2 d-flex align-items-center gap-2"
+                                data-bs-toggle="pill" data-bs-target="#invitations">
+                                <span class="material-symbols-outlined fs-6">mail</span> Invitations
+                                {{-- Show a red dot only if there are UNREAD invitations --}}
+                                @if ($user->unreadNotifications->where('type', 'App\Notifications\DonorRequestNotification')->count() > 0)
+                                    <span class="badge rounded-pill bg-danger" style="font-size: 0.5rem;">&nbsp;</span>
+                                @endif
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link rounded-pill btn-sm me-2 d-flex align-items-center gap-2"
                                 data-bs-toggle="pill" data-bs-target="#requests">
                                 <span class="material-symbols-outlined fs-6">hand_package</span> My Requests
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link rounded-pill btn-sm tab-donation d-flex align-items-center gap-2"
+                            <button class="nav-link rounded-pill btn-sm d-flex align-items-center gap-2"
                                 data-bs-toggle="pill" data-bs-target="#donations">
                                 <span class="material-symbols-outlined fs-6">volunteer_activism</span> My Donations
                             </button>
                         </li>
                     </ul>
+
                     <div class="tab-content">
-                        <div class="tab-pane fade show active" id="requests">@include('partials.user-requests-table')</div>
-                        <div class="tab-pane fade" id="donations">@include('partials.user-donations-table')</div>
+                        <div class="tab-pane fade show active" id="invitations">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Requester & Hospital</th>
+                                            <th>Urgency</th> {{-- Added for clarity --}}
+                                            <th>Status</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($invitations as $invite)
+                                            <tr>
+                                                <td class="small text-muted">{{ $invite->created_at->format('M d, Y') }}
+                                                </td>
+                                                <td>
+                                                    <div class="fw-bold">{{ $invite->user->name }}</div>
+                                                    <div class="small text-muted"><i class="bi bi-geo-alt"></i>
+                                                        {{ $invite->hospital->hospital_name }}</div>
+                                                </td>
+                                                <td>
+                                                    @php
+                                                        $urgencyColor =
+                                                            [
+                                                                'Emergency' => 'danger',
+                                                                'High' => 'warning',
+                                                                'Normal' => 'info',
+                                                            ][$invite->urgency] ?? 'secondary';
+                                                    @endphp
+                                                    <span class="badge bg-{{ $urgencyColor }} text-uppercase"
+                                                        style="font-size: 0.65rem;">
+                                                        {{ $invite->urgency }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @php
+                                                        $statusColor =
+                                                            [
+                                                                'pending' => 'warning',
+                                                                'accepted' => 'success',
+                                                                'declined' => 'secondary',
+                                                            ][$invite->status] ?? 'info';
+                                                    @endphp
+                                                    <span
+                                                        class="badge rounded-pill bg-{{ $statusColor }}-subtle text-{{ $statusColor }} text-uppercase"
+                                                        style="font-size: 0.7rem;">
+                                                        {{ $invite->status }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-end">
+                                                    @if ($invite->status === 'pending')
+                                                        <div class="d-flex gap-2 justify-content-end">
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-success rounded-pill px-3"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#acceptInvitationModal"
+                                                                data-request-id="{{ $invite->id }}"
+                                                                data-hospital="{{ $invite->hospital->hospital_name }}"
+                                                                data-hospital-id="{{ $invite->hospital->id }}"
+                                                                data-requester="{{ $invite->user->name }}">
+                                                                Accept
+                                                            </button>
+
+                                                            <form
+                                                                action="{{ route('user.donate-schedule.respond', $invite->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                <input type="hidden" name="action" value="decline">
+                                                                <button type="submit"
+                                                                    class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                                                    onclick="return confirm('Are you sure you want to decline this invitation?')">
+                                                                    Decline
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    @elseif($invite->status === 'accepted')
+                                                        <span class="text-success small fw-bold"><i
+                                                                class="bi bi-calendar-check me-1"></i> Scheduled</span>
+                                                    @else
+                                                        <span class="text-muted small italic">Declined</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center py-5">
+                                                    <i class="bi bi-envelope text-muted fs-2 d-block mb-2"></i>
+                                                    <span class="text-muted">No pending invitations.</span>
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="requests">@include('partials.user-requests-table')</div>
+                        <div class="tab-pane fade" id="donations">
+                            <div id="dashboard-donations">
+                                @include('partials.user-donations-table')
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -128,7 +240,8 @@
                 <div class="glass-card border-0 shadow-sm">
                     <h6 class="fw-bold mb-3">Quick Overview</h6>
                     <div class="d-flex align-items-center mb-3">
-                        <div class="icon-box bg-danger-subtle text-danger rounded p-2 me-3"><i class="bi bi-heart-fill"></i>
+                        <div class="icon-box bg-danger-subtle text-danger rounded p-2 me-3"><i
+                                class="bi bi-heart-fill"></i>
                         </div>
                         <div>
                             <small class="text-muted d-block">Total Donations</small>
@@ -138,7 +251,8 @@
                     </div>
 
                     <div class="d-flex align-items-center">
-                        <div class="icon-box bg-warning-subtle text-warning rounded p-2 me-3"><i class="bi bi-activity"></i>
+                        <div class="icon-box bg-warning-subtle text-warning rounded p-2 me-3"><i
+                                class="bi bi-activity"></i>
                         </div>
                         <div>
                             <small class="text-muted d-block">Global Pending Requests</small>
@@ -200,19 +314,46 @@
             </form>
         </div>
     </div>
-    <script>
-        const sendRequestModal = document.getElementById('sendRequestModal');
+    <div class="modal fade" id="acceptInvitationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form method="POST" id="acceptForm">
+                @csrf
+                <input type="hidden" name="action" value="accept">
 
-        sendRequestModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const donorId = button.getAttribute('data-donor-id');
-            const maskId = button.getAttribute('data-mask-id'); // Grab the mask
+                <input type="hidden" name="hospital_admin_id" id="modal_hospital_id">
 
-            const hiddenInput = sendRequestModal.querySelector('#donorId');
-            const displaySpan = sendRequestModal.querySelector('#displayDonorId');
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title fw-bold">Accept Invitation</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
 
-            if (hiddenInput) hiddenInput.value = donorId;
-            if (displaySpan) displaySpan.textContent = maskId; // Show the mask to the user
-        });
-    </script>
+                    <div class="modal-body p-4">
+                        <p>You are accepting the request from <strong id="reqName"></strong> at <strong
+                                id="hospName"></strong>.</p>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">When can you visit?</label>
+                            <input type="date" name="donation_date" id="modal_donation_date"
+                                class="form-control border-success-subtle" min="{{ date('Y-m-d') }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Available Time Slots</label>
+                            <select name="donation_time" id="modal_donation_time"
+                                class="form-select border-success-subtle" required>
+                                <option value="">Select a date first</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success rounded-pill px-4">Confirm Acceptance</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection

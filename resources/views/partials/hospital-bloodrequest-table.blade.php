@@ -2,8 +2,9 @@
     <table class="table request-table align-middle mb-0">
         <thead>
             <tr>
-                <th class="ps-3">Requester</th>
+                <th class="ps-3">Requester & Type</th>
                 <th>Blood Info</th>
+                <th>Target Donor</th> {{-- New Column --}}
                 <th class="hide-mobile">Timeline</th>
                 <th>Status</th>
                 <th class="text-end pe-3">Actions</th>
@@ -13,13 +14,17 @@
             @forelse($requests as $request)
                 @php
                     $isEmergency = $request->urgency === 'Emergency';
+                    // Expanded status colors for the new invitation flow
                     $statusClasses = [
-                        'pending' => 'status-pending',
-                        'approved' => 'status-approved',
-                        'fulfilled' => 'status-fulfilled',
+                        'pending' => 'status-pending', // Waiting for admin or donor
+                        'accepted' => 'status-approved', // Donor said YES
+                        'declined' => 'status-fulfilled', // Re-styled as warning/grey in CSS
+                        'fulfilled' => 'status-fulfilled', // Success
+                        'cancelled' => 'text-muted',
                     ];
                 @endphp
-                <tr class="request-row {{ $isEmergency ? 'row-emergency' : '' }}">
+                <tr class="request-row {{ $isEmergency ? 'row-emergency' : '' }}"
+                    data-blood-type="{{ $request->blood_type }}">
 
                     {{-- Requester --}}
                     <td class="ps-3 py-3">
@@ -30,9 +35,12 @@
                             <div>
                                 <div class="fw-semibold text-dark lh-1 mb-1">{{ $request->user->name }}</div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="req-id-badge"><i class="bi bi-hash"></i>REQ-{{ $request->id }}</span>
-                                    @if ($isEmergency)
-                                        <span class="emergency-pill animate-pulse">EMERGENCY</span>
+                                    @if ($request->receiver_id)
+                                        <span class="badge bg-info-subtle text-info border-0 small"
+                                            style="font-size: 0.7rem;">DIRECT INVITE</span>
+                                    @else
+                                        <span class="badge bg-secondary-subtle text-secondary border-0 small"
+                                            style="font-size: 0.7rem;">PUBLIC REQ</span>
                                     @endif
                                 </div>
                             </div>
@@ -48,14 +56,23 @@
                         <div class="text-muted small ps-1 fw-semibold">{{ $request->quantity }} Units</div>
                     </td>
 
+                    {{-- Target Donor (New!) --}}
+                    <td>
+                        @if ($request->receiver_id)
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-person-heart text-danger"></i>
+                                <span
+                                    class="small fw-bold text-dark">{{ $request->receiver?->name ?? 'Deleted User' }}</span>
+                            </div>
+                        @else
+                            <span class="text-muted small italic">Searching...</span>
+                        @endif
+                    </td>
+
                     {{-- Timeline --}}
                     <td class="hide-mobile">
                         <div class="fw-semibold text-dark small">
                             {{ \Carbon\Carbon::parse($request->date_needed)->format('M d, Y') }}
-                        </div>
-                        <div class="text-muted text-truncate" style="max-width: 150px; font-size: 0.75rem;"
-                            title="{{ $request->reason }}">
-                            {{ $request->reason ?? 'No specific instructions' }}
                         </div>
                     </td>
 
@@ -67,47 +84,47 @@
                     </td>
 
                     {{-- Actions --}}
-                    <td class="text-end pe-3">
-                        <div class="d-flex align-items-center justify-content-end gap-1">
+                    <td class="text-end pe-4">
+                        <div class="action-stack">
 
-                            @if ($request->status == 'pending')
-                                <form method="POST" action="{{ route('hospital.requests.approve', $request->id) }}">
+                            {{-- 1. For Public Requests: Admin must Approve first --}}
+                            @if ($request->status == 'pending' && !$request->receiver_id)
+                                <form method="POST" action="{{ route('hospital.requests.approve', $request->id) }}"
+                                    class="m-0">
                                     @csrf
-                                    <button class="action-btn action-btn-success" title="Approve">
-                                        <i class="bi bi-check2-circle"></i>
+                                    <button type="submit" class="btn-action success" title="Approve Public Request">
+                                        <i class="bi bi-check2-circle"></i><span>Approve</span>
                                     </button>
                                 </form>
-                            @elseif($request->status == 'approved')
-                                <form method="POST" action="{{ route('hospital.requests.fulfill', $request->id) }}">
+
+                                {{-- Also show Match button so Admin can find donors for this public request --}}
+                                <button class="btn-match" data-bs-toggle="modal"
+                                    data-bs-target="#matchModal{{ $request->id }}">
+                                    <i class="bi bi-person-plus-fill"></i><span>Match</span>
+                                </button>
+                            @endif
+
+                            {{-- 2. For Direct Invites: Wait for Donor, then Finalize --}}
+                            @if ($request->status == 'accepted')
+                                <form method="POST" action="{{ route('hospital.requests.fulfill', $request->id) }}"
+                                    class="m-0">
                                     @csrf
-                                    <button class="action-btn action-btn-fulfill" title="Mark Fulfilled">
-                                        <i class="bi bi-box-seam"></i>
+                                    <button type="submit" class="btn-action fulfill" title="Mark as Donated">
+                                        <i class="bi bi-droplet-fill"></i><span>Finalize</span>
                                     </button>
                                 </form>
                             @endif
 
-                            <button class="action-btn action-btn-info" data-bs-toggle="modal"
-                                data-bs-target="#viewRequestModal{{ $request->id }}" title="Full Info">
-                                <i class="bi bi-info-circle"></i>
+                            {{-- 3. Always show Details --}}
+                            <button class="btn-action info" data-bs-toggle="modal"
+                                data-bs-target="#viewRequestModal{{ $request->id }}">
+                                <i class="bi bi-eye"></i><span>Details</span>
                             </button>
-
-                            <button class="action-btn action-btn-match" data-bs-toggle="modal"
-                                data-bs-target="#matchModal{{ $request->id }}">
-                                <i class="bi bi-person-plus-fill me-1"></i>Match
-                            </button>
-
                         </div>
                     </td>
                 </tr>
             @empty
-                <tr>
-                    <td colspan="5" class="text-center py-5">
-                        <div class="empty-state">
-                            <i class="bi bi-droplet empty-state-icon"></i>
-                            <p class="fw-semibold text-muted mt-3 mb-0">All caught up! No active blood requests.</p>
-                        </div>
-                    </td>
-                </tr>
+                {{-- ... empty state stays the same ... --}}
             @endforelse
         </tbody>
     </table>
@@ -296,8 +313,8 @@
                     <div class="modal-footer border-0 p-3">
                         <button type="button" class="btn btn-secondary rounded-pill px-4"
                             data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-danger rounded-pill px-4" data-bs-dismiss="modal"
-                            data-bs-toggle="modal" data-bs-target="#matchModal{{ $request->id }}">
+                        <button type="button" class="btn btn-danger rounded-pill px-4 js-open-match-from-details"
+                            data-match-target="#matchModal{{ $request->id }}">
                             Match Donors Now
                         </button>
                     </div>

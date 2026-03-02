@@ -12,6 +12,7 @@ use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\UserDonationController;
 use App\Http\Controllers\User\UserProfileController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', fn() => view('landingpage'));
+Broadcast::routes();
 
 // Auth
 Auth::routes(['verify' => true]);
@@ -82,6 +84,9 @@ Route::middleware(['auth:web', 'verified'])
         Route::post('notify-donor', [UserDashboardController::class, 'notifyDonor'])->name('notify-donor');
 
         Route::post('send-donor-request', [UserDashboardController::class, 'sendDonorRequest'])->name('send-donor-request');
+
+        // Add this inside your Route::group for 'user.'
+        Route::get('requests/{id}', [UserDashboardController::class, 'showRequest'])->name('requests.show');
     });
 /*
 |--------------------------------------------------------------------------
@@ -95,8 +100,10 @@ Route::prefix('hospital')
         // Dashboard
         Route::get('dashboard', [HospitalDashboardController::class, 'index'])->name('dashboard');
 
-        // Manage Users (Added this)
+        // Manage Users
         Route::get('manageusers', [HospitalManageUsersController::class, 'index'])->name('manageusers');
+        Route::get('manageusers/create', [HospitalManageUsersController::class, 'create'])->name('manageusers.create');
+        Route::post('manageusers', [HospitalManageUsersController::class, 'store'])->name('manageusers.store');
 
         // Blood Requests
         Route::get('requests', [HospitalBloodRequestController::class, 'index'])->name('requests');

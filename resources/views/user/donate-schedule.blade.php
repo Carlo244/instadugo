@@ -6,6 +6,27 @@
         <h3 class="fw-bold mb-0 text-uppercase tracking-wide">DONATE & SCHEDULE APPOINTMENT</h3>
         <!-- DONATION / SCHEDULING FORM -->
         <div class="glass-card mb-4">
+            {{-- display any flash or validation errors at top --}}
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             @if (!$isEligible)
                 <div class="alert alert-warning border-0 shadow-sm mb-4">
                     <i class="fas fa-exclamation-triangle me-2"></i>
@@ -20,25 +41,34 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label>Hospital / Blood Center</label>
-                            <select name="hospital_admin_id" id="hospital_admin_id" class="form-select" required>
+                            <select name="hospital_admin_id" id="hospital_admin_id" class="form-select @error('hospital_admin_id') is-invalid @enderror" required>
                                 <option value="" disabled selected>Select Hospital</option>
                                 @foreach ($hospitals as $hospital)
-                                    <option value="{{ $hospital->id }}">{{ $hospital->hospital_name }}</option>
+                                    <option value="{{ $hospital->id }}" {{ old('hospital_admin_id') == $hospital->id ? 'selected' : '' }}>{{ $hospital->hospital_name }}</option>
                                 @endforeach
                             </select>
+                            @error('hospital_admin_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3">
                             <label>Date of Donation</label>
-                            <input type="date" name="donation_date" id="donation_date" class="form-control"
-                                min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" required>
+                            <input type="date" name="donation_date" id="donation_date" class="form-control @error('donation_date') is-invalid @enderror"
+                                min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" value="{{ old('donation_date') }}" required>
+                            @error('donation_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-3">
                             <label>Time</label>
-                            <select name="donation_time" id="donation_time" class="form-select" required>
+                            <select name="donation_time" id="donation_time" class="form-select @error('donation_time') is-invalid @enderror" required>
                                 <option value="">Select Time</option>
                             </select>
+                            @error('donation_time')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-md-4">
@@ -48,7 +78,10 @@
 
                         <div class="col-12">
                             <label>Health Declaration / Notes</label>
-                            <textarea name="notes" class="form-control" rows="3" placeholder="Optional"></textarea>
+                            <textarea name="notes" class="form-control @error('notes') is-invalid @enderror" rows="3" placeholder="Optional">{{ old('notes') }}</textarea>
+                            @error('notes')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-12 d-grid">
@@ -106,72 +139,5 @@
                 </tbody>
             </table>
         </div>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const hospitalSelect = document.getElementById('hospital_admin_id');
-                const dateInput = document.getElementById('donation_date');
-                const timeSelect = document.getElementById('donation_time');
-
-                function updateSlots() {
-                    const hospitalId = hospitalSelect.value;
-                    const selectedDate = dateInput.value;
-
-                    if (!hospitalId || !selectedDate) return;
-
-                    const url = "{{ route('user.donate-schedule.occupied-times') }}" +
-                        "?hospital_id=" + hospitalId + "&date=" + selectedDate;
-                    fetch(url)
-                        .then(res => res.json())
-                        .then(occupiedTimes => {
-                            generateTimeSlots(occupiedTimes, selectedDate);
-                        });
-                }
-
-                function generateTimeSlots(occupiedTimes, selectedDate) {
-                    timeSelect.innerHTML = '<option value="">Select Time</option>';
-
-                    const now = new Date();
-                    const today = new Date().toISOString().split('T')[0];
-                    const currentHour = now.getHours();
-                    const currentMinute = now.getMinutes();
-
-                    let start = 8 * 60; // 8:00 AM
-                    let end = 16 * 60; // 4:00 PM
-                    let interval = 30; // 30 min slots
-
-                    for (let minutes = start; minutes <= end; minutes += interval) {
-                        let h = Math.floor(minutes / 60);
-                        let m = minutes % 60;
-                        let timeValue = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':00';
-
-                        let option = document.createElement("option");
-                        option.value = timeValue;
-                        option.text = timeValue;
-
-                        const isOccupied = occupiedTimes.includes(timeValue);
-
-                        let isPast = false;
-                        if (selectedDate === today && (h < currentHour || (h === currentHour && m <= currentMinute))) {
-                            isPast = true;
-                        }
-
-                        if (isOccupied) {
-                            option.disabled = true;
-                            option.text += " (Unavailable)";
-                            option.style.color = "#ccc";
-                        } else if (isPast) {
-                            option.disabled = true;
-                            option.text += " (Passed)";
-                            option.style.display = "none";
-                        }
-
-                        timeSelect.appendChild(option);
-                    }
-                }
-
-                hospitalSelect.addEventListener('change', updateSlots);
-                dateInput.addEventListener('change', updateSlots);
-            });
-        </script>
     </main>
 @endsection

@@ -39,7 +39,7 @@ class UserBloodRequestController extends Controller
             'reason' => 'required|string|max:1000',
         ]);
 
-        BloodRequest::create([
+        $bloodRequest = BloodRequest::create([
             'user_id' => auth()->id(),
             'blood_type' => $request->blood_type,
             'quantity' => $request->quantity,
@@ -49,6 +49,9 @@ class UserBloodRequestController extends Controller
             'reason' => $request->reason,
             'status' => 'pending',
         ]);
+
+        // broadcast so hospital dashboards get updated immediately
+        event(new \App\Events\BloodRequestCreated($bloodRequest));
 
         return back()->with('success', 'Your blood request has been submitted.');
     }

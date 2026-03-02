@@ -22,7 +22,7 @@
     <!-- Custom Styles -->
     <link rel="stylesheet" href="{{ asset('css/landingpage.css') }}">
 
-
+    @vite('resources/js/app.js')
 
     <link rel="icon" href="{{ asset('favicon.ico') }}?v=1">
 </head>

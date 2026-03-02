@@ -17,13 +17,22 @@
     <link href="{{ asset('css/user.css') }}" rel="stylesheet">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}?v=1">
+
+    <!-- expose route to JS -->
+    <script>
+        window.routeOccupiedTimes = "{{ route('user.donate-schedule.occupied-times') }}";
+        window.currentUserId = {{ auth()->id() }};
+    </script>
+
+    @vite('resources/js/app.js')
+
 </head>
 
 <body>
     <div id="dashboard-wrapper">
         @include('layouts.user-sidebar')
         <div>
-            <button id="sidebarToggler" class="sidebar-toggler d-lg-none" onclick="toggleSidebar()">
+            <button id="sidebarToggler" class="sidebar-toggler d-lg-none">
                 <i class="bi bi-list fs-3 text-danger"></i>
             </button>
 
@@ -83,22 +92,39 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
+
     <script>
-        function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar-modern');
-            const overlay = document.getElementById('sidebarOverlay');
-            const body = document.body;
-
-            sidebar.classList.toggle('show');
-            overlay.classList.toggle('show');
-
-            // Set a data attribute on the body to tell CSS the sidebar is open
-            if (sidebar.classList.contains('show')) {
-                body.setAttribute('data-sidebar-open', 'true');
-            } else {
-                body.removeAttribute('data-sidebar-open');
-            }
+        // simple helper to show bootstrap toast
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast align-items-center text-bg-${type} border-0`;
+            toastEl.setAttribute('role', 'alert');
+            toastEl.setAttribute('aria-live', 'assertive');
+            toastEl.setAttribute('aria-atomic', 'true');
+            toastEl.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            container.appendChild(toastEl);
+            new bootstrap.Toast(toastEl, { delay: 5000 }).show();
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            @if(session('success'))
+                showToast(@json(session('success')), 'success');
+            @endif
+            @if(session('error'))
+                showToast(@json(session('error')), 'danger');
+            @endif
+            @if($errors->any())
+                showToast('Please fix the errors in the form.', 'danger');
+            @endif
+        });
     </script>
 </body>
 

@@ -17,47 +17,17 @@
 
         <!-- STATS -->
         <div class="row g-3 mb-4 stats-row">
-
-            <div class="col-md-3 col-6">
-                <div class="glass-card stat-card-users h-100 mb-0">
-                    <div class="icon-box"><i class="bi bi-people"></i></div>
-                    <div class="text-part">
-                        <small class="text-muted">Registered Users</small>
-                        <h5 class="fw-bold mb-0">{{ $totalUsers }}</h5>
+            @foreach ($stats as $key => $stat)
+                <div class="col-md-3 col-6">
+                    <div class="glass-card {{ $stat['config']['card_class'] }} h-100 mb-0">
+                        <div class="icon-box"><i class="bi {{ $stat['config']['icon'] }}"></i></div>
+                        <div class="text-part">
+                            <small class="text-muted">{{ $stat['config']['label'] }}</small>
+                            <h5 class="fw-bold mb-0">{{ number_format($stat['value']) }}</h5>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-md-3 col-6">
-                <div class="glass-card stat-card-pending h-100 mb-0">
-                    <div class="icon-box"><i class="bi bi-clock-history"></i></div>
-                    <div class="text-part">
-                        <small class="text-muted">Pending Requests</small>
-                        <h5 class="fw-bold mb-0">{{ $activeRequests }}</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 col-6">
-                <div class="glass-card stat-card-done h-100 mb-0">
-                    <div class="icon-box"><i class="bi bi-check2-circle"></i></div>
-                    <div class="text-part">
-                        <small class="text-muted">Fulfilled Requests</small>
-                        <h5 class="fw-bold mb-0">{{ $matchesCompleted }}</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 col-6">
-                <div class="glass-card stat-card-appt h-100 mb-0">
-                    <div class="icon-box"><i class="bi bi-calendar-check"></i></div>
-                    <div class="text-part">
-                        <small class="text-muted">Today's Appointments</small>
-                        <h5 class="fw-bold mb-0">{{ $totalDonations }}</h5>
-                    </div>
-                </div>
-            </div>
-
+            @endforeach
         </div>
 
         <!-- TABS -->
@@ -95,10 +65,24 @@
                                 </h5>
                                 <p class="text-muted small mb-0">High-priority queue based on urgency.</p>
                             </div>
-                            <a href="{{ route('hospital.requests') }}"
-                                class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                View All
-                            </a>
+                            <div class="d-flex gap-2">
+                                <select class="form-select form-select-sm" id="blood-type-filter"
+                                    onchange="filterBloodType(this.value)">
+                                    <option value="">All Blood Types</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                                <a href="{{ route('hospital.requests') }}"
+                                    class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                    View All
+                                </a>
+                            </div>
                         </div>
 
                         <div class="table-responsive">
@@ -113,8 +97,8 @@
                                         <th class="text-end">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @forelse($queueRequests->take(5) as $request)
+                                <tbody id="requests-table-body">
+                                    @forelse($queueRequests->take(8) as $request)
                                         <tr>
                                             <td>
                                                 <strong>#{{ $request->id }}</strong><br>
@@ -237,10 +221,12 @@
                                 </h5>
                                 <p class="text-muted small mb-0">Recently registered members.</p>
                             </div>
-                            <a href="{{ route('hospital.manageusers') }}"
-                                class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                View All
-                            </a>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('hospital.manageusers') }}"
+                                    class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                    View All
+                                </a>
+                            </div>
                         </div>
 
                         <div class="table-responsive">
@@ -290,3 +276,47 @@
 
     </main>
 @endsection
+
+@push('scripts')
+    <script>
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Alt + 1, 2, 3 for tab switching
+            if (e.altKey && !e.ctrlKey && !e.shiftKey) {
+                if (e.key === '1') {
+                    e.preventDefault();
+                    document.querySelector('[data-bs-target="#tab-requests"]').click();
+                } else if (e.key === '2') {
+                    e.preventDefault();
+                    document.querySelector('[data-bs-target="#tab-appointments"]').click();
+                } else if (e.key === '3') {
+                    e.preventDefault();
+                    document.querySelector('[data-bs-target="#tab-users"]').click();
+                }
+            }
+        });
+
+        // Blood type filter with loading state
+        function filterBloodType(bloodType) {
+            const tbody = document.getElementById('requests-table-body');
+            tbody.innerHTML =
+                '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border spinner-border-sm text-danger" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>';
+
+            const url = new URL(window.location.href);
+            if (bloodType) {
+                url.searchParams.set('blood_type', bloodType);
+            } else {
+                url.searchParams.delete('blood_type');
+            }
+
+            window.location.href = url.toString();
+        }
+
+        // Tooltips for keyboard shortcuts
+        const tabButtons = document.querySelectorAll('.nav-pills .nav-link');
+        tabButtons.forEach((btn, index) => {
+            const shortcut = index + 1;
+            btn.title = `Alt+${shortcut}`;
+        });
+    </script>
+@endpush
