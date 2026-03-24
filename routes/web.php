@@ -7,10 +7,15 @@ use App\Http\Controllers\Hospital\HospitalBloodRequestController;
 use App\Http\Controllers\Hospital\HospitalDashboardController;
 use App\Http\Controllers\Hospital\HospitalDonationController;
 use App\Http\Controllers\Hospital\HospitalManageUsersController;
+use App\Http\Controllers\Hospital\HospitalProfileController;
+use App\Http\Controllers\Hospital\HospitalReportsController;
 use App\Http\Controllers\User\UserBloodRequestController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\UserDonationController;
 use App\Http\Controllers\User\UserProfileController;
+use App\Models\BloodRequest;
+use App\Models\HospitalAdmin;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -20,7 +25,16 @@ use Illuminate\Support\Facades\Route;
 | Public Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/', fn() => view('landingpage'));
+Route::get('/', function () {
+    $landingStats = [
+        'fulfilled_requests' => BloodRequest::where('status', 'fulfilled')->count(),
+        'successful_matches' => BloodRequest::whereIn('status', ['accepted', 'fulfilled'])->count(),
+        'active_donors' => User::count(),
+        'partners' => HospitalAdmin::count(),
+    ];
+
+    return view('landingpage', compact('landingStats'));
+});
 Broadcast::routes();
 
 // Auth
@@ -85,8 +99,9 @@ Route::middleware(['auth:web', 'verified'])
 
         Route::post('send-donor-request', [UserDashboardController::class, 'sendDonorRequest'])->name('send-donor-request');
 
-        // Add this inside your Route::group for 'user.'
+        Route::get('invitations', [UserDashboardController::class, 'invitations'])->name('invitations');
         Route::get('requests/{id}', [UserDashboardController::class, 'showRequest'])->name('requests.show');
+
     });
 /*
 |--------------------------------------------------------------------------
@@ -105,8 +120,13 @@ Route::prefix('hospital')
         Route::get('manageusers/create', [HospitalManageUsersController::class, 'create'])->name('manageusers.create');
         Route::post('manageusers', [HospitalManageUsersController::class, 'store'])->name('manageusers.store');
 
+        // Profile
+        Route::get('profile', [HospitalProfileController::class, 'index'])->name('profile');
+        Route::match(['post', 'put'], 'profile/update', [HospitalProfileController::class, 'update'])->name('profile.update');
+
         // Blood Requests
         Route::get('requests', [HospitalBloodRequestController::class, 'index'])->name('requests');
+        Route::patch('update-phlebotomist', [HospitalBloodRequestController::class, 'updatePhlebotomist'])->name('update-phlebotomist');
         Route::post('requests/{id}/approve', [HospitalBloodRequestController::class, 'approve'])->name('requests.approve');
         Route::post('requests/{id}/fulfill', [HospitalBloodRequestController::class, 'fulfill'])->name('requests.fulfill');
         Route::post('requests/{id}/cancel', [HospitalBloodRequestController::class, 'cancel'])->name('requests.cancel');
@@ -118,6 +138,9 @@ Route::prefix('hospital')
         Route::get('donations/{id}', [HospitalDonationController::class, 'show'])->name('donations.show');
         Route::post('donations/{id}/complete', [HospitalDonationController::class, 'complete'])->name('donations.complete');
         Route::post('donations/{id}/cancel', [HospitalDonationController::class, 'cancel'])->name('donations.cancel');
+
+
+         Route::get('reports', [HospitalReportsController::class, 'index'])->name('reports');
     });
 
 Route::post('/notifications/mark-all-read', function () {

@@ -12,6 +12,41 @@ use Illuminate\Http\Request;
 
 class UserDashboardController extends Controller
 {
+    public function invitations()
+    {
+        $user = auth()->user();
+
+        $invitations = BloodRequest::with(['hospital', 'user'])
+            ->where('receiver_id', $user->id)
+            ->latest()
+            ->get();
+
+        $selectedInvitationId = request()->integer('selected');
+
+        if ($invitations->isEmpty()) {
+            $notificationRequestIds = $user->notifications()
+                ->where('type', \App\Notifications\DonorRequestNotification::class)
+                ->latest()
+                ->pluck('data.request_id')
+                ->filter()
+                ->unique()
+                ->values();
+
+            if ($notificationRequestIds->isNotEmpty()) {
+                $invitations = BloodRequest::with(['hospital', 'user'])
+                    ->whereIn('id', $notificationRequestIds)
+                    ->latest()
+                    ->get();
+            }
+        }
+
+        if (!$selectedInvitationId && $invitations->isNotEmpty()) {
+            $selectedInvitationId = (int) $invitations->first()->id;
+        }
+
+        return view('user.show_request', compact('invitations', 'selectedInvitationId'));
+    }
+
     public function index(\Illuminate\Http\Request $request)
     {
         $user = auth()->user();
@@ -108,11 +143,27 @@ class UserDashboardController extends Controller
 
     public function showRequest($id)
     {
-        // Fetch the request with hospital and the person who needs blood (user)
-        $bloodRequest = BloodRequest::with(['hospital', 'user'])->findOrFail($id);
+        $userId = auth()->id();
+        $user = auth()->user();
 
-        return view('user.show_request', compact('bloodRequest'));
+        $bloodRequest = BloodRequest::with(['hospital', 'user'])
+            ->where('id', $id)
+            ->where(function ($query) use ($userId) {
+                $query->where('receiver_id', $userId)
+                    ->orWhere('user_id', $userId);
+            })
+            ->first();
+
+        if (!$bloodRequest) {
+            $hasInviteNotification = $user->notifications()
+                ->where('type', \App\Notifications\DonorRequestNotification::class)
+                ->where('data->request_id', (string) $id)
+                ->exists();
+
+            abort_unless($hasInviteNotification, 404);
+        }
+
+        return redirect()->route('user.invitations', ['selected' => $id]);
     }
-
 
 }

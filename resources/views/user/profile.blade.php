@@ -103,14 +103,31 @@
 
                             <h6 class="fw-bold">Change Password (optional)</h6>
 
-                            <div class="col-md-6">
-                                <label class="form-label">New Password</label>
-                                <input type="password" name="password" class="form-control">
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="password"
+                                        class="form-control @error('password') is-invalid @enderror" required>
+                                    <button class="btn btn-outline-secondary toggle-password" type="button"
+                                        data-target="password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Confirm Password</label>
-                                <input type="password" name="password_confirmation" class="form-control">
+                            <div class="col-md-6 mb-3">
+                                <label for="password_confirmation" class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <input type="password" name="password_confirmation" id="password_confirmation"
+                                        class="form-control" required>
+                                    <button class="btn btn-outline-secondary toggle-password" type="button"
+                                        data-target="password_confirmation">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="col-12 text-end mt-3">

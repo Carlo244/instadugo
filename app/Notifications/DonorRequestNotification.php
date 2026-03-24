@@ -57,8 +57,7 @@ public function toArray(object $notifiable): array
     return [
         'title' => 'New Blood Request',
         'message' => "{$this->sender->name} requested blood via {$this->requestData['hospital']}.",
-        // Updated to match your route name: user.requests.show
-        'link' => route('user.requests.show', $this->requestData['request_id']), 
+        'link' => route('user.requests.show', $this->requestData['request_id']),
         'request_id' => $this->requestData['request_id'],
         'sender_id' => $this->sender->id,
         'urgency' => $this->requestData['urgency'] ?? 'Normal',

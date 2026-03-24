@@ -78,6 +78,36 @@ export function initAcceptInvitationModal() {
 }
 
 /**
+ * Handle hospital request modal handoff (Details -> Match Donors)
+ */
+export function initHospitalRequestModalFlow() {
+    document.addEventListener('click', function(event) {
+        const trigger = event.target.closest('.js-open-match-from-details');
+        if (!trigger) return;
+
+        const currentModalEl = trigger.closest('.modal');
+        const targetSelector = trigger.getAttribute('data-match-target');
+        if (!currentModalEl || !targetSelector) return;
+
+        const targetModalEl = document.querySelector(targetSelector);
+        if (!targetModalEl || typeof bootstrap === 'undefined') return;
+
+        event.preventDefault();
+
+        const currentModal = bootstrap.Modal.getOrCreateInstance(currentModalEl);
+        const targetModal = bootstrap.Modal.getOrCreateInstance(targetModalEl);
+
+        const onHidden = () => {
+            currentModalEl.removeEventListener('hidden.bs.modal', onHidden);
+            targetModal.show();
+        };
+
+        currentModalEl.addEventListener('hidden.bs.modal', onHidden, { once: true });
+        currentModal.hide();
+    });
+}
+
+/**
  * Generate time slot options for modal
  */
 function generateModalTimeSlots(occupiedTimes, selectedDate, timeSelect) {

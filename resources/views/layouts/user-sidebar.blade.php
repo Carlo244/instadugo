@@ -13,8 +13,13 @@
     <div class="sidebar-nav-container flex-grow-1 px-4 py-2 d-flex flex-column" style="overflow-y: auto;">
         <nav class="nav flex-column gap-3 mb-4">
             <a href="{{ route('user.dashboard') }}"
-                class="nav-link d-flex align-items-center {{ Request::is('user/dashboard*') ? 'active' : '' }}">
+                class="nav-link d-flex align-items-center {{ Request::is('user/dashboard*') && request('tab') !== 'invitations' ? 'active' : '' }}">
                 <i class="bi bi-grid-1x2-fill me-2"></i> Dashboard
+            </a>
+
+            <a href="{{ route('user.invitations') }}"
+                class="nav-link d-flex align-items-center {{ Request::is('user/invitations*') || Request::is('user/requests*') || (Request::is('user/dashboard*') && request('tab') === 'invitations') ? 'active' : '' }}">
+                <i class="bi bi-envelope-fill me-2"></i> Invitations
             </a>
 
             <a href="{{ route('user.blood-requests') }}"

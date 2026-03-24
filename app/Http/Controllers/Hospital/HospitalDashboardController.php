@@ -12,23 +12,27 @@ class HospitalDashboardController extends Controller
 {
     public function index()
     {
-        $hospitalId = auth()->id();
+        $hospitalId = auth('hospital_admin')->id();
 
         // Get dashboard configuration
         $statsConfig = config('dashboard.stats');
 
-        // Build stats with metadata
+        // Build stats with metadata - filtered by current hospital
         $stats = [
             'users' => [
                 'value' => User::count(),
                 'config' => $statsConfig['users'],
             ],
             'pending' => [
-                'value' => BloodRequest::where('status', 'pending')->count(),
+                'value' => BloodRequest::where('hospital_admin_id', $hospitalId)
+                    ->where('status', 'pending')
+                    ->count(),
                 'config' => $statsConfig['pending'],
             ],
             'fulfilled' => [
-                'value' => BloodRequest::where('status', 'fulfilled')->count(),
+                'value' => BloodRequest::where('hospital_admin_id', $hospitalId)
+                    ->where('status', 'fulfilled')
+                    ->count(),
                 'config' => $statsConfig['fulfilled'],
             ],
             'appointments' => [
@@ -43,9 +47,10 @@ class HospitalDashboardController extends Controller
         // User directory
         $users = User::latest()->paginate(10);
 
-        // Priority queue - with blood type filter
+        // Priority queue - with blood type filter - FILTERED BY HOSPITAL
         $priorityOrder = config('priorities.order');
         $queueRequests = BloodRequest::with(['user', 'hospitalAdmin'])
+            ->where('hospital_admin_id', $hospitalId)
             ->where('status', 'pending')
             ->when(request('blood_type'), function ($query, $bloodType) {
                 return $query->where('blood_type', $bloodType);
@@ -68,15 +73,17 @@ class HospitalDashboardController extends Controller
             ->orderBy('donation_time', 'asc')
             ->get();
 
-        // Recent activity
+        // Recent activity - FILTERED BY HOSPITAL
         $fulfilledRequests = BloodRequest::with(['user', 'hospitalAdmin'])
+            ->where('hospital_admin_id', $hospitalId)
             ->where('status', 'fulfilled')
             ->latest()
             ->take(10)
             ->get();
 
-        // Notifications
-        $notifications = BloodRequest::latest()
+        // Notifications - FILTERED BY HOSPITAL
+        $notifications = BloodRequest::where('hospital_admin_id', $hospitalId)
+            ->latest()
             ->take(5)
             ->get()
             ->map(function ($req) {

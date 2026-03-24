@@ -32,14 +32,14 @@
                 <i class="bi bi-people me-2"></i> Manage Users
             </a>
 
-            <a href="#"
+            <a href="{{ route('hospital.reports') }}"
                 class="nav-link d-flex align-items-center {{ Request::is('hospital/reports*') ? 'active' : '' }}">
                 <i class="bi bi-clipboard-data me-2"></i> Reports
             </a>
 
             <hr class="my-2">
 
-            <a href="#"
+            <a href="{{ route('hospital.profile') }}"
                 class="nav-link d-flex align-items-center {{ Request::is('hospital/profile*') ? 'active' : '' }}">
                 <i class="bi bi-person-circle me-2"></i> Profile
             </a>

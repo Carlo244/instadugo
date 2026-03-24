@@ -17,7 +17,7 @@
     <link href="{{ asset('css/hospital.css') }}" rel="stylesheet">
     <link rel="icon" href="{{ asset('favicon.ico') }}?v=1">
     <script>
-        window.hospitalAdminId = @json(auth()->id());
+        window.hospitalAdminId = @json(auth('hospital_admin')->id());
     </script>
     <style>
         /* highlight animation for newly inserted donation rows */

@@ -1,26 +1,32 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
-export default defineConfig({
-    plugins: [
-        laravel({
-            input: [
-                'resources/css/app.css',
-                'resources/js/app.js',
-            ],
-            refresh: true,
-        }),
-    ],
+export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, process.cwd(), '');
+    const devHost = env.VITE_DEV_SERVER_HOST;
+    const devPort = Number(env.VITE_DEV_SERVER_PORT || 5173);
 
-    // allow Vite dev server to be accessed from network IPs (for mobile testing, LAN access, etc.)
-    server: {
-        host: true,            // listen on all addresses (0.0.0.0 / ::)
-        strictPort: false,
-        hmr: {
-            host: '192.168.1.21',   // HMR client should connect to this IP
+    return {
+        plugins: [
+            laravel({
+                input: [
+                    'resources/css/app.css',
+                    'resources/js/app.js',
+                ],
+                refresh: true,
+            }),
+        ],
+
+        server: {
+            port: devPort,
+            host: true,
+            strictPort: false,
+            cors: true,
+            ...(devHost
+                ? {
+                      hmr: { host: devHost },
+                  }
+                : {}),
         },
-        cors: true,           // automatically send Access-Control-Allow-Origin
-        // force client scripts to reference the real network address instead of 0.0.0.0
-        origin: 'http://192.168.1.21:5173',
-    },
+    };
 });

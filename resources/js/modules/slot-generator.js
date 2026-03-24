@@ -1,7 +1,7 @@
 /**
- * Generate time slot options
+ * Generate time slot options with capacity information
  */
-export function generateTimeSlots(occupiedTimes, selectedDate, timeSelect) {
+export function generateTimeSlots(occupiedTimes, selectedDate, timeSelect, hospitalId) {
     timeSelect.innerHTML = '<option value="">Select Time</option>';
     const now = new Date();
     const today = new Date().toISOString().split('T')[0];
@@ -23,7 +23,7 @@ export function generateTimeSlots(occupiedTimes, selectedDate, timeSelect) {
 
         if (occupiedTimes.includes(timeValue)) {
             option.disabled = true;
-            option.text += " (Unavailable)";
+            option.text += " (Fully Booked)";
         } else if (selectedDate === today && (h < currentHour || (h === currentHour && m <= currentMinute))) {
             option.disabled = true;
             option.style.display = "none";

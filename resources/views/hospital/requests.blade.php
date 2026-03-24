@@ -7,7 +7,7 @@
                 <h3 class="fw-bold text-dark mb-1">Blood Request Management</h3>
                 <p class="text-muted small">Manage live queues by priority level.</p>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
                 <select id="blood-type-filter" class="form-select form-select-sm" style="width: 120px;">
                     <option value="">All Types</option>
                     <option value="A+">A+</option>
@@ -138,6 +138,7 @@
                 </div>
             </div>
         </div>
+
     </main>
 @endsection
 
@@ -235,50 +236,6 @@
             if (bloodType) {
                 filterTable();
             }
-        });
-
-        document.addEventListener('click', function(e) {
-            const trigger = e.target.closest('.js-open-match-from-details');
-            if (!trigger) {
-                return;
-            }
-
-            const currentModalEl = trigger.closest('.modal');
-            const targetSelector = trigger.getAttribute('data-match-target');
-            if (!currentModalEl || !targetSelector) {
-                return;
-            }
-
-            const targetModalEl = document.querySelector(targetSelector);
-            if (!targetModalEl) {
-                return;
-            }
-
-            const currentModal = bootstrap.Modal.getOrCreateInstance(currentModalEl);
-            const targetModal = bootstrap.Modal.getOrCreateInstance(targetModalEl);
-
-            const onHidden = () => {
-                currentModalEl.removeEventListener('hidden.bs.modal', onHidden);
-                targetModal.show();
-            };
-
-            currentModalEl.addEventListener('hidden.bs.modal', onHidden, {
-                once: true
-            });
-            currentModal.hide();
-        });
-
-        document.addEventListener('hidden.bs.modal', function() {
-            setTimeout(() => {
-                const openModals = document.querySelectorAll('.modal.show').length;
-                if (openModals === 0) {
-                    document.querySelectorAll('.modal-backdrop').forEach((backdrop, index) => {
-                        if (index > 0) {
-                            backdrop.remove();
-                        }
-                    });
-                }
-            }, 50);
         });
     </script>
 @endpush

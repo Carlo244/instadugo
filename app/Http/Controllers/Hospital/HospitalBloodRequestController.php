@@ -6,6 +6,7 @@ use App\Events\BloodRequestStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\BloodRequest;
 use App\Models\User;
+use App\Notifications\BloodReadyForPickup;
 use App\Notifications\BloodRequestApproved;
 use App\Notifications\BloodRequestNotification;
 
@@ -18,7 +19,7 @@ class HospitalBloodRequestController extends Controller
     {
         // Added 'receiver' to with() to prevent N+1 issues when displaying target donors
         $requests = BloodRequest::with(['user', 'hospitalAdmin', 'receiver'])
-            ->where('hospital_admin_id', auth()->id())
+            ->where('hospital_admin_id', auth('hospital_admin')->id())
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -105,13 +106,17 @@ class HospitalBloodRequestController extends Controller
      */
     public function fulfill($id)
     {
-        $request = BloodRequest::findOrFail($id);
+        $request = BloodRequest::with('user')->findOrFail($id);
         $this->authorizeRequestOwner($request);
         $previousStatus = (string) $request->status;
 
         // This is the "Finalize" action
         $request->update(['status' => 'fulfilled']);
         event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+
+        if ($request->user) {
+            $request->user->notify(new BloodReadyForPickup($request));
+        }
 
         // Optional: If you have a Donation model, you would create a record here
         // to reward the donor with points/certificates.
@@ -196,8 +201,23 @@ class HospitalBloodRequestController extends Controller
      */
     private function authorizeRequestOwner(BloodRequest $request)
     {
-        if ($request->hospital_admin_id !== auth()->id()) {
+        if ($request->hospital_admin_id !== auth('hospital_admin')->id()) {
             abort(403, 'Unauthorized action.');
         }
+    }
+
+    /**
+     * Update phlebotomist count for the hospital
+     */
+    public function updatePhlebotomist(\Illuminate\Http\Request $request)
+    {
+        $validated = $request->validate([
+            'phlebotomist_count' => 'required|integer|min:1|max:10',
+        ]);
+
+        $hospital = auth('hospital_admin')->user();
+        $hospital->update(['phlebotomist_count' => $validated['phlebotomist_count']]);
+
+        return back()->with('success', "Phlebotomist count updated to {$validated['phlebotomist_count']}. Time slot capacity has been adjusted.");
     }
 }

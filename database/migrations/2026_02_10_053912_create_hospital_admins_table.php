@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->string('password');
             $table->string('contact');
             $table->text('address');
+            $table->unsignedTinyInteger('phlebotomist_count')->default(1);
             $table->rememberToken();
             $table->timestamps();
         });

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\user;
 
-use App\Events\DonationCreated;
+use App\Events\DonationStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\BloodRequest;
 use App\Models\Donation;
@@ -35,10 +35,18 @@ class UserDonationController extends Controller
             $nextEligibleDate = $nextDate->format('M d, Y');
         }
 
+        $activeScheduledDonation = Donation::where('user_id', $userId)
+            ->where('status', 'scheduled')
+            ->orderBy('donation_date', 'asc')
+            ->orderBy('donation_time', 'asc')
+            ->first();
+
+        $hasActiveSchedule = (bool) $activeScheduledDonation;
+
         $hospitals = HospitalAdmin::all();
 
         // Removed compatibleRequests from the return
-        return view('user.donate-schedule', compact('donations', 'hospitals', 'isEligible', 'nextEligibleDate'));
+        return view('user.donate-schedule', compact('donations', 'hospitals', 'isEligible', 'nextEligibleDate', 'hasActiveSchedule', 'activeScheduledDonation'));
     }
 
     public function store(Request $request)
@@ -50,6 +58,16 @@ class UserDonationController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
+        $hasActiveSchedule = Donation::where('user_id', auth()->id())
+            ->where('status', 'scheduled')
+            ->exists();
+
+        if ($hasActiveSchedule) {
+            return back()
+                ->withErrors(['donation_time' => 'You already have a scheduled donation. Please complete or cancel it before booking a new one.'])
+                ->withInput();
+        }
+
         $scheduledDateTime = \Carbon\Carbon::parse($request->donation_date . ' ' . $request->donation_time);
 
         if ($scheduledDateTime->isPast()) {
@@ -58,18 +76,19 @@ class UserDonationController extends Controller
                 ->withInput();
         }
 
-        // Check for conflict (30‑minute buffer before and after)
-        $startTime = $scheduledDateTime->copy()->subMinutes(30)->format('H:i:s');
-        $endTime = $scheduledDateTime->copy()->addMinutes(30)->format('H:i:s');
+        // Check capacity based on phlebotomist count
+        $hospital = HospitalAdmin::findOrFail($request->hospital_admin_id);
+        $phlebotomistCount = $hospital->phlebotomist_count ?? 1;
 
-        $conflict = Donation::where('hospital_admin_id', $request->hospital_admin_id)
+        $bookedSlots = Donation::where('hospital_admin_id', $request->hospital_admin_id)
             ->where('donation_date', $request->donation_date)
-            ->whereBetween('donation_time', [$startTime, $endTime])
-            ->exists();
+            ->where('donation_time', $scheduledDateTime->format('H:i:s'))
+            ->where('status', 'scheduled')
+            ->count();
 
-        if ($conflict) {
+        if ($bookedSlots >= $phlebotomistCount) {
             return back()
-                ->withErrors(['donation_time' => 'This time slot is already occupied.'])
+                ->withErrors(['donation_time' => "This time slot is full. Only {$phlebotomistCount} donor(s) can be scheduled at this time."])
                 ->withInput();
         }
 
@@ -108,8 +127,32 @@ class UserDonationController extends Controller
                 'hospital_admin_id' => 'required|exists:hospital_admins,id',
             ]);
 
+            $hasActiveSchedule = Donation::where('user_id', $donor->id)
+                ->where('status', 'scheduled')
+                ->exists();
+
+            if ($hasActiveSchedule) {
+                return back()
+                    ->withErrors(['donation_time' => 'You already have a scheduled donation. Please complete or cancel it before accepting another schedule.'])
+                    ->withInput();
+            }
+
             // Get Hospital details for the response if needed
             $hospital = HospitalAdmin::findOrFail($validated['hospital_admin_id']);
+
+            // Check capacity based on phlebotomist count
+            $phlebotomistCount = $hospital->phlebotomist_count ?? 1;
+            $bookedSlots = Donation::where('hospital_admin_id', $validated['hospital_admin_id'])
+                ->where('donation_date', $validated['donation_date'])
+                ->where('donation_time', $validated['donation_time'])
+                ->where('status', 'scheduled')
+                ->count();
+
+            if ($bookedSlots >= $phlebotomistCount) {
+                return back()
+                    ->withErrors(['donation_time' => "This time slot is full. Only {$phlebotomistCount} donor(s) can be scheduled at this time."])
+                    ->withInput();
+            }
 
             // 3. Create Donation Record (Link the donor to the request)
             $donation = Donation::create([
@@ -139,31 +182,24 @@ class UserDonationController extends Controller
     }
 
     /**
-     * Fetch occupied donation times for a hospital
+     * Fetch available donation times for a hospital based on phlebotomist capacity
      */
     public function getOccupiedTimes(Request $request)
     {
-        $scheduled = Donation::where('hospital_admin_id', $request->hospital_id)
+        $hospital = HospitalAdmin::find($request->hospital_id);
+        $phlebotomistCount = $hospital->phlebotomist_count ?? 1;
+
+        // Get all time slots that are fully booked
+        $fullyBooked = Donation::where('hospital_admin_id', $request->hospital_id)
             ->where('donation_date', $request->date)
             ->where('status', 'scheduled')
+            ->select('donation_time')
+            ->groupBy('donation_time')
+            ->havingRaw('count(*) >= ?', [$phlebotomistCount])
             ->pluck('donation_time')
             ->toArray();
 
-        // build a set of times to disable, including 30‑minute buffer each side
-        $disabled = [];
-        foreach ($scheduled as $time) {
-            $disabled[] = $time;
-            try {
-                $t = \Carbon\Carbon::createFromFormat('H:i:s', $time);
-                $disabled[] = $t->copy()->subMinutes(30)->format('H:i:s');
-                $disabled[] = $t->copy()->addMinutes(30)->format('H:i:s');
-            } catch (\Exception $e) {
-                // ignore parsing errors
-            }
-        }
-
-        $disabled = array_values(array_unique($disabled));
-        return response()->json($disabled);
+        return response()->json($fullyBooked);
     }
 
     /**
@@ -176,7 +212,9 @@ class UserDonationController extends Controller
         }
 
         if ($donation->status === 'scheduled') {
+            $fromStatus = (string) $donation->status;
             $donation->update(['status' => 'cancelled']);
+            event(new DonationStatusUpdated($donation->fresh('user'), $fromStatus, 'cancelled'));
             return back()->with('success', 'Schedule cancelled successfully.');
         }
 

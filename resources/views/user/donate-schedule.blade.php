@@ -7,20 +7,20 @@
         <!-- DONATION / SCHEDULING FORM -->
         <div class="glass-card mb-4">
             {{-- display any flash or validation errors at top --}}
-            @if(session('success'))
+            @if (session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
                 </div>
             @endif
-            @if(session('error'))
+            @if (session('error'))
                 <div class="alert alert-danger">
                     {{ session('error') }}
                 </div>
             @endif
-            @if($errors->any())
+            @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul class="mb-0">
-                        @foreach($errors->all() as $error)
+                        @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
@@ -35,16 +35,30 @@
                 </div>
             @endif
 
+            @if ($hasActiveSchedule)
+                <div class="alert alert-info border-0 shadow-sm mb-4">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    You already have an active schedule on
+                    <strong>{{ $activeScheduledDonation->donation_date->format('M d, Y') }}</strong>
+                    at
+                    <strong>{{ \Carbon\Carbon::parse($activeScheduledDonation->donation_time)->format('h:i A') }}</strong>.
+                    Please cancel or complete it before booking another one.
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('user.donate-schedule.store') }}">
                 @csrf
-                <fieldset @disabled(!$isEligible)> <!-- This disables everything inside the fieldset -->
+                <fieldset @disabled(!$isEligible || $hasActiveSchedule)> <!-- This disables everything inside the fieldset -->
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label>Hospital / Blood Center</label>
-                            <select name="hospital_admin_id" id="hospital_admin_id" class="form-select @error('hospital_admin_id') is-invalid @enderror" required>
+                            <select name="hospital_admin_id" id="hospital_admin_id"
+                                class="form-select @error('hospital_admin_id') is-invalid @enderror" required>
                                 <option value="" disabled selected>Select Hospital</option>
                                 @foreach ($hospitals as $hospital)
-                                    <option value="{{ $hospital->id }}" {{ old('hospital_admin_id') == $hospital->id ? 'selected' : '' }}>{{ $hospital->hospital_name }}</option>
+                                    <option value="{{ $hospital->id }}"
+                                        {{ old('hospital_admin_id') == $hospital->id ? 'selected' : '' }}>
+                                        {{ $hospital->hospital_name }}</option>
                                 @endforeach
                             </select>
                             @error('hospital_admin_id')
@@ -54,8 +68,10 @@
 
                         <div class="col-md-3">
                             <label>Date of Donation</label>
-                            <input type="date" name="donation_date" id="donation_date" class="form-control @error('donation_date') is-invalid @enderror"
-                                min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" value="{{ old('donation_date') }}" required>
+                            <input type="date" name="donation_date" id="donation_date"
+                                class="form-control @error('donation_date') is-invalid @enderror"
+                                min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" value="{{ old('donation_date') }}"
+                                required>
                             @error('donation_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -63,7 +79,8 @@
 
                         <div class="col-md-3">
                             <label>Time</label>
-                            <select name="donation_time" id="donation_time" class="form-select @error('donation_time') is-invalid @enderror" required>
+                            <select name="donation_time" id="donation_time"
+                                class="form-select @error('donation_time') is-invalid @enderror" required>
                                 <option value="">Select Time</option>
                             </select>
                             @error('donation_time')
@@ -78,15 +95,17 @@
 
                         <div class="col-12">
                             <label>Health Declaration / Notes</label>
-                            <textarea name="notes" class="form-control @error('notes') is-invalid @enderror" rows="3" placeholder="Optional">{{ old('notes') }}</textarea>
+                            <textarea name="notes" class="form-control @error('notes') is-invalid @enderror" rows="3"
+                                placeholder="Optional">{{ old('notes') }}</textarea>
                             @error('notes')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="col-12 d-grid">
-                            <button type="submit" class="btn btn-{{ $isEligible ? 'danger' : 'secondary' }} rounded-pill">
-                                {{ $isEligible ? 'Schedule Donation' : 'Scheduling Locked' }}
+                            <button type="submit"
+                                class="btn btn-{{ $isEligible && !$hasActiveSchedule ? 'danger' : 'secondary' }} rounded-pill">
+                                {{ $isEligible && !$hasActiveSchedule ? 'Schedule Donation' : 'Scheduling Locked' }}
                             </button>
                         </div>
                     </div>

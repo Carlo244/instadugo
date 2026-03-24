@@ -38,6 +38,28 @@ window.Echo.channel('donations')
                 setTimeout(() => toastContainer.lastElementChild?.remove(), 5000);
             }
         }
+    })
+    .listen('.App\\Events\\DonationStatusUpdated', (e) => {
+        console.log('Donation status updated:', e.donation, e.fromStatus, e.toStatus);
+        window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
+
+        if (window.hospitalAdminId) {
+            const toastContainer = document.getElementById('toast-container');
+            if (toastContainer) {
+                const toastClass = e.toStatus === 'cancelled' ? 'text-bg-warning' : 'text-bg-primary';
+                const toastHTML = `
+                <div class="toast align-items-center ${toastClass} border-0 show mb-2" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            Donation status changed: ${e.fromStatus} → ${e.toStatus}.
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>`;
+                toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+                setTimeout(() => toastContainer.lastElementChild?.remove(), 5000);
+            }
+        }
     });
 
 // Real-time listener for blood requests (hospital + users)
@@ -111,79 +133,27 @@ window.addEventListener('donation-updated', async (ev) => {
             return;
         }
 
-        const today = new Date().toISOString().split('T')[0];
-        const donationDate = donation.donation_date;
-        let tab = 'upcoming';
-        if (donationDate === today) tab = 'today';
-        else if (new Date(donationDate) < new Date(today)) tab = 'history';
+        const refreshTargets = [
+            { tab: 'today', containerId: 'hospital-donations-today' },
+            { tab: 'upcoming', containerId: 'hospital-donations-upcoming' },
+            { tab: 'history', containerId: 'hospital-donations-history' },
+        ];
 
-        const containerId = `hospital-donations-${tab}`;
-        const container = document.getElementById(containerId);
+        for (const target of refreshTargets) {
+            const container = document.getElementById(target.containerId);
+            if (!container) continue;
 
-        // Optimistic insert: create a temporary row and prepend it to the table body
-        if (container) {
-            const parser = new DOMParser();
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = `
-                <table class="table mb-0">
-                    <tbody>
-                        <tr class="flash-new" data-temp-row="1">
-                            <td class="ps-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-sm bg-blood-subtle rounded-circle me-3 d-flex align-items-center justify-content-center" style="width:38px;height:38px;">
-                                        <span class="text-blood fw-bold small">${(donation.user?.name || '?').charAt(0).toUpperCase()}</span>
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold text-dark">${donation.user?.name || 'Unknown'}</div>
-                                        <small class="text-muted" style="font-size:0.75rem;">${donation.user?.email || ''}</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="fw-semibold text-dark">${donation.donation_date === today ? 'Today' : donation.donation_date}</div>
-                                <div class="text-muted small"><i class="bi bi-clock me-1"></i>${donation.donation_time}</div>
-                            </td>
-                            <td class="text-center"><span class="badge bg-danger-subtle text-danger border px-3 py-2" style="min-width:50px;">${donation.blood_type}</span></td>
-                            <td><span class="badge bg-blood px-3 py-2 rounded-pill text-white"><i class="bi bi-calendar-event me-1"></i> ${donation.status}</span></td>
-                            ${tab === 'today' ? `<td class="text-end pe-3"><span class="text-muted small">Processing...</span></td>` : ''}
-                        </tr>
-                    </tbody>
-                </table>
-            `;
+            console.log('[donation-updated] fetching partial for tab:', target.tab);
+            const resp = await fetch(`/hospital/donations?ajax=1&tab=${target.tab}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
 
-            // Find the table body inside the existing container and prepend the row
-            const existingTable = container.querySelector('table');
-            if (existingTable) {
-                const tbody = existingTable.querySelector('tbody');
-                if (tbody) {
-                    const firstRow = tempDiv.querySelector('tr');
-                    tbody.insertBefore(firstRow, tbody.firstChild);
-                    // remove flash class after animation completes
-                    setTimeout(() => {
-                        firstRow.classList.remove('flash-new');
-                        firstRow.removeAttribute('data-temp-row');
-                    }, 3000);
-                }
+            if (!resp.ok) {
+                console.warn('[donation-updated] failed to refresh tab:', target.tab, resp.status);
+                continue;
             }
-        }
 
-        // Always fetch authoritative partial and replace container to reconcile
-        console.log('[donation-updated] fetching partial for tab:', tab);
-        const resp = await fetch(`/hospital/donations?ajax=1&tab=${tab}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-        console.log('[donation-updated] fetch finished', resp.status);
-        if (!resp.ok) {
-            console.error('[donation-updated] Failed to fetch updated donations partial', resp.status);
-            // fallback: reload the page so the hospital sees the update
-            try { location.reload(); } catch (e) { /* noop */ }
-            return;
-        }
-
-        const html = await resp.text();
-        if (container) {
-            container.innerHTML = html;
-        } else {
-            console.warn('[donation-updated] container not found:', containerId, ' — reloading page');
-            try { location.reload(); } catch (e) { /* noop */ }
+            container.innerHTML = await resp.text();
         }
     } catch (err) {
         console.error('Error updating hospital donations via AJAX:', err);

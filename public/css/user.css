@@ -16,11 +16,18 @@ body {
 .sidebar-modern {
     width: 280px;
     height: 100vh;
+    height: 100dvh;
     background: var(--sidebar-gradient);
     border-right: 1px solid #edf2f7;
     position: fixed;
+    top: 0;
+    left: 0;
     transition: all 0.3s ease;
-    z-index: 1000;
+    z-index: 1050;
+}
+
+.sidebar-footer {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)) !important;
 }
 
 .brand-logo {
@@ -77,13 +84,13 @@ hr {
     position: fixed;
     top: 15px;
     left: 15px;
-    z-index: 1100;
+    z-index: 900;
     background: white;
     border: none;
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    transition: opacity 0.2s ease;
 }
 
 /* Hide toggler when sidebar is open */
@@ -211,18 +218,6 @@ hr {
     opacity: 0 !important;
     pointer-events: none !important;
 }
-
-/* Base toggler styles (ensure z-index is lower than sidebar) */
-.sidebar-toggler {
-    z-index: 900;
-    transition: opacity 0.2s ease;
-}
-
-.sidebar-modern {
-    z-index: 1050;
-    /* Ensure this is always higher than the toggler */
-}
-
 
 /* Letter spacing for the level labels */
 .letter-spacing-1 {

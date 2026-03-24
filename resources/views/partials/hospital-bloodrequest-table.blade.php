@@ -97,7 +97,6 @@
                                     </button>
                                 </form>
 
-                                {{-- Also show Match button so Admin can find donors for this public request --}}
                                 <button class="btn-match" data-bs-toggle="modal"
                                     data-bs-target="#matchModal{{ $request->id }}">
                                     <i class="bi bi-person-plus-fill"></i><span>Match</span>
@@ -313,10 +312,6 @@
                     <div class="modal-footer border-0 p-3">
                         <button type="button" class="btn btn-secondary rounded-pill px-4"
                             data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-danger rounded-pill px-4 js-open-match-from-details"
-                            data-match-target="#matchModal{{ $request->id }}">
-                            Match Donors Now
-                        </button>
                     </div>
                 </div>
             </div>

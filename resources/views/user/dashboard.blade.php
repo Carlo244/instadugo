@@ -79,7 +79,7 @@
                     </div>
                 </div>
 
-                <div class="glass-card border-0 shadow-sm">
+                <div class="glass-card border-0 shadow-sm" id="invitations-section">
                     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                         <li class="nav-item">
                             <button class="nav-link active rounded-pill btn-sm me-2 d-flex align-items-center gap-2"
@@ -160,6 +160,10 @@
                                                 <td class="text-end">
                                                     @if ($invite->status === 'pending')
                                                         <div class="d-flex gap-2 justify-content-end">
+                                                            <a href="{{ route('user.requests.show', $invite->id) }}"
+                                                                class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                                                                View
+                                                            </a>
                                                             <button type="button"
                                                                 class="btn btn-sm btn-success rounded-pill px-3"
                                                                 data-bs-toggle="modal"
@@ -184,10 +188,22 @@
                                                             </form>
                                                         </div>
                                                     @elseif($invite->status === 'accepted')
-                                                        <span class="text-success small fw-bold"><i
-                                                                class="bi bi-calendar-check me-1"></i> Scheduled</span>
+                                                        <div class="d-flex gap-2 justify-content-end align-items-center">
+                                                            <span class="text-success small fw-bold"><i
+                                                                    class="bi bi-calendar-check me-1"></i> Scheduled</span>
+                                                            <a href="{{ route('user.requests.show', $invite->id) }}"
+                                                                class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                                                                View
+                                                            </a>
+                                                        </div>
                                                     @else
-                                                        <span class="text-muted small italic">Declined</span>
+                                                        <div class="d-flex gap-2 justify-content-end align-items-center">
+                                                            <span class="text-muted small italic">Declined</span>
+                                                            <a href="{{ route('user.requests.show', $invite->id) }}"
+                                                                class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                                                                View
+                                                            </a>
+                                                        </div>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -195,7 +211,8 @@
                                             <tr>
                                                 <td colspan="5" class="text-center py-5">
                                                     <i class="bi bi-envelope text-muted fs-2 d-block mb-2"></i>
-                                                    <span class="text-muted">No pending invitations.</span>
+                                                    <span class="text-muted">No invitations yet. Incoming blood
+                                                        requests will appear here.</span>
                                                 </td>
                                             </tr>
                                         @endforelse
@@ -356,4 +373,26 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const requestedTab = params.get('tab');
+
+            if (requestedTab === 'invitations') {
+                const invitationsTrigger = document.querySelector('[data-bs-target="#invitations"]');
+                if (invitationsTrigger && window.bootstrap && bootstrap.Tab) {
+                    bootstrap.Tab.getOrCreateInstance(invitationsTrigger).show();
+                }
+
+                const section = document.getElementById('invitations-section');
+                if (section) {
+                    section.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+    </script>
 @endsection

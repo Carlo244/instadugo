@@ -34,7 +34,7 @@
         <div class="glass-card mb-4">
 
             {{-- Removed flex-wrap so pills scroll horizontally instead of wrapping on mobile --}}
-            <ul class="nav nav-pills mb-4 gap-2 p-1 bg-light rounded-pill shadow-sm" role="tablist">
+            <ul class="nav nav-pills mb-4 gap-2 p-1" role="tablist">
                 <li class="nav-item">
                     <button class="nav-link active rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tab-requests">
                         <i class="bi bi-exclamation-diamond-fill me-2"></i>Urgent Requests

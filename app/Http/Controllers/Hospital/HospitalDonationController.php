@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Hospital;
 
+use App\Events\DonationStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Donation;
 
@@ -12,7 +13,7 @@ class HospitalDonationController extends Controller
      */
     public function index(\Illuminate\Http\Request $request)
     {
-        $hospitalId = auth()->id();
+        $hospitalId = auth('hospital_admin')->id();
         $today = now()->toDateString();
 
         $query = Donation::with('user')->where('hospital_admin_id', $hospitalId);
@@ -57,6 +58,8 @@ class HospitalDonationController extends Controller
                 ->whereIn('status', ['completed', 'cancelled'])
                 ->latest()
                 ->paginate(15, ['*'], 'history_page'),
+            // Get phlebotomist count for the hospital
+            'phlebotomistCount' => auth()->user()->phlebotomist_count ?? 1,
         ]);
     }
 
@@ -66,10 +69,13 @@ class HospitalDonationController extends Controller
     public function complete($id)
     {
         $donation = Donation::findOrFail($id);
+        $fromStatus = (string) $donation->status;
 
         $donation->update([
             'status' => 'completed',
         ]);
+
+        event(new DonationStatusUpdated($donation->fresh('user'), $fromStatus, 'completed'));
 
         return back()->with('success', "Donation #{$id} marked as completed.");
     }
@@ -80,10 +86,13 @@ class HospitalDonationController extends Controller
     public function cancel($id)
     {
         $donation = Donation::findOrFail($id);
+        $fromStatus = (string) $donation->status;
 
         $donation->update([
             'status' => 'cancelled',
         ]);
+
+        event(new DonationStatusUpdated($donation->fresh('user'), $fromStatus, 'cancelled'));
 
         return back()->with('success', "Donation #{$id} has been cancelled.");
     }

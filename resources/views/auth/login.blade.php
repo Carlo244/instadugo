@@ -33,9 +33,9 @@
                                         <input id="password" type="password"
                                             class="form-control @error('password') is-invalid @enderror" name="password"
                                             required>
-                                        <button class="btn btn-outline-secondary border-start-0" type="button"
-                                            id="togglePassword" style="border-left: none;">
-                                            <i class="bi bi-eye" id="toggleIcon"></i>
+                                        <button class="btn btn-outline-secondary toggle-password" type="button"
+                                            data-target="password">
+                                            <i class="bi bi-eye"></i>
                                         </button>
                                         @error('password')
                                             <div class="invalid-feedback">{{ $message }}</div>
@@ -76,21 +76,4 @@
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const togglePassword = document.querySelector('#togglePassword');
-            const password = document.querySelector('#password');
-            const icon = document.querySelector('#toggleIcon');
-
-            togglePassword.addEventListener('click', function() {
-                // Toggle the type attribute
-                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                password.setAttribute('type', type);
-
-                // Toggle the icon
-                icon.classList.toggle('bi-eye');
-                icon.classList.toggle('bi-eye-slash');
-            });
-        });
-    </script>
 @endsection

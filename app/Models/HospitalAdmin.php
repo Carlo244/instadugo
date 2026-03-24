@@ -11,7 +11,8 @@ class HospitalAdmin extends Authenticatable
         'email',
         'password',
         'contact',
-        'address'
+        'address',
+        'phlebotomist_count'
     ];
 
     protected $hidden = ['password'];

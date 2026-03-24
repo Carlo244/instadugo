@@ -5,10 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InstaDugo | Blood Donation & Matching</title>
+    <meta name="description"
+        content="InstaDugo connects donors, recipients, and hospitals for faster blood request matching and safer donation coordination.">
+    <meta property="og:title" content="InstaDugo | Blood Donation & Matching">
+    <meta property="og:description"
+        content="Real-time blood request and donor matching platform with hospital coordination.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ asset('logo.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="{{ asset('css/landingpage.css') }}" rel="stylesheet">
-
 </head>
 
 <body>
@@ -16,16 +23,30 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
         <div class="container">
-            <img src="{{ asset('logo.png') }}" class="brand-logo" alt="InstaDugo Logo">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a href="#" aria-label="InstaDugo Home">
+                <img src="{{ asset('logo.png') }}" class="brand-logo" alt="InstaDugo Logo">
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link px-3" href="#process">How it Works</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="#">About Us</a></li>
-                    <li class="nav-item"><a class="btn btn-outline-danger ms-lg-3"
-                            href="{{ route('login') }}">{{ __('Login') }}</a></li>
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+                    <li class="nav-item"><a class="nav-link px-3 section-link" href="#process"><i
+                                class="bi bi-diagram-3 me-1"></i>How it Works</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 section-link" href="#about"><i
+                                class="bi bi-info-circle me-1"></i>About</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 section-link" href="#eligibility"><i
+                                class="bi bi-clipboard-pulse me-1"></i>Eligibility</a></li>
+                    <li class="nav-item"><a class="nav-link px-3 section-link" href="#faq"><i
+                                class="bi bi-chat-square-text me-1"></i>FAQ</a></li>
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn btn-danger btn-sm rounded-pill px-3" href="{{ route('login') }}">
+                            <i class="bi bi-exclamation-circle me-1"></i>Emergency Request
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="btn btn-outline-danger ms-lg-2" href="{{ route('login') }}">Login</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -34,93 +55,542 @@
     <!-- Hero Section -->
     <header class="hero-section text-center">
         <div class="container">
+            <p class="hero-badge mb-3"><i class="bi bi-clock-history me-1"></i>24/7 Blood Request & Donor Matching</p>
             <h1 class="display-3 fw-bold mb-3">Save a Life in <span>Real-Time.</span></h1>
-            <p class="lead mb-5 text-white-50">A Web-Based Blood Donation and Compatibility Matching System <br>
-                powered by Multilevel Queue and Rule-Based Algorithms.</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="{{ route('login') }}" class="btn btn-donate btn-lg">Donate Now</a>
-                <a href="{{ route('login') }}" class="btn btn-request btn-lg">Request Blood Support</a>
+            <p class="lead mb-2 text-white-50">A Web-Based Blood Donation and Compatibility Matching System</p>
+            <p class="hero-tech-badge mb-5">Powered by Multilevel Queue &amp; Rule-Based Algorithms</p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{{ route('register') }}" class="btn btn-donate btn-lg">
+                    <i class="bi bi-heart-fill me-2"></i>I want to Donate
+                </a>
+                <a href="{{ route('login') }}" class="btn btn-request btn-lg">
+                    <i class="bi bi-droplet-half me-2"></i>I need Blood
+                </a>
             </div>
+            <p class="mt-4 hero-sub-note"><i class="bi bi-shield-check me-1"></i>Free to use &middot; Hospital-verified
+                &middot; Secure & Private</p>
         </div>
     </header>
 
-    <!-- Stats Section -->
-    <section class="py-5">
-        <div class="container text-center">
-            <h2 class="fw-bold mb-4">Our Impact So Far</h2>
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="glass-card stat-card">
-                        <h3 class="fw-bold text-danger">3,200+</h3>
-                        <p class="text-muted mb-0">Lives Saved</p>
+    <!-- Trust Strip -->
+    <section class="trust-strip">
+        <div class="container">
+            <div class="row g-3 g-md-4">
+                <div class="col-6 col-md">
+                    <div class="trust-item">
+                        <div class="trust-icon"><i class="bi bi-hospital"></i></div>
+                        <div>
+                            <div class="trust-label">Verified Hospitals</div>
+                            <div class="trust-desc">Partner Network</div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="glass-card stat-card">
-                        <h3 class="fw-bold text-success">1,402</h3>
-                        <p class="text-muted mb-0">Successful Matches</p>
+                <div class="col-6 col-md">
+                    <div class="trust-item">
+                        <div class="trust-icon"><i class="bi bi-shield-lock"></i></div>
+                        <div>
+                            <div class="trust-label">Secure Data</div>
+                            <div class="trust-desc">Encrypted & Private</div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="glass-card stat-card">
-                        <h3 class="fw-bold text-primary">850+</h3>
-                        <p class="text-muted mb-0">Active Donors</p>
+                <div class="col-6 col-md">
+                    <div class="trust-item">
+                        <div class="trust-icon"><i class="bi bi-lightning-charge"></i></div>
+                        <div>
+                            <div class="trust-label">Real-Time</div>
+                            <div class="trust-desc">Instant Matching</div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="glass-card stat-card">
-                        <h3 class="fw-bold text-warning">120+</h3>
-                        <p class="text-muted mb-0">Hospitals & Blood Centers</p>
+                <div class="col-6 col-md">
+                    <div class="trust-item">
+                        <div class="trust-icon"><i class="bi bi-bell"></i></div>
+                        <div>
+                            <div class="trust-label">Live Alerts</div>
+                            <div class="trust-desc">Instant Updates</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md">
+                    <div class="trust-item">
+                        <div class="trust-icon"><i class="bi bi-geo-alt"></i></div>
+                        <div>
+                            <div class="trust-label">Local Network</div>
+                            <div class="trust-desc">Cavite-Based</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Stats Section -->
+    <section id="stats" class="py-5">
+        <div class="container text-center">
+            <span class="section-eyebrow">Our Impact</span>
+            <h2 class="fw-bold mb-2">Growing Every Day</h2>
+            <p class="text-muted mb-5">Real numbers from our live platform — updated continuously.</p>
+            <div class="row g-4">
+                <div class="col-6 col-md-3">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon text-danger"><i class="bi bi-droplet-fill"></i></div>
+                        <h3 class="fw-bold stat-number text-danger"
+                            data-target="{{ $landingStats['fulfilled_requests'] }}">0</h3>
+                        <p class="text-muted mb-0 small">Fulfilled Requests</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon text-success"><i class="bi bi-check-circle-fill"></i></div>
+                        <h3 class="fw-bold stat-number text-success"
+                            data-target="{{ $landingStats['successful_matches'] }}">0</h3>
+                        <p class="text-muted mb-0 small">Successful Matches</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon text-primary"><i class="bi bi-people-fill"></i></div>
+                        <h3 class="fw-bold stat-number text-primary"
+                            data-target="{{ $landingStats['active_donors'] }}">0</h3>
+                        <p class="text-muted mb-0 small">Registered Donors</p>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon text-warning"><i class="bi bi-building-plus"></i></div>
+                        <h3 class="fw-bold stat-number text-warning" data-target="{{ $landingStats['partners'] }}">0
+                        </h3>
+                        <p class="text-muted mb-0 small">Partner Hospitals</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Eligibility Section -->
+    <section id="eligibility" class="py-5 section-alt">
+        <div class="container">
+            <span class="section-eyebrow">Can I Donate?</span>
+            <h2 class="text-center fw-bold mb-2">Quick Eligibility Check</h2>
+            <p class="text-center text-muted mb-5">Most healthy adults qualify. Here's a quick overview.</p>
+            <div class="row g-4 text-center">
+                <div class="col-md-3 col-sm-6">
+                    <div class="glass-card h-100 eligibility-card">
+                        <div class="eligibility-icon"><i class="bi bi-heart-pulse"></i></div>
+                        <h5 class="fw-bold mt-3 mb-2">General Health</h5>
+                        <p class="text-muted mb-0 small">You should be feeling well and fit on the day of donation with
+                            no active illness.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="glass-card h-100 eligibility-card">
+                        <div class="eligibility-icon"><i class="bi bi-person-check"></i></div>
+                        <h5 class="fw-bold mt-3 mb-2">Age & Weight</h5>
+                        <p class="text-muted mb-0 small">Must be at least 18 years old and weigh at least 50 kg (110
+                            lbs).</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="glass-card h-100 eligibility-card">
+                        <div class="eligibility-icon"><i class="bi bi-calendar2-check"></i></div>
+                        <h5 class="fw-bold mt-3 mb-2">Donation Interval</h5>
+                        <p class="text-muted mb-0 small">At least 56 days (8 weeks) must pass since your last completed
+                            whole blood donation.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="glass-card h-100 eligibility-card">
+                        <div class="eligibility-icon"><i class="bi bi-hospital"></i></div>
+                        <h5 class="fw-bold mt-3 mb-2">Medical Clearance</h5>
+                        <p class="text-muted mb-0 small">Final eligibility is always confirmed by partner medical staff
+                            at the donation site.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ route('register') }}" class="btn btn-donate rounded-pill px-4">
+                    <i class="bi bi-check2-circle me-2"></i>Register & Get Verified
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <span class="section-eyebrow">Why InstaDugo</span>
+                    <h2 class="fw-bold mb-4">Smarter Blood Coordination, Faster.</h2>
+                    <p class="text-muted mb-4">
+                        InstaDugo connects donors, recipients, and partner hospitals in one unified platform so
+                        urgent blood needs are addressed faster and more safely. Built for Emilio Aguinaldo College
+                        Cavite with real clinical coordination in mind.
+                    </p>
+                    <ul class="about-feature-list list-unstyled">
+                        <li><i class="bi bi-check-circle-fill text-danger me-2"></i>Urgency-based multilevel queue
+                            prioritization</li>
+                        <li><i class="bi bi-check-circle-fill text-danger me-2"></i>ABO/Rh rule-based compatibility
+                            matching</li>
+                        <li><i class="bi bi-check-circle-fill text-danger me-2"></i>Real-time notifications to matched
+                            donors</li>
+                        <li><i class="bi bi-check-circle-fill text-danger me-2"></i>Secure hospital admin coordination
+                            portal</li>
+                        <li><i class="bi bi-check-circle-fill text-danger me-2"></i>Transparent request status tracking
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                    <div class="glass-card about-highlight-card text-center">
+                        <div class="about-icon-ring mb-3">
+                            <i class="bi bi-droplet-half"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Every Second Counts</h5>
+                        <p class="text-muted mb-3">
+                            Blood has a limited shelf life. Our system ensures the right blood reaches the right
+                            patient as quickly as possible — prioritizing critical cases automatically.
+                        </p>
+                        <div class="row g-3 text-start">
+                            <div class="col-6">
+                                <div class="about-mini-stat">
+                                    <i class="bi bi-lightning text-danger"></i>
+                                    <span>Fast matching</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="about-mini-stat">
+                                    <i class="bi bi-shield-check text-success"></i>
+                                    <span>Safe process</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="about-mini-stat">
+                                    <i class="bi bi-bell text-primary"></i>
+                                    <span>Instant alerts</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="about-mini-stat">
+                                    <i class="bi bi-eye text-warning"></i>
+                                    <span>Full visibility</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-5 section-alt">
+        <div class="container">
+            <span class="section-eyebrow">Community Stories</span>
+            <h2 class="text-center fw-bold mb-5">From the People We Serve</h2>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="glass-card testimonial-card h-100">
+                        <div class="testimonial-stars mb-2">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <i class="bi bi-quote testimonial-quote"></i>
+                        <p class="fst-italic text-muted mt-2 mb-3">
+                            "InstaDugo helped us locate a compatible donor quickly during an urgent case. The
+                            coordination was smooth and updates were clear throughout."
+                        </p>
+                        <div class="d-flex align-items-center gap-3 mt-auto">
+                            <div class="testimonial-avatar"><i class="bi bi-building-hospital"></i></div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Hospital Coordination Team</h6>
+                                <small class="text-muted">Partner Blood Center, Cavite</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-card testimonial-card h-100">
+                        <div class="testimonial-stars mb-2">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <i class="bi bi-quote testimonial-quote"></i>
+                        <p class="fst-italic text-muted mt-2 mb-3">
+                            "I received a notification within minutes of registering my blood type. The whole process
+                            felt safe and organized. Proud to be part of this community."
+                        </p>
+                        <div class="d-flex align-items-center gap-3 mt-auto">
+                            <div class="testimonial-avatar"><i class="bi bi-person-heart"></i></div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Registered Donor</h6>
+                                <small class="text-muted">EAC Cavite Student, Blood Type O+</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- How It Works Section -->
-    <section id="process" class="py-5 bg-light">
+    <section id="process" class="py-5">
         <div class="container">
-            <h2 class="text-center fw-bold mb-5">How the System Works</h2>
+            <span class="section-eyebrow">The Process</span>
+            <h2 class="text-center fw-bold mb-2">How the System Works</h2>
+            <p class="text-center text-muted mb-5">Simple steps from registration to successful donation.</p>
             <div class="row text-center g-4">
                 <div class="col-md-4">
-                    <div class="glass-card">
-                        <div class="step-number">1</div>
-                        <h5 class="fw-bold mt-2">Easy Registration</h5>
-                        <p class="text-muted">Create a profile as a donor or recipient. Input your blood type and health
-                            details to join the centralized database.</p>
+                    <div class="glass-card process-card h-100">
+                        <div class="step-circle"><i class="bi bi-person-plus-fill"></i></div>
+                        <div class="step-label">Step 1</div>
+                        <h5 class="fw-bold mt-2">Create Your Profile</h5>
+                        <p class="text-muted small">Register as a donor or recipient. Provide your blood type and
+                            health details to join our verified network.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="glass-card">
-                        <div class="step-number">2</div>
-                        <h5 class="fw-bold mt-2">Smart Scheduling</h5>
-                        <p class="text-muted">Book an appointment online. Our <strong>Multilevel Queue</strong>
-                            prioritizes
-                            urgent cases and rare blood types instantly.</p>
+                    <div class="glass-card process-card h-100">
+                        <div class="step-circle"><i class="bi bi-calendar2-event-fill"></i></div>
+                        <div class="step-label">Step 2</div>
+                        <h5 class="fw-bold mt-2">Smart Queue Entry</h5>
+                        <p class="text-muted small">Submit a blood request or availability. Our <strong>Multilevel
+                                Queue</strong> instantly prioritizes urgent and rare cases.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="glass-card">
-                        <div class="step-number">3</div>
+                    <div class="glass-card process-card h-100">
+                        <div class="step-circle"><i class="bi bi-patch-check-fill"></i></div>
+                        <div class="step-label">Step 3</div>
                         <h5 class="fw-bold mt-2">Automated Matching</h5>
-                        <p class="text-muted">The <strong>Rule-Based Algorithm</strong> verifies ABO/Rh compatibility,
-                            ensuring safe and accurate matches for transfusions.</p>
+                        <p class="text-muted small">The <strong>Rule-Based Algorithm</strong> verifies ABO/Rh
+                            compatibility and notifies the best-matched donor instantly.</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-5 section-alt">
+        <div class="container" style="max-width:800px">
+            <span class="section-eyebrow">Got Questions?</span>
+            <h2 class="text-center fw-bold mb-5">Frequently Asked Questions</h2>
+            <div class="accordion faq-accordion" id="landingFaq">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#faqOne" aria-expanded="true" aria-controls="faqOne">
+                            <i class="bi bi-person-check me-2 text-danger"></i>Who can register as a donor?
+                        </button>
+                    </h2>
+                    <div id="faqOne" class="accordion-collapse collapse show" data-bs-parent="#landingFaq">
+                        <div class="accordion-body text-muted">
+                            Anyone aged 18 and above weighing at least 50 kg, who is in good health and meets the
+                            donation interval requirement can register. Final eligibility is confirmed by partner
+                            medical staff.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#faqTwo" aria-expanded="false" aria-controls="faqTwo">
+                            <i class="bi bi-sort-numeric-up me-2 text-danger"></i>How are urgent requests prioritized?
+                        </button>
+                    </h2>
+                    <div id="faqTwo" class="accordion-collapse collapse" data-bs-parent="#landingFaq">
+                        <div class="accordion-body text-muted">
+                            The system uses a <strong>Multilevel Queue</strong> that ranks requests by urgency level
+                            (critical, urgent, standard) and blood type rarity. Emergency and rare blood type cases
+                            are always processed first.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#faqThree" aria-expanded="false" aria-controls="faqThree">
+                            <i class="bi bi-hospital me-2 text-danger"></i>Do I need to go to the hospital in person?
+                        </button>
+                    </h2>
+                    <div id="faqThree" class="accordion-collapse collapse" data-bs-parent="#landingFaq">
+                        <div class="accordion-body text-muted">
+                            Yes. While the matching and coordination happen on InstaDugo, the actual donation and
+                            fulfillment take place at a partner hospital or blood center for your safety and proper
+                            medical supervision.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#faqFour" aria-expanded="false" aria-controls="faqFour">
+                            <i class="bi bi-shield-lock me-2 text-danger"></i>Is my personal information safe?
+                        </button>
+                    </h2>
+                    <div id="faqFour" class="accordion-collapse collapse" data-bs-parent="#landingFaq">
+                        <div class="accordion-body text-muted">
+                            Absolutely. Your data is stored securely and only shared with verified hospital partners
+                            involved in your request. We follow strict data privacy standards and never sell personal
+                            information.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Band -->
+    <section class="py-5">
+        <div class="container">
+            <div class="cta-band text-center">
+                <h2 class="fw-bold mb-2">Ready to make a difference?</h2>
+                <p class="mb-4 opacity-75">Join hundreds of donors and recipients already on the platform.</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{{ route('register') }}" class="btn btn-donate btn-lg rounded-pill px-5">
+                        <i class="bi bi-heart-fill me-2"></i>Join as Donor
+                    </a>
+                    <a href="{{ route('login') }}" class="btn btn-request btn-lg rounded-pill px-5">
+                        <i class="bi bi-droplet-half me-2"></i>Request Blood
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-4">
-        <div class="container text-center">
-            <p class="mb-1">&copy; 2024 InstaDugo - Emilio Aguinaldo College Cavite</p>
-            <small>Developed by: Balinado, Lapuz, Montemayor, Sanchez</small>
+    <footer class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <img src="{{ asset('logo.png') }}" class="footer-logo mb-2" alt="InstaDugo Logo">
+                    <p class="text-muted small mb-0">A blood donation and compatibility matching system for Emilio
+                        Aguinaldo College Cavite.</p>
+                </div>
+                <div class="col-md-2 col-6">
+                    <h6 class="footer-heading">Navigate</h6>
+                    <ul class="list-unstyled footer-nav mb-0">
+                        <li><a href="#about" class="footer-link">About</a></li>
+                        <li><a href="#process" class="footer-link">How it Works</a></li>
+                        <li><a href="#eligibility" class="footer-link">Eligibility</a></li>
+                        <li><a href="#faq" class="footer-link">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 col-6">
+                    <h6 class="footer-heading">Account</h6>
+                    <ul class="list-unstyled footer-nav mb-0">
+                        <li><a href="{{ route('login') }}" class="footer-link">Login</a></li>
+                        <li><a href="{{ route('register') }}" class="footer-link">Register as Donor</a></li>
+                        <li><a href="{{ route('login') }}" class="footer-link">Request Blood</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="footer-heading">Contact</h6>
+                    <p class="text-muted small mb-1"><i class="bi bi-envelope me-1"></i><a
+                            href="mailto:instadugo.support@gmail.com"
+                            class="footer-link">instadugo.support@gmail.com</a></p>
+                    <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i>Emilio Aguinaldo College,
+                        Cavite</p>
+                </div>
+            </div>
+            <hr class="footer-divider">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <small class="text-muted">&copy; {{ date('Y') }} InstaDugo. All rights reserved.</small>
+                <small class="text-muted">Developed by: Balinado, Lapuz, Montemayor &amp; Sanchez</small>
+            </div>
         </div>
     </footer>
 
+    <!-- Mobile Sticky CTA -->
+    <div class="mobile-cta d-md-none">
+        <a href="{{ route('register') }}" class="btn btn-donate">
+            <i class="bi bi-heart-fill me-1"></i>Donate
+        </a>
+        <a href="{{ route('login') }}" class="btn btn-request">
+            <i class="bi bi-droplet-half me-1"></i>Request
+        </a>
+    </div>
+
+    <!-- Scroll to Top -->
+    <button id="scrollTopBtn" class="scroll-top-btn" aria-label="Scroll to top" title="Back to top">
+        <i class="bi bi-arrow-up-short"></i>
+    </button>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ── Active nav link on scroll ──────────────────────────────
+            const sectionLinks = document.querySelectorAll('.section-link');
+            const sections = Array.from(sectionLinks)
+                .map((link) => document.querySelector(link.getAttribute('href')))
+                .filter(Boolean);
+
+            const activateLink = (id) => {
+                sectionLinks.forEach((link) => {
+                    link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                });
+            };
+
+            const navObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) activateLink(entry.target.id);
+                });
+            }, {
+                rootMargin: '-35% 0px -55% 0px',
+                threshold: 0
+            });
+
+            sections.forEach((section) => navObserver.observe(section));
+
+            // ── Animated count-up for stats ───────────────────────────
+            const statNumbers = document.querySelectorAll('.stat-number');
+            const countUp = (el) => {
+                const target = parseInt(el.dataset.target, 10) || 0;
+                if (target === 0) {
+                    el.textContent = '0';
+                    return;
+                }
+                const duration = 1600;
+                const step = Math.ceil(target / (duration / 16));
+                let current = 0;
+                const timer = setInterval(() => {
+                    current = Math.min(current + step, target);
+                    el.textContent = current.toLocaleString();
+                    if (current >= target) clearInterval(timer);
+                }, 16);
+            };
+
+            const statsObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        countUp(entry.target);
+                        statsObserver.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.5
+            });
+
+            statNumbers.forEach((el) => statsObserver.observe(el));
+
+            // ── Scroll-to-top button ──────────────────────────────────
+            const scrollBtn = document.getElementById('scrollTopBtn');
+            window.addEventListener('scroll', () => {
+                scrollBtn.classList.toggle('visible', window.scrollY > 400);
+            });
+            scrollBtn.addEventListener('click', () => window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            }));
+        });
+    </script>
 </body>
 
 </html>

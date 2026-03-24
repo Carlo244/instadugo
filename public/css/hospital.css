@@ -16,11 +16,18 @@ body {
 .sidebar-modern {
     width: 280px;
     height: 100vh;
+    height: 100dvh;
     background: var(--sidebar-gradient);
     border-right: 1px solid #edf2f7;
     position: fixed;
+    top: 0;
+    left: 0;
     transition: all 0.3s ease;
-    z-index: 1000;
+    z-index: 1050;
+}
+
+.sidebar-footer {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)) !important;
 }
 
 .brand-logo {
@@ -77,19 +84,19 @@ hr {
     position: fixed;
     top: 15px;
     left: 15px;
-    z-index: 1100;
+    z-index: 900;
     background: white;
     border: none;
     padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.2s ease;
 }
 
 .sidebar-toggler.inactive {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 @media (max-width: 991px) {
@@ -120,6 +127,12 @@ hr {
     }
 }
 
+[data-sidebar-open="true"] #sidebarToggler {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 /* ================= CONTENT ================= */
 
 .content-area {
@@ -136,29 +149,6 @@ hr {
         width: 100% !important;
         padding: 5rem 1rem 2rem 1rem !important;
     }
-
-
-    .sidebar-modern {
-        transform: translateX(-100%);
-        width: 280px;
-    }
-
-    .sidebar-modern.show {
-        transform: translateX(0);
-    }
-
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.4);
-        z-index: 999;
-    }
-
-    .sidebar-overlay.show {
-        display: block;
-    }
-
 }
 
 /* ================= GLASS CARD ================= */
@@ -242,14 +232,6 @@ hr {
 }
 
 /* Blood Red subtle badges for upcoming */
-.bg-blood-subtle {
-    background-color: rgba(230, 57, 70, 0.1) !important;
-}
-
-.text-blood {
-    color: #e63946 !important;
-}
-
 .btn-blood {
     background-color: #e63946;
     color: #fff;

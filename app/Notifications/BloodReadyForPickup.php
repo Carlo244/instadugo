@@ -2,8 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Models\BloodRequest;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,12 +11,14 @@ class BloodReadyForPickup extends Notification
 {
     use Queueable;
 
+    protected BloodRequest $bloodRequest;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(BloodRequest $bloodRequest)
     {
-        //
+        $this->bloodRequest = $bloodRequest;
     }
 
     /**
@@ -26,7 +28,7 @@ class BloodReadyForPickup extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -34,10 +36,11 @@ class BloodReadyForPickup extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return new MailMessage()->subject('URGENT: Your Blood Request is Ready for Pickup')->view('emails.blood_ready', [
-            // Create a new simple view for this
+        return (new MailMessage())
+            ->subject('Blood Request Fulfilled - Ready for Pickup')
+            ->view('emails.blood_ready', [
             'user' => $notifiable,
-            'request' => $this->request,
+            'request' => $this->bloodRequest,
         ]);
     }
 
@@ -49,7 +52,10 @@ class BloodReadyForPickup extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-                //
-            ];
+            'title' => 'Blood is ready for pickup',
+            'message' => 'Your request for ' . $this->bloodRequest->blood_type . ' has been fulfilled.',
+            'link' => route('user.blood-requests'),
+            'priority' => 'urgent',
+        ];
     }
 }

@@ -7,7 +7,16 @@
                 <h3 class="fw-bold text-dark mb-1">Donation Appointments</h3>
                 <p class="text-muted small">Organize and process blood donor schedules.</p>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
+                <button
+                    class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 shadow-sm d-flex align-items-center gap-2 btn btn-link text-decoration-none"
+                    data-bs-toggle="modal" data-bs-target="#editPhlebotomistModal"
+                    style="cursor: pointer; border: none; padding: 0.5rem 1rem;">
+                    <i class="bi bi-people-fill"></i>
+                    <span><strong>{{ $phlebotomistCount }}</strong> Phlebotomist{{ $phlebotomistCount !== 1 ? 's' : '' }} On
+                        Duty</span>
+                    <i class="bi bi-pencil-square ms-1 opacity-75" style="font-size: 0.85rem;"></i>
+                </button>
                 <select id="blood-type-filter" class="form-select form-select-sm" style="width: 110px;">
                     <option value="">All Types</option>
                     <option value="A+">A+</option>
@@ -87,6 +96,58 @@
                 </div>
             </div>
         </div>
+
+        <!-- EDIT PHLEBOTOMIST MODAL -->
+        <div class="modal fade" id="editPhlebotomistModal" tabindex="-1" aria-labelledby="editPhlebotomistLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-primary-subtle border-0">
+                        <h5 class="modal-title fw-bold text-primary" id="editPhlebotomistLabel">
+                            <i class="bi bi-people-fill me-2"></i>Update Phlebotomist Count
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="{{ route('hospital.update-phlebotomist') }}" id="phlebotomistForm">
+                        @csrf
+                        @method('PATCH')
+                        <div class="modal-body">
+                            <p class="text-muted small mb-3">
+                                Set the number of phlebotomists on duty. This determines how many donors can book the same
+                                time slot.
+                            </p>
+                            <div class="mb-3">
+                                <label for="phlebotomistInput" class="form-label fw-semibold">Number of
+                                    Phlebotomists</label>
+                                <input type="number" class="form-control form-control-lg border-2"
+                                    id="phlebotomistInput" name="phlebotomist_count" value="{{ $phlebotomistCount }}"
+                                    min="1" max="10" required>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Valid range: 1-10 phlebotomists
+                                </small>
+                            </div>
+                            <div class="alert alert-info border-0" role="alert">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                <small>
+                                    With <strong id="previewCount">{{ $phlebotomistCount }}</strong>
+                                    phlebotomist{{ $phlebotomistCount !== 1 ? 's' : '' }},
+                                    users can book <strong id="previewSlots">{{ $phlebotomistCount }}</strong>
+                                    slot{{ $phlebotomistCount !== 1 ? 's' : '' }} per time slot.
+                                </small>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 bg-light">
+                            <button type="button" class="btn btn-secondary rounded-pill"
+                                data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-check-circle me-2"></i>Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </main>
 @endsection
 
@@ -144,6 +205,19 @@
             if (bloodType && bloodTypeFilter) bloodTypeFilter.value = bloodType;
 
             if (bloodType) filterDonations();
+
+            // Handle phlebotomist count input preview
+            const phlebotomistInput = document.getElementById('phlebotomistInput');
+            const previewCount = document.getElementById('previewCount');
+            const previewSlots = document.getElementById('previewSlots');
+
+            if (phlebotomistInput) {
+                phlebotomistInput.addEventListener('input', function() {
+                    const count = parseInt(this.value) || 1;
+                    previewCount.textContent = count;
+                    previewSlots.textContent = count;
+                });
+            }
         });
     </script>
 @endpush
