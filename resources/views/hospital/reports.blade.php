@@ -69,8 +69,8 @@
             </div>
 
             @php
-                $fulfilledTotal = (int) ($statusCounts->firstWhere('status', 'fulfilled')->total ?? 0);
-                $cancelledTotal = (int) ($statusCounts->firstWhere('status', 'cancelled')->total ?? 0);
+                $fulfilledTotal = (int) (optional($statusCounts->firstWhere('status', 'fulfilled'))->total ?? 0);
+                $cancelledTotal = (int) (optional($statusCounts->firstWhere('status', 'cancelled'))->total ?? 0);
             @endphp
 
             {{-- Simple Summary Row --}}
