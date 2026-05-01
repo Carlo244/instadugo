@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\user;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserProfileController extends Controller
 {
@@ -28,14 +29,20 @@ class UserProfileController extends Controller
             'age' => 'nullable|integer',
             'sex' => 'nullable|string',
             'address' => 'nullable|string',
-            'password' => 'nullable|confirmed|min:6',
+            'current_password' => 'required_with:password',
+            'password' => 'nullable|confirmed|min:8',
         ]);
 
         if ($request->filled('password')) {
+            if (!Hash::check((string) $request->input('current_password'), (string) $user->password)) {
+                return back()->withErrors(['current_password' => 'Current password is incorrect.'])->withInput();
+            }
             $data['password'] = bcrypt($request->password);
         } else {
             unset($data['password']);
         }
+
+        unset($data['current_password']);
 
         $user->update($data);
 

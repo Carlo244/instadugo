@@ -47,6 +47,7 @@ class DonorRequestNotification extends Notification
             'urgency' => $this->requestData['urgency'] ?? 'Normal',
             'personalMessage' => $this->requestData['message'] ?? 'No additional message provided.',
             'hospital' => $this->requestData['hospital'] ?? 'N/A',
+            'hospitalAddress' => $this->requestData['hospital_address'] ?? null,
             // Passing the ID to the email view for buttons
             'requestId' => $this->requestData['request_id'],
         ]);

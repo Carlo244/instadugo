@@ -43,9 +43,8 @@ class BloodRequest extends Model
     }
     public function hospital()
     {
-        // We specify 'hospital_admin_id' because it doesn't follow
-        // the default 'hospital_id' naming convention.
-        return $this->belongsTo(HospitalAdmin::class, 'hospital_admin_id');
+        // Backward-compatible alias. Prefer hospitalAdmin() in new code.
+        return $this->hospitalAdmin();
     }
 
     public function receiver()

@@ -4,28 +4,34 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Notification extends Model
 {
     use HasFactory;
 
+    protected $table = 'notifications';
+
     protected $fillable = [
-        'user_id',
         'type',
-        'message',
+        'notifiable_id',
+        'notifiable_type',
+        'data',
         'read_at',
     ];
 
-    // Optional: define relationship to User
-    public function user()
+    protected $casts = [
+        'data' => 'array',
+        'read_at' => 'datetime',
+    ];
+
+    public function notifiable(): MorphTo
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 
-    // Optional: check if notification is read
     public function isRead()
     {
         return !is_null($this->read_at);
     }
-    
 }

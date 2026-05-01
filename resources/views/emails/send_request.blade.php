@@ -32,8 +32,9 @@
                     <span style="color:#1a1a1a;">{{ $sender->name }}</span>
                 </div>
                 <div style="margin-bottom: 10px;">
-                    <strong style="color:#718096;">Location:</strong><br>
-                    <span style="color:#1a1a1a;">{{ $hospital }}</span>
+                    <strong style="color:#718096;">Hospital Location:</strong><br>
+                    <span style="color:#1a1a1a;">{{ $hospital }}</span><br>
+                    <span style="color:#4a5568; font-size: 14px;">{{ $hospitalAddress ?? 'Address not available' }}</span>
                 </div>
 
                 <div

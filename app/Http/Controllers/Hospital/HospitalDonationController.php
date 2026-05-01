@@ -59,7 +59,7 @@ class HospitalDonationController extends Controller
                 ->latest()
                 ->paginate(15, ['*'], 'history_page'),
             // Get phlebotomist count for the hospital
-            'phlebotomistCount' => auth()->user()->phlebotomist_count ?? 1,
+            'phlebotomistCount' => auth('hospital_admin')->user()->phlebotomist_count ?? 1,
         ]);
     }
 
@@ -68,7 +68,7 @@ class HospitalDonationController extends Controller
      */
     public function complete($id)
     {
-        $donation = Donation::findOrFail($id);
+        $donation = $this->findOwnedDonationOrFail($id);
         $fromStatus = (string) $donation->status;
 
         $donation->update([
@@ -85,7 +85,7 @@ class HospitalDonationController extends Controller
      */
     public function cancel($id)
     {
-        $donation = Donation::findOrFail($id);
+        $donation = $this->findOwnedDonationOrFail($id);
         $fromStatus = (string) $donation->status;
 
         $donation->update([
@@ -102,8 +102,19 @@ class HospitalDonationController extends Controller
      */
     public function show($id)
     {
-        $donation = Donation::with('user', 'hospitalAdmin')->findOrFail($id);
+        $donation = Donation::with('user', 'hospitalAdmin')
+            ->where('hospital_admin_id', auth('hospital_admin')->id())
+            ->findOrFail($id);
 
         return view('hospital.donations.show', compact('donation'));
+    }
+
+    /**
+     * Ensure donation belongs to the logged-in hospital admin.
+     */
+    private function findOwnedDonationOrFail($id): Donation
+    {
+        return Donation::where('hospital_admin_id', auth('hospital_admin')->id())
+            ->findOrFail($id);
     }
 }

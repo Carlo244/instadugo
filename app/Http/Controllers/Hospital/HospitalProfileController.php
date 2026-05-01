@@ -24,14 +24,20 @@ class HospitalProfileController extends Controller
             'contact' => 'nullable|string|max:20',
             'address' => 'required|string|max:500',
             'phlebotomist_count' => 'required|integer|min:1|max:10',
-            'password' => 'nullable|confirmed|min:6',
+            'current_password' => 'required_with:password',
+            'password' => 'nullable|confirmed|min:8',
         ]);
 
         if ($request->filled('password')) {
+            if (!Hash::check((string) $request->input('current_password'), (string) $hospital->password)) {
+                return back()->withErrors(['current_password' => 'Current password is incorrect.'])->withInput();
+            }
             $data['password'] = Hash::make($request->password);
         } else {
             unset($data['password']);
         }
+
+        unset($data['current_password']);
 
         $hospital->update($data);
 

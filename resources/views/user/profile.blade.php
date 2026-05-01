@@ -104,10 +104,28 @@
                             <h6 class="fw-bold">Change Password (optional)</h6>
 
                             <div class="col-md-6 mb-3">
+                                <label for="current_password" class="form-label">Current Password</label>
+                                <div class="input-group">
+                                    <input type="password" name="current_password" id="current_password"
+                                        class="form-control @error('current_password') is-invalid @enderror">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button"
+                                        data-target="current_password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    @error('current_password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <small class="text-muted">Required only when setting a new password.</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3"></div>
+
+                            <div class="col-md-6 mb-3">
                                 <label for="password" class="form-label">Password</label>
                                 <div class="input-group">
                                     <input type="password" name="password" id="password"
-                                        class="form-control @error('password') is-invalid @enderror" required>
+                                        class="form-control @error('password') is-invalid @enderror">
                                     <button class="btn btn-outline-secondary toggle-password" type="button"
                                         data-target="password">
                                         <i class="bi bi-eye"></i>
@@ -122,7 +140,7 @@
                                 <label for="password_confirmation" class="form-label">Confirm Password</label>
                                 <div class="input-group">
                                     <input type="password" name="password_confirmation" id="password_confirmation"
-                                        class="form-control" required>
+                                        class="form-control">
                                     <button class="btn btn-outline-secondary toggle-password" type="button"
                                         data-target="password_confirmation">
                                         <i class="bi bi-eye"></i>

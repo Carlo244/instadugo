@@ -79,6 +79,24 @@
                     <h6 class="fw-bold mb-0">Change Password (Optional)</h6>
 
                     <div class="col-md-6">
+                        <label for="current_password" class="form-label">Current Password</label>
+                        <div class="input-group">
+                            <input type="password" name="current_password" id="current_password"
+                                class="form-control @error('current_password') is-invalid @enderror">
+                            <button class="btn btn-outline-secondary toggle-password" type="button"
+                                data-target="current_password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            @error('current_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <small class="text-muted">Required only when setting a new password.</small>
+                    </div>
+
+                    <div class="col-md-6"></div>
+
+                    <div class="col-md-6">
                         <label for="password" class="form-label">New Password</label>
                         <div class="input-group">
                             <input type="password" name="password" id="password"

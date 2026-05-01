@@ -448,31 +448,29 @@ section>.container>div.text-center>.section-eyebrow::after {
 
 /* ── Stats ──────────────────────────────────────────────────── */
 .stat-card {
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
     text-align: center;
     border-top: 3px solid var(--blood-red);
     transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
 
-.col-6:nth-child(1) .stat-card {
-    border-top-color: #e63946;
-}
-
-.col-6:nth-child(2) .stat-card {
-    border-top-color: #198754;
-}
-
-.col-6:nth-child(3) .stat-card {
-    border-top-color: #0d6efd;
-}
-
-.col-6:nth-child(4) .stat-card {
-    border-top-color: #ffc107;
-}
-
 .stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 2.2rem;
     margin-bottom: 0.75rem;
     line-height: 1;
+    color: var(--blood-red);
+    background: rgba(230, 57, 70, 0.1);
     animation: icon-bounce 1.2s ease-in-out infinite;
     animation-delay: var(--delay, 0s);
 }
@@ -509,6 +507,7 @@ section>.container>div.text-center>.section-eyebrow::after {
     font-size: 2.2rem;
     font-weight: 800;
     min-height: 2.4rem;
+    color: var(--blood-red);
 }
 
 /* ── Eligibility ─────────────────────────────────────────────── */
@@ -758,43 +757,95 @@ section>.container>div.text-center>.section-eyebrow::after {
 
 /* ── Footer ──────────────────────────────────────────────────── */
 footer {
-    background: #111827;
-    color: #9ca3af;
+    background: #0f172a;
+    color: #cbd5e1;
 }
 
 .footer-logo {
-    width: 110px;
-    filter: brightness(0) invert(1);
-    opacity: 0.85;
+    width: 120px;
+    opacity: 1;
+}
+
+.footer-brand-text {
+    color: #d1d5db;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.footer-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.footer-badge i {
+    color: #f87171;
 }
 
 .footer-heading {
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 700;
+    color: #f8fafc;
+    font-size: 0.82rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.85rem;
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
 }
 
 .footer-nav li {
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.6rem;
 }
 
 .footer-link {
-    color: #9ca3af;
+    color: #e2e8f0;
     text-decoration: none;
-    font-size: 0.9rem;
-    transition: color 0.2s ease;
+    font-size: 0.92rem;
+    transition: color 0.2s ease, opacity 0.2s ease;
 }
 
 .footer-link:hover {
-    color: #fff;
+    color: #ffffff;
+    opacity: 1;
+}
+
+.footer-contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    font-size: 0.92rem;
+    color: #d1d5db;
+    margin-bottom: 0.7rem;
+    line-height: 1.45;
+}
+
+.footer-contact-list i {
+    color: #f87171;
+    font-size: 1rem;
+    margin-top: 0.08rem;
 }
 
 .footer-divider {
-    border-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
     margin: 2rem 0 1rem;
+}
+
+.footer-meta-text {
+    color: #e2e8f0;
+    font-size: 0.86rem;
+    font-weight: 500;
+    line-height: 1.5;
 }
 
 /* ── Mobile Sticky CTA ───────────────────────────────────────── */
@@ -872,6 +923,25 @@ footer {
 
     .stat-number {
         font-size: 1.7rem;
+    }
+
+    .footer-brand-text,
+    .footer-contact-list li,
+    .footer-link {
+        font-size: 0.88rem;
+    }
+
+    .footer-badge {
+        font-size: 0.72rem;
+    }
+
+    .footer-meta {
+        justify-content: center !important;
+        text-align: center;
+    }
+
+    .footer-meta-text {
+        font-size: 0.8rem;
     }
 }
 

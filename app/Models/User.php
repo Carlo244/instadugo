@@ -26,6 +26,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Donation::class);
     }
 
+    public function bloodRequests()
+    {
+        return $this->hasMany(BloodRequest::class, 'user_id');
+    }
+
+    public function receivedBloodRequests()
+    {
+        return $this->hasMany(BloodRequest::class, 'receiver_id');
+    }
+
     public function isEligible()
     {
         // We only need the date for the 56-day rule usually

@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class HospitalAdminLoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.hospital-login');
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -23,8 +23,7 @@ class HospitalAdminLoginController extends Controller
         if (Auth::guard('hospital_admin')->attempt($credentials)) {
             $request->session()->regenerate();
 
-            // Redirect to loader page after login
-            return redirect()->route('hospital.loader');
+            return redirect()->route('hospital.dashboard');
         }
 
         return back()->withErrors(['email' => 'Invalid credentials']);
@@ -38,6 +37,6 @@ class HospitalAdminLoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/hospital/login');
+        return redirect()->route('login');
     }
 }

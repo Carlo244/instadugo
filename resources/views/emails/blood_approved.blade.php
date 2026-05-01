@@ -39,6 +39,16 @@
                 • Urgency: <strong>{{ $request->urgency }}</strong>
             </td>
         </tr>
+        <tr>
+            <td style="font-size: 14px; line-height: 1.8; color: #4a5568;">
+                <strong
+                    style="color: #1a1a1a; display: block; margin-bottom: 5px; text-transform: uppercase; font-size: 11px;">Hospital
+                    Location:</strong>
+                <strong
+                    style="color: #1a1a1a;">{{ $request->hospitalAdmin?->hospital_name ?? 'Partner Hospital' }}</strong><br>
+                <span style="color: #4a5568;">{{ $request->hospitalAdmin?->address ?? 'Address not available' }}</span>
+            </td>
+        </tr>
     </table>
 
     <table border="0" cellpadding="0" cellspacing="0" width="100%">

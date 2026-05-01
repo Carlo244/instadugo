@@ -22,7 +22,8 @@
                 </strong>
                 • Scheduled Date: <strong>{{ \Carbon\Carbon::parse($donationDate)->format('M d, Y') }}</strong><br>
                 • Scheduled Time: <strong>{{ $donationTime }}</strong><br>
-                • Location: <strong>{{ $hospital }}</strong>
+                • Location: <strong>{{ $hospital }}</strong><br>
+                • Address: <span style="color: #4a5568;">{{ $hospitalAddress ?? 'Address not available' }}</span>
             </td>
         </tr>
     </table>

@@ -133,33 +133,30 @@
             <p class="text-muted mb-5">Real numbers from our live platform — updated continuously.</p>
             <div class="row g-4">
                 <div class="col-6 col-md-3">
-                    <div class="glass-card stat-card">
-                        <div class="stat-icon text-danger"><i class="bi bi-droplet-fill"></i></div>
-                        <h3 class="fw-bold stat-number text-danger"
-                            data-target="{{ $landingStats['fulfilled_requests'] }}">0</h3>
+                    <div class="glass-card stat-card h-100">
+                        <div class="stat-icon"><i class="bi bi-droplet-fill"></i></div>
+                        <h3 class="fw-bold stat-number" data-target="{{ $landingStats['fulfilled_requests'] }}">0</h3>
                         <p class="text-muted mb-0 small">Fulfilled Requests</p>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="glass-card stat-card">
-                        <div class="stat-icon text-success"><i class="bi bi-check-circle-fill"></i></div>
-                        <h3 class="fw-bold stat-number text-success"
-                            data-target="{{ $landingStats['successful_matches'] }}">0</h3>
+                    <div class="glass-card stat-card h-100">
+                        <div class="stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+                        <h3 class="fw-bold stat-number" data-target="{{ $landingStats['successful_matches'] }}">0</h3>
                         <p class="text-muted mb-0 small">Successful Matches</p>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="glass-card stat-card">
-                        <div class="stat-icon text-primary"><i class="bi bi-people-fill"></i></div>
-                        <h3 class="fw-bold stat-number text-primary"
-                            data-target="{{ $landingStats['active_donors'] }}">0</h3>
+                    <div class="glass-card stat-card h-100">
+                        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                        <h3 class="fw-bold stat-number" data-target="{{ $landingStats['active_donors'] }}">0</h3>
                         <p class="text-muted mb-0 small">Registered Donors</p>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="glass-card stat-card">
-                        <div class="stat-icon text-warning"><i class="bi bi-building-plus"></i></div>
-                        <h3 class="fw-bold stat-number text-warning" data-target="{{ $landingStats['partners'] }}">0
+                    <div class="glass-card stat-card h-100">
+                        <div class="stat-icon"><i class="bi bi-hospital"></i></div>
+                        <h3 class="fw-bold stat-number" data-target="{{ $landingStats['partners'] }}">0
                         </h3>
                         <p class="text-muted mb-0 small">Partner Hospitals</p>
                     </div>
@@ -275,62 +272,6 @@
                                     <i class="bi bi-eye text-warning"></i>
                                     <span>Full visibility</span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="py-5 section-alt">
-        <div class="container">
-            <span class="section-eyebrow">Community Stories</span>
-            <h2 class="text-center fw-bold mb-5">From the People We Serve</h2>
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="glass-card testimonial-card h-100">
-                        <div class="testimonial-stars mb-2">
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                        </div>
-                        <i class="bi bi-quote testimonial-quote"></i>
-                        <p class="fst-italic text-muted mt-2 mb-3">
-                            "InstaDugo helped us locate a compatible donor quickly during an urgent case. The
-                            coordination was smooth and updates were clear throughout."
-                        </p>
-                        <div class="d-flex align-items-center gap-3 mt-auto">
-                            <div class="testimonial-avatar"><i class="bi bi-building-hospital"></i></div>
-                            <div>
-                                <h6 class="mb-0 fw-bold">Hospital Coordination Team</h6>
-                                <small class="text-muted">Partner Blood Center, Cavite</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="glass-card testimonial-card h-100">
-                        <div class="testimonial-stars mb-2">
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                        </div>
-                        <i class="bi bi-quote testimonial-quote"></i>
-                        <p class="fst-italic text-muted mt-2 mb-3">
-                            "I received a notification within minutes of registering my blood type. The whole process
-                            felt safe and organized. Proud to be part of this community."
-                        </p>
-                        <div class="d-flex align-items-center gap-3 mt-auto">
-                            <div class="testimonial-avatar"><i class="bi bi-person-heart"></i></div>
-                            <div>
-                                <h6 class="mb-0 fw-bold">Registered Donor</h6>
-                                <small class="text-muted">EAC Cavite Student, Blood Type O+</small>
                             </div>
                         </div>
                     </div>
@@ -468,13 +409,18 @@
     <!-- Footer -->
     <footer class="py-5">
         <div class="container">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <img src="{{ asset('logo.png') }}" class="footer-logo mb-2" alt="InstaDugo Logo">
-                    <p class="text-muted small mb-0">A blood donation and compatibility matching system for Emilio
-                        Aguinaldo College Cavite.</p>
+            <div class="row g-4 g-lg-5">
+                <div class="col-lg-4">
+                    <img src="{{ asset('logo.png') }}" class="footer-logo mb-3" alt="InstaDugo Logo">
+                    <p class="footer-brand-text mb-3">A blood donation and compatibility matching system designed for
+                        fast, safe, and coordinated blood support in Cavite.</p>
+                    <div class="footer-badges">
+                        <span class="footer-badge"><i class="bi bi-shield-check"></i> Hospital Verified</span>
+                        <span class="footer-badge"><i class="bi bi-lightning-charge"></i> Real-Time Matching</span>
+                    </div>
                 </div>
-                <div class="col-md-2 col-6">
+
+                <div class="col-6 col-lg-2">
                     <h6 class="footer-heading">Navigate</h6>
                     <ul class="list-unstyled footer-nav mb-0">
                         <li><a href="#about" class="footer-link">About</a></li>
@@ -483,7 +429,8 @@
                         <li><a href="#faq" class="footer-link">FAQ</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3 col-6">
+
+                <div class="col-6 col-lg-2">
                     <h6 class="footer-heading">Account</h6>
                     <ul class="list-unstyled footer-nav mb-0">
                         <li><a href="{{ route('login') }}" class="footer-link">Login</a></li>
@@ -491,19 +438,27 @@
                         <li><a href="{{ route('login') }}" class="footer-link">Request Blood</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3">
+
+                <div class="col-lg-4">
                     <h6 class="footer-heading">Contact</h6>
-                    <p class="text-muted small mb-1"><i class="bi bi-envelope me-1"></i><a
-                            href="mailto:instadugo.support@gmail.com"
-                            class="footer-link">instadugo.support@gmail.com</a></p>
-                    <p class="text-muted small mb-0"><i class="bi bi-geo-alt me-1"></i>Emilio Aguinaldo College,
-                        Cavite</p>
+                    <ul class="list-unstyled footer-contact-list mb-0">
+                        <li>
+                            <i class="bi bi-envelope"></i>
+                            <span>Email: <a href="mailto:instadugo@gmail.com"
+                                    class="footer-link">instadugo@gmail.com</a></span>
+                        </li>
+                        <li>
+                            <i class="bi bi-geo-alt"></i>
+                            <span>Location: Emilio Aguinaldo College, Cavite</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
+
             <hr class="footer-divider">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <small class="text-muted">&copy; {{ date('Y') }} InstaDugo. All rights reserved.</small>
-                <small class="text-muted">Developed by: Balinado, Lapuz, Montemayor &amp; Sanchez</small>
+            <div class="footer-meta d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <small class="footer-meta-text">&copy; {{ date('Y') }} InstaDugo. All rights reserved.</small>
+                <small class="footer-meta-text">Developed by: Balinado, Lapuz, Montemayor &amp; Sanchez</small>
             </div>
         </div>
     </footer>

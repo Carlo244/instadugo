@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Global Real-time Listener for donations
-window.Echo.channel('donations')
+window.Echo.private('donations')
     .listen('.App\\Events\\DonationCreated', (e) => { 
         console.log('New donation detected:', e.donation);
         window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
@@ -63,7 +63,7 @@ window.Echo.channel('donations')
     });
 
 // Real-time listener for blood requests (hospital + users)
-window.Echo.channel('blood-requests')
+window.Echo.private('blood-requests')
     .listen('.App\\Events\\BloodRequestCreated', (e) => {
         if (!window.hospitalAdminId) {
             return;
@@ -93,6 +93,16 @@ window.Echo.channel('blood-requests')
                 bloodRequest: e.bloodRequest,
                 fromStatus: e.fromStatus,
                 toStatus: e.toStatus,
+            },
+        }));
+    })
+    .listen('.App\\Events\\BloodRequestPriorityUpdated', (e) => {
+        console.log('Blood request priority updated:', e.bloodRequest, e.fromUrgency, e.toUrgency);
+        window.dispatchEvent(new CustomEvent('bloodrequest-priority-updated', {
+            detail: {
+                bloodRequest: e.bloodRequest,
+                fromUrgency: e.fromUrgency,
+                toUrgency: e.toUrgency,
             },
         }));
     });
@@ -319,5 +329,72 @@ window.addEventListener('bloodrequest-status-updated', async (ev) => {
         }
     } catch (err) {
         console.error('[bloodrequest-status-updated] error', err);
+    }
+});
+
+window.addEventListener('bloodrequest-priority-updated', async (ev) => {
+    try {
+        const payload = ev.detail;
+        const br = payload?.bloodRequest;
+        const fromUrgency = payload?.fromUrgency;
+        const toUrgency = payload?.toUrgency;
+
+        if (!br || !window.hospitalAdminId) {
+            return;
+        }
+
+        if (String(window.hospitalAdminId) !== String(br.hospital_admin_id)) {
+            return;
+        }
+
+        const toastContainer = document.getElementById('toast-container');
+        if (toastContainer) {
+            const toastHTML = `
+            <div class="toast align-items-center text-bg-info border-0 show mb-2" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        Request #${br.id} priority changed: ${fromUrgency} -> ${toUrgency}.
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>`;
+            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+            setTimeout(() => toastContainer.lastElementChild?.remove(), 5000);
+        }
+
+        const levels = ['Emergency', 'High', 'Normal'];
+        for (const level of levels) {
+            const container = document.getElementById(`bloodrequests-live-${level.toLowerCase()}`);
+            if (!container) {
+                continue;
+            }
+
+            const resp = await fetch(`/hospital/requests?ajax=1&level=${encodeURIComponent(level)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+
+            if (resp.ok) {
+                container.innerHTML = await resp.text();
+            }
+        }
+
+        let total = 0;
+        ['emergency', 'high', 'normal'].forEach((lvl) => {
+            const tbl = document.getElementById(`bloodrequests-live-${lvl}`);
+            const count = tbl ? tbl.querySelectorAll('tbody tr.request-row').length : 0;
+            total += count;
+
+            const btn = document.querySelector(`#priority-tabs button[data-bs-target="#priority-${lvl}"] h2`);
+            if (btn) {
+                btn.textContent = count;
+            }
+        });
+
+        const activeBadge = document.querySelector('.badge.bg-blood-gradient strong');
+        if (activeBadge) {
+            activeBadge.textContent = total;
+        }
+    } catch (err) {
+        console.error('[bloodrequest-priority-updated] error', err);
     }
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Hospital;
 
+use App\Events\BloodRequestPriorityUpdated;
 use App\Events\BloodRequestStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\BloodRequest;
@@ -9,9 +10,23 @@ use App\Models\User;
 use App\Notifications\BloodReadyForPickup;
 use App\Notifications\BloodRequestApproved;
 use App\Notifications\BloodRequestNotification;
+use App\Notifications\BloodRequestStatusChanged;
+use App\Services\BloodRequestAuditService;
+use App\Services\BloodRequestMatchingService;
+use App\Services\BloodRequestPriorityService;
+use App\Services\BloodRequestStatusTransitionService;
 
 class HospitalBloodRequestController extends Controller
 {
+    public function __construct(
+        private readonly BloodRequestPriorityService $priorityService,
+        private readonly BloodRequestMatchingService $matchingService,
+        private readonly BloodRequestStatusTransitionService $statusTransitionService,
+        private readonly BloodRequestAuditService $auditService
+    )
+    {
+    }
+
     /**
      * Display blood requests with compatibility matching and urgency queues
      */
@@ -25,13 +40,7 @@ class HospitalBloodRequestController extends Controller
 
         // Attach matched donors to each request (only for public requests)
         foreach ($requests as $req) {
-            if (!$req->receiver_id) {
-                $compatibleBloodTypes = $this->compatibleDonors($req->blood_type);
-
-                $req->matchedDonors = User::whereIn('blood_type', $compatibleBloodTypes)->where('id', '!=', $req->user_id)->get()->filter(fn($donor) => $donor->isEligible());
-            } else {
-                $req->matchedDonors = collect(); // No matching needed for direct invites
-            }
+            $req->matchedDonors = $this->matchingService->getEligibleMatchedDonors($req);
         }
 
         /**
@@ -41,28 +50,13 @@ class HospitalBloodRequestController extends Controller
          */
         $activeStatuses = ['pending', 'accepted'];
 
-        // Get priority configuration
-        $priorityConfig = config('priorities.levels');
-        $priorityOrder = config('priorities.order');
-
-        // Build queue data with computed metadata
-        $queues = [];
-        $totalActive = 0;
-
-        foreach ($priorityOrder as $level) {
-            $queueRequests = $requests->where('urgency', $level)->whereIn('status', $activeStatuses);
-            $count = $queueRequests->count();
-            $totalActive += $count;
-
-            $queues[$level] = [
-                'requests' => $queueRequests,
-                'count' => $count,
-                'config' => $priorityConfig[$level],
-            ];
-        }
+        $priorityOrder = $this->priorityService->order();
+        $queueData = $this->priorityService->buildQueues($requests, $activeStatuses);
+        $queues = $queueData['queues'];
+        $totalActive = $queueData['totalActive'];
 
         // History includes fulfilled, declined, and cancelled
-        $fulfilledRequests = $requests->whereIn('status', ['fulfilled', 'declined', 'cancelled']);
+        $fulfilledRequests = $requests->whereIn('status', $this->priorityService->historyStatuses());
 
         // If ajax request, return the appropriate partial
         if ($request->boolean('ajax')) {
@@ -91,10 +85,17 @@ class HospitalBloodRequestController extends Controller
         $this->authorizeRequestOwner($request);
         $previousStatus = (string) $request->status;
 
+        if (!$this->statusTransitionService->canTransition($previousStatus, 'accepted')) {
+            return back()->withErrors([
+                'status' => "Cannot approve a request with status '{$previousStatus}'.",
+            ]);
+        }
+
         // CHANGE THIS LINE:
         // It was 'pending', which is why it looked like it wasn't updating.
         $request->update(['status' => 'accepted']);
         event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+        $this->auditService->logStatusChange($request, 'approve', $previousStatus, 'accepted');
 
         $request->user->notify(new BloodRequestApproved($request));
 
@@ -110,9 +111,16 @@ class HospitalBloodRequestController extends Controller
         $this->authorizeRequestOwner($request);
         $previousStatus = (string) $request->status;
 
+        if (!$this->statusTransitionService->canTransition($previousStatus, 'fulfilled')) {
+            return back()->withErrors([
+                'status' => "Cannot finalize a request with status '{$previousStatus}'.",
+            ]);
+        }
+
         // This is the "Finalize" action
         $request->update(['status' => 'fulfilled']);
         event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+        $this->auditService->logStatusChange($request, 'fulfill', $previousStatus, 'fulfilled');
 
         if ($request->user) {
             $request->user->notify(new BloodReadyForPickup($request));
@@ -134,10 +142,88 @@ class HospitalBloodRequestController extends Controller
         $this->authorizeRequestOwner($request);
         $previousStatus = (string) $request->status;
 
+        if (!$this->statusTransitionService->canTransition($previousStatus, 'cancelled')) {
+            return back()->withErrors([
+                'status' => "Cannot cancel a request with status '{$previousStatus}'.",
+            ]);
+        }
+
         $request->update(['status' => 'cancelled']);
         event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+        $this->auditService->logStatusChange($request, 'cancel', $previousStatus, 'cancelled');
+
+        if ($request->user) {
+            $request->user->notify(new BloodRequestStatusChanged(
+                $request,
+                'Blood Request Cancelled',
+                'Your blood request has been cancelled by the hospital.'
+            ));
+        }
 
         return back()->with('success', "Blood request #{$id} has been cancelled.");
+    }
+
+    /**
+     * Decline a blood request.
+     */
+    public function decline($id)
+    {
+        $request = BloodRequest::findOrFail($id);
+
+        $this->authorizeRequestOwner($request);
+
+        if (!$this->statusTransitionService->canTransition((string) $request->status, 'declined')) {
+            return back()->withErrors([
+                'decline' => "Cannot decline a request with status '{$request->status}'.",
+            ]);
+        }
+
+        $previousStatus = (string) $request->status;
+        $request->update(['status' => 'declined']);
+        event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+        $this->auditService->logStatusChange($request, 'decline', $previousStatus, 'declined');
+
+        if ($request->user) {
+            $request->user->notify(new BloodRequestStatusChanged(
+                $request,
+                'Blood Request Declined',
+                'Your blood request has been declined by the hospital.'
+            ));
+        }
+
+        return back()->with('success', "Blood request #{$id} has been declined.");
+    }
+
+    /**
+     * Update urgency level (priority) of an active blood request.
+     */
+    public function updatePriority(\Illuminate\Http\Request $request, $id)
+    {
+        $bloodRequest = BloodRequest::findOrFail($id);
+        $this->authorizeRequestOwner($bloodRequest);
+
+        if (!$this->statusTransitionService->canChangePriority((string) $bloodRequest->status)) {
+            return back()->withErrors([
+                'priority' => 'Priority can only be changed for pending or accepted requests.',
+            ]);
+        }
+
+        $validated = $request->validate([
+            'urgency' => 'required|in:Emergency,High,Normal',
+        ]);
+
+        $fromUrgency = (string) $bloodRequest->urgency;
+        $toUrgency = (string) $validated['urgency'];
+
+        if ($fromUrgency === $toUrgency) {
+            return back()->with('info', 'Priority is already set to that level.');
+        }
+
+        $bloodRequest->update(['urgency' => $toUrgency]);
+        event(new BloodRequestPriorityUpdated($bloodRequest->fresh(['user']), $fromUrgency));
+        $this->auditService->logPriorityChange($bloodRequest, $fromUrgency, $toUrgency);
+
+        return back()->with('success', "Priority updated from {$fromUrgency} to {$toUrgency}.");
     }
 
     /**
@@ -145,6 +231,8 @@ class HospitalBloodRequestController extends Controller
      */
     public function notify(BloodRequest $request, User $donor)
     {
+        $this->authorizeRequestOwner($request);
+
         // Make sure $request is passed here!
         $donor->notify(new BloodRequestNotification($request));
 
@@ -156,6 +244,8 @@ class HospitalBloodRequestController extends Controller
      */
     public function bulkNotify(BloodRequest $request)
     {
+        $this->authorizeRequestOwner($request);
+
         $eligibleDonors = $request->matchedDonors->filter(fn($donor) => $donor->isEligible());
 
         foreach ($eligibleDonors as $donor) {
@@ -175,25 +265,6 @@ class HospitalBloodRequestController extends Controller
         $this->authorizeRequestOwner($request);
 
         return view('hospital.requests.show', compact('request'));
-    }
-
-    /**
-     * Rule-based blood type compatibility
-     */
-    private function compatibleDonors($bloodType)
-    {
-        $compatibility = [
-            'O-' => ['O-'],
-            'O+' => ['O+', 'O-'],
-            'A-' => ['A-', 'O-'],
-            'A+' => ['A+', 'A-', 'O+', 'O-'],
-            'B-' => ['B-', 'O-'],
-            'B+' => ['B+', 'B-', 'O+', 'O-'],
-            'AB-' => ['AB-', 'A-', 'B-', 'O-'],
-            'AB+' => ['AB+', 'AB-', 'A+', 'A-', 'B+', 'B-', 'O+', 'O-'],
-        ];
-
-        return $compatibility[$bloodType] ?? [];
     }
 
     /**

@@ -7,12 +7,18 @@ use App\Models\BloodRequest;
 use App\Models\Donation;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Services\BloodRequestPriorityService;
 
 class HospitalDashboardController extends Controller
 {
+    public function __construct(private readonly BloodRequestPriorityService $priorityService)
+    {
+    }
+
     public function index()
     {
         $hospitalId = auth('hospital_admin')->id();
+        $priorityOrder = $this->priorityService->order();
 
         // Get dashboard configuration
         $statsConfig = config('dashboard.stats');
@@ -48,20 +54,14 @@ class HospitalDashboardController extends Controller
         $users = User::latest()->paginate(10);
 
         // Priority queue - with blood type filter - FILTERED BY HOSPITAL
-        $priorityOrder = config('priorities.order');
-        $queueRequests = BloodRequest::with(['user', 'hospitalAdmin'])
+        $queueRequestsQuery = BloodRequest::with(['user', 'hospitalAdmin'])
             ->where('hospital_admin_id', $hospitalId)
             ->where('status', 'pending')
             ->when(request('blood_type'), function ($query, $bloodType) {
                 return $query->where('blood_type', $bloodType);
-            })
-            ->orderByRaw(
-                "CASE
-                WHEN urgency = 'Emergency' THEN 1
-                WHEN urgency = 'High' THEN 2
-                WHEN urgency = 'Normal' THEN 3
-                ELSE 4 END"
-            )
+            });
+
+        $queueRequests = $this->priorityService->applyPriorityOrder($queueRequestsQuery)
             ->orderBy('created_at', 'asc')
             ->paginate(10, ['*'], 'requests_page');
 
@@ -69,7 +69,7 @@ class HospitalDashboardController extends Controller
         $donations = Donation::with('user')
             ->where('hospital_admin_id', $hospitalId)
             ->whereDate('donation_date', Carbon::today())
-            ->whereIn('status', ['scheduled', 'confirmed', 'completed'])
+            ->whereIn('status', ['scheduled', 'completed'])
             ->orderBy('donation_time', 'asc')
             ->get();
 

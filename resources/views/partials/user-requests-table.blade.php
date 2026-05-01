@@ -15,8 +15,17 @@
                     <td><span class="badge bg-danger-subtle text-danger">{{ $request->blood_type }}</span></td>
                     <td>{{ $request->quantity }} units</td>
                     <td>
-                        <span
-                            class="badge rounded-pill bg-{{ $request->status == 'pending' ? 'warning' : ($request->status == 'completed' ? 'success' : 'danger') }}">
+                        @php
+                            $statusClasses = [
+                                'pending' => 'bg-warning text-dark',
+                                'accepted' => 'bg-info text-dark',
+                                'fulfilled' => 'bg-success',
+                                'declined' => 'bg-secondary',
+                                'cancelled' => 'bg-danger',
+                            ];
+                            $badgeClass = $statusClasses[$request->status] ?? 'bg-secondary';
+                        @endphp
+                        <span class="badge rounded-pill {{ $badgeClass }}">
                             {{ ucfirst($request->status) }}
                         </span>
                     </td>

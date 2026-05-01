@@ -18,6 +18,7 @@ use App\Models\HospitalAdmin;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,16 +27,29 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    $landingStats = [
-        'fulfilled_requests' => BloodRequest::where('status', 'fulfilled')->count(),
-        'successful_matches' => BloodRequest::whereIn('status', ['accepted', 'fulfilled'])->count(),
-        'active_donors' => User::count(),
-        'partners' => HospitalAdmin::count(),
-    ];
+    try {
+        $landingStats = [
+            'fulfilled_requests' => BloodRequest::where('status', 'fulfilled')->count(),
+            'successful_matches' => BloodRequest::whereIn('status', ['accepted', 'fulfilled'])->count(),
+            'active_donors' => User::count(),
+            'partners' => HospitalAdmin::count(),
+        ];
+    } catch (\Throwable $e) {
+        Log::warning('Landing stats fallback triggered.', [
+            'error' => $e->getMessage(),
+        ]);
+
+        $landingStats = [
+            'fulfilled_requests' => 0,
+            'successful_matches' => 0,
+            'active_donors' => 0,
+            'partners' => 0,
+        ];
+    }
 
     return view('landingpage', compact('landingStats'));
 });
-Broadcast::routes();
+Broadcast::routes(['middleware' => ['web', 'auth:web,hospital_admin']]);
 
 // Auth
 Auth::routes(['verify' => true]);
@@ -81,7 +95,9 @@ Route::middleware(['auth:web', 'verified'])
         Route::post('donate-schedule', [UserDonationController::class, 'store'])->name('donate-schedule.store');
 
         // Respond to blood request
-        Route::post('donate-schedule/respond/{bloodRequestId}', [UserDonationController::class, 'respond'])->name('donate-schedule.respond');
+        Route::post('donate-schedule/respond/{bloodRequestId}', [UserDonationController::class, 'respond'])
+            ->middleware('throttle:10,1')
+            ->name('donate-schedule.respond');
 
         // AJAX: occupied times
         Route::get('donations/occupied-times', [UserDonationController::class, 'getOccupiedTimes'])->name('donate-schedule.occupied-times');
@@ -95,9 +111,13 @@ Route::middleware(['auth:web', 'verified'])
             return back();
         })->name('notifications.markAllRead');
 
-        Route::post('notify-donor', [UserDashboardController::class, 'notifyDonor'])->name('notify-donor');
+        Route::post('notify-donor', [UserDashboardController::class, 'notifyDonor'])
+            ->middleware('throttle:5,1')
+            ->name('notify-donor');
 
-        Route::post('send-donor-request', [UserDashboardController::class, 'sendDonorRequest'])->name('send-donor-request');
+        Route::post('send-donor-request', [UserDashboardController::class, 'sendDonorRequest'])
+            ->middleware('throttle:5,1')
+            ->name('send-donor-request');
 
         Route::get('invitations', [UserDashboardController::class, 'invitations'])->name('invitations');
         Route::get('requests/{id}', [UserDashboardController::class, 'showRequest'])->name('requests.show');
@@ -128,8 +148,10 @@ Route::prefix('hospital')
         Route::get('requests', [HospitalBloodRequestController::class, 'index'])->name('requests');
         Route::patch('update-phlebotomist', [HospitalBloodRequestController::class, 'updatePhlebotomist'])->name('update-phlebotomist');
         Route::post('requests/{id}/approve', [HospitalBloodRequestController::class, 'approve'])->name('requests.approve');
+        Route::post('requests/{id}/decline', [HospitalBloodRequestController::class, 'decline'])->name('requests.decline');
         Route::post('requests/{id}/fulfill', [HospitalBloodRequestController::class, 'fulfill'])->name('requests.fulfill');
         Route::post('requests/{id}/cancel', [HospitalBloodRequestController::class, 'cancel'])->name('requests.cancel');
+        Route::patch('requests/{id}/priority', [HospitalBloodRequestController::class, 'updatePriority'])->name('requests.priority');
         Route::post('requests/{request}/notify/{donor}', [HospitalBloodRequestController::class, 'notify'])->name('request.notify');
         Route::post('requests/{request}/notify-all', [HospitalBloodRequestController::class, 'bulkNotify'])->name('request.bulk');
 
@@ -143,9 +165,3 @@ Route::prefix('hospital')
          Route::get('reports', [HospitalReportsController::class, 'index'])->name('reports');
     });
 
-Route::post('/notifications/mark-all-read', function () {
-    auth()->user()->unreadNotifications->markAsRead();
-    return back();
-})
-    ->name('notifications.markAllRead')
-    ->middleware('auth');

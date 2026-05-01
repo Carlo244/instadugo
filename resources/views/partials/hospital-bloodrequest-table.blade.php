@@ -114,6 +114,17 @@
                                 </form>
                             @endif
 
+                            @if (in_array($request->status, ['pending', 'accepted']))
+                                <form method="POST" action="{{ route('hospital.requests.decline', $request->id) }}"
+                                    class="m-0">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                        title="Decline Request">
+                                        <i class="bi bi-x-circle me-1"></i>Decline
+                                    </button>
+                                </form>
+                            @endif
+
                             {{-- 3. Always show Details --}}
                             <button class="btn-action info" data-bs-toggle="modal"
                                 data-bs-target="#viewRequestModal{{ $request->id }}">
@@ -307,6 +318,28 @@
                                     {{ $request->reason ?? 'No additional details provided.' }}
                                 </p>
                             </div>
+
+                            @if (in_array($request->status, ['pending', 'accepted']))
+                                <div class="col-12 bg-white p-3 rounded-3 border">
+                                    <label class="text-muted small text-uppercase fw-bold d-block mb-2">Update
+                                        Priority</label>
+                                    <form method="POST" action="{{ route('hospital.requests.priority', $request->id) }}"
+                                        class="d-flex align-items-center gap-2 flex-wrap">
+                                        @csrf
+                                        @method('PATCH')
+                                        <select name="urgency" class="form-select" style="max-width: 220px;"
+                                            aria-label="Update priority for request {{ $request->id }}">
+                                            <option value="Emergency" @selected($request->urgency === 'Emergency')>Emergency</option>
+                                            <option value="High" @selected($request->urgency === 'High')>High</option>
+                                            <option value="Normal" @selected($request->urgency === 'Normal')>Normal</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-outline-danger rounded-pill px-4"
+                                            title="Update Priority">
+                                            Set Priority
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="modal-footer border-0 p-3">

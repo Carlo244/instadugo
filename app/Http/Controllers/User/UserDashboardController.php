@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\user;
+namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\BloodRequest;
@@ -27,7 +27,8 @@ class UserDashboardController extends Controller
             $notificationRequestIds = $user->notifications()
                 ->where('type', \App\Notifications\DonorRequestNotification::class)
                 ->latest()
-                ->pluck('data.request_id')
+                ->selectRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.request_id')) as request_id")
+                ->pluck('request_id')
                 ->filter()
                 ->unique()
                 ->values();
@@ -135,6 +136,7 @@ class UserDashboardController extends Controller
                 'urgency' => $validated['urgency'],
                 'message' => $validated['message'],
                 'hospital' => $hospital->hospital_name,
+                'hospital_address' => $hospital->address,
             ]),
         );
 

@@ -38,6 +38,33 @@ class HospitalReportsController extends Controller
             ->when($from, fn($query) => $query->whereDate('created_at', '>=', $from))
             ->when($to, fn($query) => $query->whereDate('created_at', '<=', $to));
 
+        $totalRequests = (clone $baseQuery)->count();
+        $waitingRequests = (clone $baseQuery)
+            ->whereIn('status', ['pending', 'accepted'])
+            ->count();
+        $completedRequests = (clone $baseQuery)
+            ->where('status', 'fulfilled')
+            ->count();
+        $cancelledRequests = (clone $baseQuery)
+            ->where('status', 'cancelled')
+            ->count();
+
+        // Duty-focused metrics should reflect current operational needs.
+        $actionWaitingNow = BloodRequest::where('hospital_admin_id', $hospitalId)
+            ->whereIn('status', ['pending', 'accepted'])
+            ->count();
+
+        $actionUrgentToday = BloodRequest::where('hospital_admin_id', $hospitalId)
+            ->whereIn('status', ['pending', 'accepted'])
+            ->where('urgency', 'Emergency')
+            ->whereDate('date_needed', '<=', Carbon::today()->toDateString())
+            ->count();
+
+        $actionOverduePending = BloodRequest::where('hospital_admin_id', $hospitalId)
+            ->where('status', 'pending')
+            ->where('created_at', '<=', Carbon::now()->subHours(2))
+            ->count();
+
         $requestsPerMonth = (clone $baseQuery)
             ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as total")
             ->groupBy('month')
@@ -61,6 +88,21 @@ class HospitalReportsController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        return view('hospital.reports', compact('requestsPerMonth', 'statusCounts', 'avgResponseTime', 'bloodTypeCounts', 'from', 'to', 'preset'));
+        return view('hospital.reports', compact(
+            'requestsPerMonth',
+            'statusCounts',
+            'avgResponseTime',
+            'bloodTypeCounts',
+            'from',
+            'to',
+            'preset',
+            'totalRequests',
+            'waitingRequests',
+            'completedRequests',
+            'cancelledRequests',
+            'actionWaitingNow',
+            'actionUrgentToday',
+            'actionOverduePending'
+        ));
     }
 }

@@ -19,8 +19,19 @@ class HospitalAdmin extends Authenticatable
 
     public function getRememberTokenName()
     {
-        return ''; 
+        return '';
     }
+
+    public function bloodRequests()
+    {
+        return $this->hasMany(BloodRequest::class, 'hospital_admin_id');
+    }
+
+    public function donations()
+    {
+        return $this->hasMany(Donation::class, 'hospital_admin_id');
+    }
+
     protected $table = 'hospital_admins';
 }
 

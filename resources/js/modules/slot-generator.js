@@ -10,7 +10,7 @@ export function generateTimeSlots(occupiedTimes, selectedDate, timeSelect, hospi
 
     let start = 8 * 60; // 8:00 AM
     let end = 16 * 60; // 4:00 PM
-    let interval = 30;
+    let interval = 60;
 
     for (let minutes = start; minutes <= end; minutes += interval) {
         let h = Math.floor(minutes / 60);

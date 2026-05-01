@@ -26,13 +26,17 @@ class DonorFoundNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $hospitalName = $this->donation->hospitalAdmin?->hospital_name ?? 'the hospital';
+        $hospitalAddress = $this->donation->hospitalAdmin?->address;
+
         return (new MailMessage)
             ->subject('UPDATE: Donor found for your blood request')
             ->view('emails.respond_request', [
                 'donorName'    => $this->donation->user->name,
                 'donationDate' => $this->donation->donation_date,
                 'donationTime' => $this->donation->donation_time,
-                'hospital'     => $this->donation->hospitalAdmin->hospital_name ?? 'the hospital',
+                'hospital'     => $hospitalName,
+                'hospitalAddress' => $hospitalAddress,
             ]);
     }
 }

@@ -39,9 +39,9 @@ class BloodReadyForPickup extends Notification
         return (new MailMessage())
             ->subject('Blood Request Fulfilled - Ready for Pickup')
             ->view('emails.blood_ready', [
-            'user' => $notifiable,
-            'request' => $this->bloodRequest,
-        ]);
+                'user' => $notifiable,
+                'request' => $this->bloodRequest,
+            ]);
     }
 
     /**

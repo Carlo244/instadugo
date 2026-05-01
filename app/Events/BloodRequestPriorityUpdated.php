@@ -10,19 +10,19 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BloodRequestStatusUpdated implements ShouldBroadcastNow
+class BloodRequestPriorityUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $bloodRequest;
-    public $fromStatus;
-    public $toStatus;
+    public $fromUrgency;
+    public $toUrgency;
 
-    public function __construct(BloodRequest $bloodRequest, string $fromStatus)
+    public function __construct(BloodRequest $bloodRequest, string $fromUrgency)
     {
         $this->bloodRequest = $bloodRequest->loadMissing('user');
-        $this->fromStatus = $fromStatus;
-        $this->toStatus = (string) $bloodRequest->status;
+        $this->fromUrgency = $fromUrgency;
+        $this->toUrgency = (string) $bloodRequest->urgency;
     }
 
     public function broadcastOn(): Channel
