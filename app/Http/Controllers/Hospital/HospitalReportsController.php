@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BloodRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class HospitalReportsController extends Controller
 {
@@ -65,28 +66,44 @@ class HospitalReportsController extends Controller
             ->where('created_at', '<=', Carbon::now()->subHours(2))
             ->count();
 
-        $requestsPerMonth = (clone $baseQuery)
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as total")
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
+        $reportRows = (clone $baseQuery)
+            ->get(['created_at', 'status', 'blood_type', 'updated_at']);
 
-        $statusCounts = (clone $baseQuery)
-            ->selectRaw('status, COUNT(*) as total')
+        $requestsPerMonth = $reportRows
+            ->groupBy(fn (BloodRequest $request) => $request->created_at?->format('Y-m'))
+            ->filter()
+            ->map(fn (Collection $group, string $month) => (object) [
+                'month' => $month,
+                'total' => $group->count(),
+            ])
+            ->sortKeys()
+            ->values();
+
+        $statusCounts = $reportRows
             ->whereIn('status', ['fulfilled', 'cancelled'])
             ->groupBy('status')
-            ->get();
+            ->map(fn (Collection $group, string $status) => (object) [
+                'status' => $status,
+                'total' => $group->count(),
+            ])
+            ->values();
 
-        $avgResponseTime = (clone $baseQuery)
-            ->whereIn('status', ['accepted', 'fulfilled'])
-            ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, created_at, updated_at)) as avg_minutes')
-            ->value('avg_minutes');
+        $avgResponseTime = $reportRows
+            ->filter(fn (BloodRequest $request) => in_array($request->status, ['accepted', 'fulfilled'], true))
+            ->map(fn (BloodRequest $request) => $request->created_at && $request->updated_at
+                ? $request->created_at->diffInMinutes($request->updated_at)
+                : null)
+            ->filter(fn ($minutes) => $minutes !== null)
+            ->avg();
 
-        $bloodTypeCounts = (clone $baseQuery)
-            ->selectRaw('blood_type, COUNT(*) as total')
+        $bloodTypeCounts = $reportRows
             ->groupBy('blood_type')
-            ->orderByDesc('total')
-            ->get();
+            ->map(fn (Collection $group, string $bloodType) => (object) [
+                'blood_type' => $bloodType,
+                'total' => $group->count(),
+            ])
+            ->sortByDesc('total')
+            ->values();
 
         return view('hospital.reports', compact(
             'requestsPerMonth',
