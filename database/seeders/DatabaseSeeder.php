@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([HospitalAdminSeeder::class]);
+        // No global seeders registered by default.
+        // Add seeder classes here when you want to populate test or demo data,
+        // e.g. $this->call(UserSeeder::class);
     }
 }
