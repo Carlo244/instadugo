@@ -13,7 +13,9 @@ class CreateHospitalAdmin extends Command
                             {email? : Hospital admin email}
                             {contact? : Contact number}
                             {address? : Hospital address}
-                            {--phlebotomists=1 : Number of phlebotomists on duty}';
+                            {--phlebotomists=1 : Number of phlebotomists on duty}
+                            {--password= : Password for the hospital admin}
+                            {--confirm-password= : Confirmation for the password}';
 
     protected $description = 'Create a hospital admin account (programmer-only via CLI)';
 
@@ -24,6 +26,8 @@ class CreateHospitalAdmin extends Command
         $contact = (string) ($this->argument('contact') ?: $this->ask('Contact number'));
         $address = (string) ($this->argument('address') ?: $this->ask('Address'));
         $phlebotomistCount = (int) $this->option('phlebotomists');
+        $password = (string) ($this->option('password') ?: $this->secret('Password'));
+        $confirmPassword = (string) ($this->option('confirm-password') ?: $this->secret('Confirm password'));
 
         if ($phlebotomistCount < 1) {
             $this->error('Phlebotomist count must be at least 1.');
@@ -34,9 +38,6 @@ class CreateHospitalAdmin extends Command
             $this->error('A hospital admin with this email already exists.');
             return self::FAILURE;
         }
-
-        $password = (string) $this->secret('Password');
-        $confirmPassword = (string) $this->secret('Confirm password');
 
         if ($password === '' || $confirmPassword === '') {
             $this->error('Password and confirmation are required.');
