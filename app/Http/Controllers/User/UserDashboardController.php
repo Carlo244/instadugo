@@ -25,10 +25,10 @@ class UserDashboardController extends Controller
 
         if ($invitations->isEmpty()) {
             $notificationRequestIds = $user->notifications()
-                ->where('type', \App\Notifications\DonorRequestNotification::class)
+                ->where('type', DonorRequestNotification::class)
                 ->latest()
-                ->selectRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.request_id')) as request_id")
-                ->pluck('request_id')
+                ->get()
+                ->pluck('data.request_id')
                 ->filter()
                 ->unique()
                 ->values();
