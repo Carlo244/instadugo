@@ -44,6 +44,9 @@
                                         'declined' => 'secondary',
                                         'fulfilled' => 'info',
                                     ][$invite->status] ?? 'info';
+                                $dateNeeded = $invite->date_needed
+                                    ? \Carbon\Carbon::parse($invite->date_needed)->format('M d, Y')
+                                    : 'N/A';
                             @endphp
                             <tr id="invite-row-{{ $invite->id }}"
                                 class="{{ (int) $selectedInvitationId === (int) $invite->id ? 'table-warning' : '' }}">
@@ -73,7 +76,7 @@
                                         data-blood-type="{{ $invite->blood_type }}"
                                         data-quantity="{{ $invite->quantity }}" data-urgency="{{ $invite->urgency }}"
                                         data-status="{{ $invite->status }}"
-                                        data-date-needed="{{ \Carbon\Carbon::parse($invite->date_needed)->format('M d, Y') }}"
+                                        data-date-needed="{{ $dateNeeded }}"
                                         data-message="{{ $invite->reason ?: 'No additional message provided.' }}"
                                         data-selected="{{ (int) $selectedInvitationId === (int) $invite->id ? '1' : '0' }}">
                                         View

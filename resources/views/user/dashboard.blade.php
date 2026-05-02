@@ -120,13 +120,18 @@
                                     </thead>
                                     <tbody>
                                         @forelse($invitations as $invite)
+                                            @php
+                                                $requesterName = optional($invite->user)->name ?? 'N/A';
+                                                $hospitalName = optional($invite->hospital)->hospital_name ?? 'N/A';
+                                                $hospitalId = optional($invite->hospital)->id;
+                                            @endphp
                                             <tr>
                                                 <td class="small text-muted">{{ $invite->created_at->format('M d, Y') }}
                                                 </td>
                                                 <td>
-                                                    <div class="fw-bold">{{ $invite->user->name }}</div>
+                                                    <div class="fw-bold">{{ $requesterName }}</div>
                                                     <div class="small text-muted"><i class="bi bi-geo-alt"></i>
-                                                        {{ $invite->hospital->hospital_name }}</div>
+                                                        {{ $hospitalName }}</div>
                                                 </td>
                                                 <td>
                                                     @php
@@ -169,9 +174,9 @@
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#acceptInvitationModal"
                                                                 data-request-id="{{ $invite->id }}"
-                                                                data-hospital="{{ $invite->hospital->hospital_name }}"
-                                                                data-hospital-id="{{ $invite->hospital->id }}"
-                                                                data-requester="{{ $invite->user->name }}">
+                                                                data-hospital="{{ $hospitalName }}"
+                                                                data-hospital-id="{{ $hospitalId }}"
+                                                                data-requester="{{ $requesterName }}">
                                                                 Accept
                                                             </button>
 
