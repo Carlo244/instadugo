@@ -27,10 +27,12 @@ class BloodRequestStatusChanged extends Notification
     {
         return (new MailMessage())
             ->subject($this->title)
-            ->line($this->message)
-            ->line('Blood Type: ' . $this->bloodRequest->blood_type)
-            ->line('Urgency: ' . $this->bloodRequest->urgency)
-            ->action('View My Requests', route('user.blood-requests'));
+            ->view('emails.blood_request_status_changed', [
+                'notifiable' => $notifiable,
+                'bloodRequest' => $this->bloodRequest,
+                'message' => $this->message,
+                'title' => $this->title,
+            ]);
     }
 
     public function toArray(object $notifiable): array
