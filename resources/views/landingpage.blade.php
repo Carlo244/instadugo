@@ -246,7 +246,7 @@
                         <h5 class="fw-bold mb-2">Every Second Counts</h5>
                         <p class="text-muted mb-3">
                             Blood has a limited shelf life. Our system ensures the right blood reaches the right
-                            patient as quickly as possible — prioritizing critical cases automatically.
+                            patient as quickly as possible — prioritizing emergency cases automatically.
                         </p>
                         <div class="row g-3 text-start">
                             <div class="col-6">
@@ -349,8 +349,8 @@
                     <div id="faqTwo" class="accordion-collapse collapse" data-bs-parent="#landingFaq">
                         <div class="accordion-body text-muted">
                             The system uses a <strong>Multilevel Queue</strong> that ranks requests by urgency level
-                            (critical, urgent, standard) and blood type rarity. Emergency and rare blood type cases
-                            are always processed first.
+                            (<strong>Emergency</strong>, <strong>High</strong>, <strong>Normal</strong>) and blood type
+                            rarity. Emergency and rare blood type cases are always processed first.
                         </div>
                     </div>
                 </div>
