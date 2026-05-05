@@ -15,7 +15,13 @@ return [
     |
     */
 
-    'default' => env('BROADCAST_CONNECTION', 'null'),
+    'default' => (function () {
+        $connection = env('BROADCAST_CONNECTION', 'reverb');
+
+        return in_array($connection, ['reverb', 'pusher', 'ably', 'redis', 'log', 'null'], true)
+            ? $connection
+            : 'reverb';
+    })(),
 
     /*
     |--------------------------------------------------------------------------
