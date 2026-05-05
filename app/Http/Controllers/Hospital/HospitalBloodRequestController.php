@@ -181,14 +181,23 @@ class HospitalBloodRequestController extends Controller
         $previousStatus = (string) $request->status;
         $request->update(['status' => 'declined']);
         $this->broadcastStatusUpdated($request, $previousStatus);
-        $this->auditService->logStatusChange($request, 'decline', $previousStatus, 'declined');
+
+        try {
+            $this->auditService->logStatusChange($request, 'decline', $previousStatus, 'declined');
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
 
         if ($request->user) {
-            $request->user->notify(new BloodRequestStatusChanged(
-                $request,
-                'Blood Request Declined',
-                'Your blood request has been declined by the hospital.'
-            ));
+            try {
+                $request->user->notify(new BloodRequestStatusChanged(
+                    $request,
+                    'Blood Request Declined',
+                    'Your blood request has been declined by the hospital.'
+                ));
+            } catch (\Throwable $exception) {
+                report($exception);
+            }
         }
 
         return back()->with('success', "Blood request #{$id} has been declined.");
