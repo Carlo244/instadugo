@@ -112,7 +112,11 @@ class UserDonationController extends Controller
         ]);
 
         // 🔴 Fire event immediately for real-time notification
-        event(new \App\Events\DonationCreated($donation));
+        try {
+            event(new \App\Events\DonationCreated($donation));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return back()->with('success', 'Donation scheduled successfully.');
     }

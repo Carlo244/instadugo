@@ -51,7 +51,11 @@ class UserBloodRequestController extends Controller
         ]);
 
         // broadcast so hospital dashboards get updated immediately
-        event(new \App\Events\BloodRequestCreated($bloodRequest));
+        try {
+            event(new \App\Events\BloodRequestCreated($bloodRequest));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return back()->with('success', 'Your blood request has been submitted.');
     }
