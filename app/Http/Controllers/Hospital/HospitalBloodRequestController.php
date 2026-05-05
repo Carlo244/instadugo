@@ -94,7 +94,7 @@ class HospitalBloodRequestController extends Controller
         // CHANGE THIS LINE:
         // It was 'pending', which is why it looked like it wasn't updating.
         $request->update(['status' => 'accepted']);
-        event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+        $this->broadcastStatusUpdated($request, $previousStatus);
         $this->auditService->logStatusChange($request, 'approve', $previousStatus, 'accepted');
 
         $request->user->notify(new BloodRequestApproved($request));
@@ -119,7 +119,7 @@ class HospitalBloodRequestController extends Controller
 
         // This is the "Finalize" action
         $request->update(['status' => 'fulfilled']);
-        event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+        $this->broadcastStatusUpdated($request, $previousStatus);
         $this->auditService->logStatusChange($request, 'fulfill', $previousStatus, 'fulfilled');
 
         if ($request->user) {
@@ -149,7 +149,7 @@ class HospitalBloodRequestController extends Controller
         }
 
         $request->update(['status' => 'cancelled']);
-        event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+        $this->broadcastStatusUpdated($request, $previousStatus);
         $this->auditService->logStatusChange($request, 'cancel', $previousStatus, 'cancelled');
 
         if ($request->user) {
@@ -180,7 +180,7 @@ class HospitalBloodRequestController extends Controller
 
         $previousStatus = (string) $request->status;
         $request->update(['status' => 'declined']);
-        event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+        $this->broadcastStatusUpdated($request, $previousStatus);
         $this->auditService->logStatusChange($request, 'decline', $previousStatus, 'declined');
 
         if ($request->user) {
@@ -224,6 +224,15 @@ class HospitalBloodRequestController extends Controller
         $this->auditService->logPriorityChange($bloodRequest, $fromUrgency, $toUrgency);
 
         return back()->with('success', "Priority updated from {$fromUrgency} to {$toUrgency}.");
+    }
+
+    private function broadcastStatusUpdated(BloodRequest $request, string $previousStatus): void
+    {
+        try {
+            event(new BloodRequestStatusUpdated($request->fresh(['user']), $previousStatus));
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 
     /**
