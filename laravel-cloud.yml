@@ -1,0 +1,28 @@
+name: instadugo
+services:
+  - type: web
+    name: web
+    port: 80
+    environments:
+      production:
+        plan: general-1
+  - type: worker
+    name: queue
+    command: php artisan queue:work --max-time=3600 --max-jobs=1000
+    environments:
+      production:
+        plan: general-1
+        count: 1
+databases:
+  - name: mysql
+    type: mysql
+    version: "8"
+    environments:
+      production:
+        plan: general-1
+caches:
+  - name: redis
+    type: redis
+    environments:
+      production:
+        plan: general-1
