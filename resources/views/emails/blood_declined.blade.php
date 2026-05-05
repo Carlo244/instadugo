@@ -7,17 +7,21 @@
 
     <p style="font-size: 16px; line-height: 1.6;">Hello <strong>{{ $user->name }}</strong>,</p>
 
-    <p style="font-size: 16px; line-height: 1.6;">Unfortunately, your blood request has been <strong>declined by the hospital</strong>. The hospital was unable to fulfill this request at this time.</p>
+    <p style="font-size: 16px; line-height: 1.6;">Unfortunately, your blood request has been <strong>declined by the
+            hospital</strong>. The hospital was unable to fulfill this request at this time.</p>
 
-    <div style="background-color: #fff5f5; border-left: 4px solid #dc3545; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;">
-        <p style="font-size: 14px; color: #dc3545; text-transform: uppercase; font-weight: 800; margin: 0 0 10px 0; letter-spacing: 0.5px;">
+    <div
+        style="background-color: #fff5f5; border-left: 4px solid #dc3545; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;">
+        <p
+            style="font-size: 14px; color: #dc3545; text-transform: uppercase; font-weight: 800; margin: 0 0 10px 0; letter-spacing: 0.5px;">
             What Happens Next:
         </p>
         <p style="font-size: 16px; color: #1a1a1a; margin: 0; font-weight: 600;">
             Request Status: Declined
         </p>
         <p style="font-size: 14px; color: #4a5568; margin: 10px 0 0 0; line-height: 1.5;">
-            You may contact the hospital directly to discuss alternative options or submit a new request for future blood needs.
+            You may contact the hospital directly to discuss alternative options or submit a new request for future blood
+            needs.
         </p>
     </div>
 
@@ -25,7 +29,9 @@
         style="background-color: #f9fafb; border-radius: 8px; margin-bottom: 25px; border: 1px solid #edf2f7;">
         <tr>
             <td style="font-size: 14px; line-height: 1.8; color: #4a5568;">
-                <strong style="color: #1a1a1a; display: block; margin-bottom: 5px; text-transform: uppercase; font-size: 11px;">Request Details:</strong>
+                <strong
+                    style="color: #1a1a1a; display: block; margin-bottom: 5px; text-transform: uppercase; font-size: 11px;">Request
+                    Details:</strong>
                 • Blood Type: <strong>{{ $request->blood_type }}</strong><br>
                 • Quantity: <strong>{{ $request->quantity }} units</strong><br>
                 • Urgency: <strong>{{ $request->urgency }}</strong>
@@ -33,8 +39,11 @@
         </tr>
         <tr>
             <td style="font-size: 14px; line-height: 1.8; color: #4a5568;">
-                <strong style="color: #1a1a1a; display: block; margin-bottom: 5px; text-transform: uppercase; font-size: 11px;">Hospital Location:</strong>
-                <strong style="color: #1a1a1a;">{{ $request->hospitalAdmin?->hospital_name ?? 'Partner Hospital' }}</strong><br>
+                <strong
+                    style="color: #1a1a1a; display: block; margin-bottom: 5px; text-transform: uppercase; font-size: 11px;">Hospital
+                    Location:</strong>
+                <strong
+                    style="color: #1a1a1a;">{{ $request->hospitalAdmin?->hospital_name ?? 'Partner Hospital' }}</strong><br>
                 <span style="color: #4a5568;">{{ $request->hospitalAdmin?->address ?? 'Address not available' }}</span>
             </td>
         </tr>

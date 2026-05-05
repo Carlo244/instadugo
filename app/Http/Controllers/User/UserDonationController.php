@@ -20,7 +20,11 @@ class UserDonationController extends Controller
         $userId = Auth::id();
 
         // 1. Get user's donations
-        $donations = Donation::where('user_id', $userId)->orderBy('donation_date', 'desc')->orderBy('donation_time', 'desc')->get();
+        $donations = Donation::where('user_id', $userId)
+            ->orderBy('donation_date', 'desc')
+            ->orderBy('donation_time', 'desc')
+            ->take(10)
+            ->get();
 
         // 2. Calculate eligibility
         $lastCompleted = Donation::where('user_id', $userId)->where('status', 'completed')->latest('donation_date')->first();

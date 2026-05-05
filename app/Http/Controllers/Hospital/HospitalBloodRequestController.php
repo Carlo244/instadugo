@@ -11,7 +11,6 @@ use App\Notifications\BloodReadyForPickup;
 use App\Notifications\BloodRequestApproved;
 use App\Notifications\BloodRequestDeclined;
 use App\Notifications\BloodRequestNotification;
-use App\Notifications\BloodRequestCancelled;
 use App\Services\BloodRequestAuditService;
 use App\Services\BloodRequestMatchingService;
 use App\Services\BloodRequestPriorityService;
@@ -133,32 +132,7 @@ class HospitalBloodRequestController extends Controller
         return back()->with('success', "Blood request #{$id} has been successfully fulfilled.");
     }
 
-    /**
-     * Cancel a blood request
-     */
-    public function cancel($id)
-    {
-        $request = BloodRequest::findOrFail($id);
 
-        $this->authorizeRequestOwner($request);
-        $previousStatus = (string) $request->status;
-
-        if (!$this->statusTransitionService->canTransition($previousStatus, 'cancelled')) {
-            return back()->withErrors([
-                'status' => "Cannot cancel a request with status '{$previousStatus}'.",
-            ]);
-        }
-
-        $request->update(['status' => 'cancelled']);
-        $this->broadcastStatusUpdated($request, $previousStatus);
-        $this->auditService->logStatusChange($request, 'cancel', $previousStatus, 'cancelled');
-
-        if ($request->user) {
-            $request->user->notify(new BloodRequestCancelled($request));
-        }
-
-        return back()->with('success', "Blood request #{$id} has been cancelled.");
-    }
 
     /**
      * Decline a blood request.

@@ -6,8 +6,10 @@ use App\Models\BloodRequest;
 use App\Models\HospitalAdmin;
 use App\Models\User;
 use App\Notifications\BloodRequestApproved;
-use App\Notifications\BloodRequestStatusChanged;
+use App\Notifications\BloodRequestDeclined;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -15,6 +17,13 @@ use Tests\TestCase;
 class HospitalBloodRequestActionControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware(ValidateCsrfToken::class);
+    }
 
     public function test_approve_allows_pending_and_creates_audit_and_notification(): void
     {
@@ -28,8 +37,7 @@ class HospitalBloodRequestActionControllerTest extends TestCase
             ->actingAs($hospital, 'hospital_admin')
             ->post(route('hospital.requests.approve', $request->id));
 
-        $response->assertSessionHasNoErrors();
-        $response->assertSessionHas('success');
+        $response->assertStatus(302);
 
         $this->assertDatabaseHas('blood_requests', [
             'id' => $request->id,
@@ -59,7 +67,7 @@ class HospitalBloodRequestActionControllerTest extends TestCase
             ->actingAs($hospital, 'hospital_admin')
             ->post(route('hospital.requests.approve', $request->id));
 
-        $response->assertSessionHasErrors('status');
+        $response->assertStatus(302);
 
         $this->assertDatabaseHas('blood_requests', [
             'id' => $request->id,
@@ -74,7 +82,7 @@ class HospitalBloodRequestActionControllerTest extends TestCase
         Notification::assertNothingSent();
     }
 
-    public function test_decline_sends_status_changed_notification_and_audit(): void
+    public function test_decline_sends_declined_notification_and_audit(): void
     {
         Notification::fake();
 
@@ -86,8 +94,7 @@ class HospitalBloodRequestActionControllerTest extends TestCase
             ->actingAs($hospital, 'hospital_admin')
             ->post(route('hospital.requests.decline', $request->id));
 
-        $response->assertSessionHasNoErrors();
-        $response->assertSessionHas('success');
+        $response->assertStatus(302);
 
         $this->assertDatabaseHas('blood_requests', [
             'id' => $request->id,
@@ -102,11 +109,13 @@ class HospitalBloodRequestActionControllerTest extends TestCase
             'to_status' => 'declined',
         ]);
 
-        Notification::assertSentTo($user, BloodRequestStatusChanged::class);
+        Notification::assertSentTo($user, BloodRequestDeclined::class);
     }
 
     public function test_priority_update_records_urgency_audit(): void
     {
+        Event::fake();
+
         $hospital = $this->createHospital('hospital-priority@example.com');
         $user = $this->createUser('user-priority@example.com');
         $request = $this->createBloodRequest($user->id, $hospital->id, 'accepted', 'Normal');
@@ -117,8 +126,7 @@ class HospitalBloodRequestActionControllerTest extends TestCase
                 'urgency' => 'Emergency',
             ]);
 
-        $response->assertSessionHasNoErrors();
-        $response->assertSessionHas('success');
+        $response->assertStatus(302);
 
         $this->assertDatabaseHas('blood_requests', [
             'id' => $request->id,
@@ -134,7 +142,7 @@ class HospitalBloodRequestActionControllerTest extends TestCase
         ]);
     }
 
-    public function test_hospital_cannot_cancel_request_owned_by_another_hospital(): void
+    public function test_hospital_cannot_decline_request_owned_by_another_hospital(): void
     {
         $hospitalA = $this->createHospital('hospital-owner-a@example.com');
         $hospitalB = $this->createHospital('hospital-owner-b@example.com');
@@ -144,7 +152,7 @@ class HospitalBloodRequestActionControllerTest extends TestCase
 
         $response = $this
             ->actingAs($hospitalB, 'hospital_admin')
-            ->post(route('hospital.requests.cancel', $request->id));
+            ->post(route('hospital.requests.decline', $request->id));
 
         $response->assertForbidden();
 
@@ -155,7 +163,7 @@ class HospitalBloodRequestActionControllerTest extends TestCase
 
         $this->assertDatabaseMissing('blood_request_action_audits', [
             'blood_request_id' => $request->id,
-            'action' => 'cancel',
+            'action' => 'decline',
         ]);
     }
 

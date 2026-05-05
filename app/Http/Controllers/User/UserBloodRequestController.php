@@ -20,6 +20,7 @@ class UserBloodRequestController extends Controller
         $userRequests = BloodRequest::with('hospitalAdmin')
             ->where('user_id', Auth::id())
             ->latest()
+            ->take(10)
             ->get();
 
         return view('user.blood-requests', compact('hospitals', 'userRequests'));
