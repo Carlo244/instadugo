@@ -9,6 +9,7 @@ use App\Models\BloodRequest;
 use App\Models\User;
 use App\Notifications\BloodReadyForPickup;
 use App\Notifications\BloodRequestApproved;
+use App\Notifications\BloodRequestDeclined;
 use App\Notifications\BloodRequestNotification;
 use App\Notifications\BloodRequestStatusChanged;
 use App\Services\BloodRequestAuditService;
@@ -190,11 +191,7 @@ class HospitalBloodRequestController extends Controller
 
         if ($request->user) {
             try {
-                $request->user->notify(new BloodRequestStatusChanged(
-                    $request,
-                    'Blood Request Declined',
-                    'Your blood request has been declined by the hospital.'
-                ));
+                $request->user->notify(new BloodRequestDeclined($request));
             } catch (\Throwable $exception) {
                 report($exception);
             }
