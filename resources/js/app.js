@@ -5,6 +5,33 @@ import { initDonationScheduleSlots } from './modules/slot-generator';
 import { initSendRequestModal, initAcceptInvitationModal } from './modules/modal-handlers';
 import { initPasswordToggle, initModalReset } from './modules/password-toggle';
 
+async function refreshHospitalDashboardRequests() {
+    const tbody = document.getElementById('requests-table-body');
+    if (!tbody || !window.hospitalAdminId) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${window.location.pathname}${window.location.search}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const html = await response.text();
+        const parsedDocument = new DOMParser().parseFromString(html, 'text/html');
+        const freshTbody = parsedDocument.getElementById('requests-table-body');
+
+        if (freshTbody) {
+            tbody.innerHTML = freshTbody.innerHTML;
+        }
+    } catch (error) {
+        console.error('Error refreshing hospital dashboard requests:', error);
+    }
+}
+
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
@@ -67,6 +94,10 @@ window.Echo.private('blood-requests')
     .listen('.App\\Events\\BloodRequestCreated', (e) => {
         if (!window.hospitalAdminId) {
             return;
+        }
+
+        if (document.getElementById('requests-table-body')) {
+            refreshHospitalDashboardRequests();
         }
 
         console.log('New blood request detected (hospital):', e.bloodRequest);
@@ -181,6 +212,11 @@ window.addEventListener('bloodrequest-updated', async (ev) => {
             console.log('[bloodrequest-updated] not for this hospital');
             return;
         }
+
+        if (document.getElementById('requests-table-body')) {
+            await refreshHospitalDashboardRequests();
+        }
+
         const level = br.urgency || 'Emergency';
         const containerId = `bloodrequests-live-${level.toLowerCase()}`;
         const container = document.getElementById(containerId);
@@ -284,6 +320,10 @@ window.addEventListener('bloodrequest-status-updated', async (ev) => {
             return;
         }
 
+        if (document.getElementById('requests-table-body')) {
+            await refreshHospitalDashboardRequests();
+        }
+
         const levels = ['Emergency', 'High', 'Normal'];
         for (const level of levels) {
             const container = document.getElementById(`bloodrequests-live-${level.toLowerCase()}`);
@@ -347,6 +387,10 @@ window.addEventListener('bloodrequest-priority-updated', async (ev) => {
             return;
         }
 
+        if (document.getElementById('requests-table-body')) {
+            await refreshHospitalDashboardRequests();
+        }
+
         const toastContainer = document.getElementById('toast-container');
         if (toastContainer) {
             const toastHTML = `
@@ -398,3 +442,9 @@ window.addEventListener('bloodrequest-priority-updated', async (ev) => {
         console.error('[bloodrequest-priority-updated] error', err);
     }
 });
+
+if (document.getElementById('requests-table-body') && window.hospitalAdminId) {
+    setInterval(() => {
+        refreshHospitalDashboardRequests();
+    }, 30000);
+}
