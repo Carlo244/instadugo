@@ -150,7 +150,6 @@ Route::prefix('hospital')
         Route::post('requests/{id}/approve', [HospitalBloodRequestController::class, 'approve'])->name('requests.approve');
         Route::post('requests/{id}/decline', [HospitalBloodRequestController::class, 'decline'])->name('requests.decline');
         Route::post('requests/{id}/fulfill', [HospitalBloodRequestController::class, 'fulfill'])->name('requests.fulfill');
-        Route::post('requests/{id}/cancel', [HospitalBloodRequestController::class, 'cancel'])->name('requests.cancel');
         Route::patch('requests/{id}/priority', [HospitalBloodRequestController::class, 'updatePriority'])->name('requests.priority');
         Route::post('requests/{request}/notify/{donor}', [HospitalBloodRequestController::class, 'notify'])->name('request.notify');
         Route::post('requests/{request}/notify-all', [HospitalBloodRequestController::class, 'bulkNotify'])->name('request.bulk');
