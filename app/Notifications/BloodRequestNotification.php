@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use App\Models\BloodRequest;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class BloodRequestNotification extends Notification
+class BloodRequestNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
