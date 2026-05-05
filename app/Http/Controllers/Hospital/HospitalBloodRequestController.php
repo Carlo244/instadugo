@@ -11,7 +11,7 @@ use App\Notifications\BloodReadyForPickup;
 use App\Notifications\BloodRequestApproved;
 use App\Notifications\BloodRequestDeclined;
 use App\Notifications\BloodRequestNotification;
-use App\Notifications\BloodRequestStatusChanged;
+use App\Notifications\BloodRequestCancelled;
 use App\Services\BloodRequestAuditService;
 use App\Services\BloodRequestMatchingService;
 use App\Services\BloodRequestPriorityService;
@@ -154,11 +154,7 @@ class HospitalBloodRequestController extends Controller
         $this->auditService->logStatusChange($request, 'cancel', $previousStatus, 'cancelled');
 
         if ($request->user) {
-            $request->user->notify(new BloodRequestStatusChanged(
-                $request,
-                'Blood Request Cancelled',
-                'Your blood request has been cancelled by the hospital.'
-            ));
+            $request->user->notify(new BloodRequestCancelled($request));
         }
 
         return back()->with('success', "Blood request #{$id} has been cancelled.");
