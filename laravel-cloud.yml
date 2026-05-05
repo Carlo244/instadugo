@@ -13,6 +13,13 @@ services:
       production:
         plan: general-1
         count: 1
+  - type: worker
+    name: scheduler
+    command: while true; do php artisan schedule:run >> /dev/null 2>&1; sleep 60; done
+    environments:
+      production:
+        plan: general-1
+        count: 1
 databases:
   - name: mysql
     type: mysql
