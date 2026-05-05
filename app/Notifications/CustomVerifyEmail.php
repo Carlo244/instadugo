@@ -11,7 +11,7 @@ class CustomVerifyEmail extends VerifyEmail
     {
         $verificationUrl = $this->verificationUrl($notifiable);
 
-        return new \Illuminate\Notifications\Messages\MailMessage()->subject('Verify Your InstaDugo Account')->view('emails.verify_email', [
+        return new \Illuminate\Notifications\Messages\MailMessage()->subject('Confirm your InstaDugo email address')->view('emails.verify_email', [
             'user' => $notifiable,
             'url' => $verificationUrl,
         ]);
