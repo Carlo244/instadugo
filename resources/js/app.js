@@ -42,14 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initModalReset('addUserModal', 'addUserForm');
 });
 
-// Global Real-time Listener for donations
-window.Echo.private('donations')
-    .listen('.App\\Events\\DonationCreated', (e) => { 
-        console.log('New donation detected:', e.donation);
-        window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
-        
-        // only show toast to hospitals (they care); donors just see their dashboard update
-        if (window.hospitalAdminId) {
+// Donation listeners: subscribe to hospital-scoped channels when on a hospital page
+if (window.hospitalAdminId) {
+    window.Echo.private(`donations.${window.hospitalAdminId}`)
+        .listen('.App\\Events\\DonationCreated', (e) => {
+            console.log('New donation detected:', e.donation);
+            window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
+
             const toastContainer = document.getElementById('toast-container');
             if (toastContainer) {
                 const toastHTML = `
@@ -64,13 +63,11 @@ window.Echo.private('donations')
                 toastContainer.insertAdjacentHTML('beforeend', toastHTML);
                 setTimeout(() => toastContainer.lastElementChild?.remove(), 5000);
             }
-        }
-    })
-    .listen('.App\\Events\\DonationStatusUpdated', (e) => {
-        console.log('Donation status updated:', e.donation, e.fromStatus, e.toStatus);
-        window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
+        })
+        .listen('.App\\Events\\DonationStatusUpdated', (e) => {
+            console.log('Donation status updated:', e.donation, e.fromStatus, e.toStatus);
+            window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
 
-        if (window.hospitalAdminId) {
             const toastContainer = document.getElementById('toast-container');
             if (toastContainer) {
                 const toastClass = e.toStatus === 'cancelled' ? 'text-bg-warning' : 'text-bg-primary';
@@ -86,57 +83,66 @@ window.Echo.private('donations')
                 toastContainer.insertAdjacentHTML('beforeend', toastHTML);
                 setTimeout(() => toastContainer.lastElementChild?.remove(), 5000);
             }
-        }
+        });
+} else {
+    // On non-hospital pages (donor pages), subscribe to a global donations channel if needed
+    window.Echo.private('donations').listen('.App\\Events\\DonationCreated', (e) => {
+        window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
     });
+}
 
 // Real-time listener for blood requests (hospital + users)
-window.Echo.private('blood-requests')
-    .listen('.App\\Events\\BloodRequestCreated', (e) => {
-        if (!window.hospitalAdminId) {
-            return;
-        }
+// Blood requests: subscribe to hospital-scoped channel when on hospital pages
+if (window.hospitalAdminId) {
+    window.Echo.private(`blood-requests.${window.hospitalAdminId}`)
+        .listen('.App\\Events\\BloodRequestCreated', (e) => {
+            if (document.getElementById('requests-table-body')) {
+                refreshHospitalDashboardRequests();
+            }
 
-        if (document.getElementById('requests-table-body')) {
-            refreshHospitalDashboardRequests();
-        }
-
-        console.log('New blood request detected (hospital):', e.bloodRequest);
-        window.dispatchEvent(new CustomEvent('bloodrequest-updated', { detail: e.bloodRequest }));
-        const toastContainer = document.getElementById('toast-container');
-        if (toastContainer) {
-            const toastHTML = `
-            <div class="toast align-items-center text-bg-info border-0 show mb-2" role="alert">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        New blood request created for ${e.bloodRequest.blood_type}.
+            console.log('New blood request detected (hospital):', e.bloodRequest);
+            window.dispatchEvent(new CustomEvent('bloodrequest-updated', { detail: e.bloodRequest }));
+            const toastContainer = document.getElementById('toast-container');
+            if (toastContainer) {
+                const toastHTML = `
+                <div class="toast align-items-center text-bg-info border-0 show mb-2" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            New blood request created for ${e.bloodRequest.blood_type}.
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            </div>`;
-            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-            setTimeout(() => toastContainer.lastElementChild?.remove(), 5000);
-        }
-    })
-    .listen('.App\\Events\\BloodRequestStatusUpdated', (e) => {
-        console.log('Blood request status updated:', e.bloodRequest, e.fromStatus, e.toStatus);
-        window.dispatchEvent(new CustomEvent('bloodrequest-status-updated', {
-            detail: {
-                bloodRequest: e.bloodRequest,
-                fromStatus: e.fromStatus,
-                toStatus: e.toStatus,
-            },
-        }));
-    })
-    .listen('.App\\Events\\BloodRequestPriorityUpdated', (e) => {
-        console.log('Blood request priority updated:', e.bloodRequest, e.fromUrgency, e.toUrgency);
-        window.dispatchEvent(new CustomEvent('bloodrequest-priority-updated', {
-            detail: {
-                bloodRequest: e.bloodRequest,
-                fromUrgency: e.fromUrgency,
-                toUrgency: e.toUrgency,
-            },
-        }));
+                </div>`;
+                toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+                setTimeout(() => toastContainer.lastElementChild?.remove(), 5000);
+            }
+        })
+        .listen('.App\\Events\\BloodRequestStatusUpdated', (e) => {
+            console.log('Blood request status updated:', e.bloodRequest, e.fromStatus, e.toStatus);
+            window.dispatchEvent(new CustomEvent('bloodrequest-status-updated', {
+                detail: {
+                    bloodRequest: e.bloodRequest,
+                    fromStatus: e.fromStatus,
+                    toStatus: e.toStatus,
+                },
+            }));
+        })
+        .listen('.App\\Events\\BloodRequestPriorityUpdated', (e) => {
+            console.log('Blood request priority updated:', e.bloodRequest, e.fromUrgency, e.toUrgency);
+            window.dispatchEvent(new CustomEvent('bloodrequest-priority-updated', {
+                detail: {
+                    bloodRequest: e.bloodRequest,
+                    fromUrgency: e.fromUrgency,
+                    toUrgency: e.toUrgency,
+                },
+            }));
+        });
+} else {
+    // Non-hospital pages may still benefit from a global listener for notifications
+    window.Echo.private('blood-requests').listen('.App\\Events\\BloodRequestCreated', (e) => {
+        window.dispatchEvent(new CustomEvent('bloodrequest-updated', { detail: e.bloodRequest }));
     });
+}
 
 // Hospital-side: optimistic insert + AJAX refresh when a relevant donation is created
 window.addEventListener('donation-updated', async (ev) => {

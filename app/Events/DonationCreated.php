@@ -23,6 +23,7 @@ class DonationCreated implements ShouldBroadcastNow
 
     public function broadcastOn(): Channel
     {
-        return new PrivateChannel('donations');
+        $hospitalId = $this->donation->hospital_admin_id ?? $this->donation->hospitalAdmin?->id;
+        return new PrivateChannel("donations." . ($hospitalId ?? 'global'));
     }
 }

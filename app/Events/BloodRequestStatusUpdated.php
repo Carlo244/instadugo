@@ -27,6 +27,7 @@ class BloodRequestStatusUpdated implements ShouldBroadcastNow
 
     public function broadcastOn(): Channel
     {
-        return new PrivateChannel('blood-requests');
+        $hospitalId = $this->bloodRequest->hospital_admin_id ?? $this->bloodRequest->hospitalAdmin?->id;
+        return new PrivateChannel("blood-requests." . ($hospitalId ?? 'global'));
     }
 }
