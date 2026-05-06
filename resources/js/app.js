@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Donation listeners: subscribe to hospital-scoped channels when on a hospital page
 if (window.hospitalAdminId) {
-    window.Echo.private(`donations.${window.hospitalAdminId}`)
+    window.Echo.channel(`donations.${window.hospitalAdminId}`)
         .listen('.App\\Events\\DonationCreated', (e) => {
             console.log('New donation detected:', e.donation);
             window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
@@ -94,7 +94,7 @@ if (window.hospitalAdminId) {
 // Real-time listener for blood requests (hospital + users)
 // Blood requests: subscribe to hospital-scoped channel when on hospital pages
 if (window.hospitalAdminId) {
-    window.Echo.private(`blood-requests.${window.hospitalAdminId}`)
+    window.Echo.channel(`blood-requests.${window.hospitalAdminId}`)
         .listen('.App\\Events\\BloodRequestCreated', (e) => {
             if (document.getElementById('requests-table-body')) {
                 refreshHospitalDashboardRequests();

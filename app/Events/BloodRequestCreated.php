@@ -5,7 +5,6 @@ namespace App\Events;
 use App\Models\BloodRequest;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -25,6 +24,6 @@ class BloodRequestCreated implements ShouldBroadcastNow
     public function broadcastOn(): Channel
     {
         $hospitalId = $this->bloodRequest->hospital_admin_id ?? $this->bloodRequest->hospitalAdmin?->id;
-        return new PrivateChannel("blood-requests." . ($hospitalId ?? 'global'));
+        return new Channel("blood-requests." . ($hospitalId ?? 'global'));
     }
 }
