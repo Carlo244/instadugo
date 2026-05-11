@@ -32,6 +32,11 @@ class HospitalAdmin extends Authenticatable
         return $this->hasMany(Donation::class, 'hospital_admin_id');
     }
 
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
+    }
+
     protected $table = 'hospital_admins';
 }
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Hospital\HospitalBloodRequestController;
 use App\Http\Controllers\Hospital\HospitalDashboardController;
 use App\Http\Controllers\Hospital\HospitalDonationController;
 use App\Http\Controllers\Hospital\HospitalManageUsersController;
+use App\Http\Controllers\Hospital\HospitalNotificationController;
 use App\Http\Controllers\Hospital\HospitalProfileController;
 use App\Http\Controllers\Hospital\HospitalReportsController;
 use App\Http\Controllers\User\UserBloodRequestController;
@@ -160,6 +161,11 @@ Route::prefix('hospital')
         Route::post('donations/{id}/complete', [HospitalDonationController::class, 'complete'])->name('donations.complete');
         Route::post('donations/{id}/cancel', [HospitalDonationController::class, 'cancel'])->name('donations.cancel');
 
+        // Notifications
+        Route::get('notifications/unread', [HospitalNotificationController::class, 'getUnread'])->name('notifications.unread');
+        Route::post('notifications/{id}/mark-read', [HospitalNotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+        Route::post('notifications/mark-all-read', [HospitalNotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+        Route::post('notifications/clear', [HospitalNotificationController::class, 'clearAll'])->name('notifications.clear');
 
          Route::get('reports', [HospitalReportsController::class, 'index'])->name('reports');
     });

@@ -8,6 +8,35 @@
             <h4 class="fw-bold text-black-800 mb-0">Hospital Admin</h4>
             <small class="fw-bold text-black-50">InstaDugo System</small>
         </div>
+        
+        <!-- Notification Bell -->
+        <div class="notification-bell-container mb-3">
+            <div class="dropdown w-100">
+                <button class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 position-relative"
+                    type="button" id="notificationBellBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell-fill fs-5"></i>
+                    <span class="fw-bold">Notifications</span>
+                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle-x" 
+                        id="notificationBadge" style="display: none;">0</span>
+                </button>
+                
+                <ul class="dropdown-menu dropdown-menu-end w-100" aria-labelledby="notificationBellBtn" id="notificationDropdown" style="max-width: 350px;">
+                    <li class="dropdown-header">Recent Updates</li>
+                    <li><hr class="dropdown-divider"></li>
+                    <div id="notificationsList" class="notification-items-container" style="max-height: 400px; overflow-y: auto;">
+                        <li class="dropdown-item text-muted text-center py-3">
+                            <small>Loading notifications...</small>
+                        </li>
+                    </div>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <button class="dropdown-item small text-center" id="markAllReadBtn" onclick="markAllNotificationsAsRead()">
+                            Mark all as read
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 
     <div class="sidebar-nav-container flex-grow-1 px-4 py-2 d-flex flex-column" style="overflow-y: auto;">
