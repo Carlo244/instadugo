@@ -319,6 +319,54 @@ section>.container>div.text-center>.section-eyebrow::after {
     letter-spacing: 0.03em;
 }
 
+/* Login page styling (scoped to pages that render .login-scene) */
+body:has(.login-scene) {
+    min-height: 100%;
+    background: #ffe5e8;
+}
+
+body:has(.login-scene) main.py-4 {
+    padding: 0 !important;
+    min-height: 100vh;
+    background: #ffe5e8;
+}
+
+.login-scene {
+    min-height: 100vh;
+    width: 100%;
+    background: #ffe5e8;
+    position: relative;
+}
+
+.login-panel {
+    backdrop-filter: blur(6px);
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    position: relative;
+    z-index: 2;
+}
+
+@media (max-width: 576px) {
+    body:has(.login-scene) {
+        min-height: 100dvh;
+        background: #ffe5e8;
+    }
+
+    body:has(.login-scene) main.py-4 {
+        min-height: 100dvh;
+    }
+
+    .login-scene {
+        min-height: 100dvh;
+        padding: 16px;
+    }
+
+    .login-panel {
+        padding: 1.25rem !important;
+        border-radius: 16px;
+    }
+}
+
 .hero-sub-note {
     font-size: 0.82rem;
     color: rgba(255, 255, 255, 0.55);

@@ -50,6 +50,11 @@
                         <i class="bi bi-people-fill me-2"></i>User Directory
                     </button>
                 </li>
+                <li class="nav-item">
+                    <button class="nav-link rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tab-help">
+                        <i class="bi bi-question-circle me-2"></i>How to Use
+                    </button>
+                </li>
             </ul>
 
             <div class="tab-content">
@@ -267,6 +272,164 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HOW TO USE -->
+                <div class="tab-pane fade" id="tab-help">
+                    <div class="p-0 p-md-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <i class="bi bi-question-circle-fill text-danger me-2"></i>How to Navigate the Hospital
+                                    Dashboard
+                                </h5>
+                                <p class="text-muted small mb-0">Hospital admin guide for handling requests, donor
+                                    schedules, and dashboard actions.</p>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body p-4">
+                                        <h6 class="fw-bold mb-3"><i class="bi bi-map me-2 text-danger"></i>Hospital Admin
+                                            Menu Overview</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="border rounded-3 p-3 h-100">
+                                                    <h6 class="fw-bold mb-1"><i
+                                                            class="bi bi-speedometer2 me-2"></i>Dashboard</h6>
+                                                    <p class="small text-muted mb-2">Live summary of requests, donations,
+                                                        and users.</p>
+                                                    <ul class="small ps-3 mb-0">
+                                                        <li>Monitor urgent queue quickly.</li>
+                                                        <li>View today's donation lineup.</li>
+                                                        <li>Open this tab first every shift.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="border rounded-3 p-3 h-100">
+                                                    <h6 class="fw-bold mb-1"><i class="bi bi-droplet-fill me-2"></i>Blood
+                                                        Requests</h6>
+                                                    <p class="small text-muted mb-2">Main workspace for request decisions.
+                                                    </p>
+                                                    <ul class="small ps-3 mb-0">
+                                                        <li>Approve, decline, and fulfill requests.</li>
+                                                        <li>Change request priority levels.</li>
+                                                        <li>Use history tab for completed actions.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="border rounded-3 p-3 h-100">
+                                                    <h6 class="fw-bold mb-1"><i
+                                                            class="bi bi-heart-pulse-fill me-2"></i>Donations</h6>
+                                                    <p class="small text-muted mb-2">Manage donor schedule and outcomes.
+                                                    </p>
+                                                    <ul class="small ps-3 mb-0">
+                                                        <li>Track today/upcoming/history schedules.</li>
+                                                        <li>Mark completed or cancelled appointments.</li>
+                                                        <li>Validate capacity with phlebotomist slots.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="border rounded-3 p-3 h-100">
+                                                    <h6 class="fw-bold mb-1"><i class="bi bi-people me-2"></i>Manage Users
+                                                    </h6>
+                                                    <p class="small text-muted mb-2">Review and maintain user records.</p>
+                                                    <ul class="small ps-3 mb-0">
+                                                        <li>View donor profiles and contact info.</li>
+                                                        <li>Create/manage hospital-side user records.</li>
+                                                        <li>Use this for verification checks.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="border rounded-3 p-3 h-100">
+                                                    <h6 class="fw-bold mb-1"><i
+                                                            class="bi bi-clipboard-data me-2"></i>Reports</h6>
+                                                    <p class="small text-muted mb-2">Analyze activity and outcomes.</p>
+                                                    <ul class="small ps-3 mb-0">
+                                                        <li>Review request and donation metrics.</li>
+                                                        <li>Use for daily/weekly reporting.</li>
+                                                        <li>Check trends before planning capacity.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-xl-4">
+                                                <div class="border rounded-3 p-3 h-100">
+                                                    <h6 class="fw-bold mb-1"><i
+                                                            class="bi bi-person-circle me-2"></i>Profile</h6>
+                                                    <p class="small text-muted mb-2">Hospital account settings and
+                                                        capacity.</p>
+                                                    <ul class="small ps-3 mb-0">
+                                                        <li>Update hospital information.</li>
+                                                        <li>Adjust phlebotomist count.</li>
+                                                        <li>Maintain accurate contact details.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body p-4">
+                                        <h6 class="fw-bold mb-3"><i
+                                                class="bi bi-signpost-split-fill me-2 text-danger"></i>First-Time Admin
+                                            Flow</h6>
+                                        <ol class="mb-0 ps-3">
+                                            <li class="mb-2">Open <strong>Profile</strong> and confirm hospital details
+                                                and phlebotomist count.</li>
+                                            <li class="mb-2">Go to <strong>Blood Requests</strong> and process pending
+                                                emergencies first.</li>
+                                            <li class="mb-2">Open <strong>Donations</strong> and verify today’s donor
+                                                schedule.</li>
+                                            <li class="mb-2">Use <strong>Manage Users</strong> when you need donor
+                                                identity/contact checks.</li>
+                                            <li class="mb-2">Check <strong>Reports</strong> before end-of-day handoff.
+                                            </li>
+                                            <li class="mb-2">Use <strong>Logout</strong> in the sidebar when your shift
+                                                ends.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body p-4">
+                                        <h6 class="fw-bold mb-3"><i
+                                                class="bi bi-lightning-charge-fill me-2 text-danger"></i>Admin Shortcuts
+                                            and Best Practices</h6>
+                                        <ul class="mb-0 ps-3">
+                                            <li class="mb-2"><strong>Alt + 1</strong> opens Urgent Requests in the
+                                                dashboard tab.</li>
+                                            <li class="mb-2"><strong>Alt + 2</strong> opens Donations in the dashboard
+                                                tab.</li>
+                                            <li class="mb-2"><strong>Alt + 3</strong> opens User Directory in the
+                                                dashboard tab.</li>
+                                            <li class="mb-2">Keep the dashboard open during operations for live queue and
+                                                donation changes.</li>
+                                            <li class="mb-2">Use request IDs in tables when coordinating with staff.</li>
+                                            <li class="mb-2">If realtime seems delayed, verify queue worker and websocket
+                                                services are active.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info border-0 shadow-sm mt-3 mb-0">
+                            <strong>Hospital Admin Note:</strong> This guide is for hospital-side navigation only. Follow
+                            the menu order above
+                            to process urgent demand first, then donation schedules, then reporting and handoff tasks.
                         </div>
                     </div>
                 </div>

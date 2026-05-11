@@ -15,7 +15,7 @@ class BloodRequestStatusUpdated implements ShouldBroadcastNow
 
     public $bloodRequest;
     public $fromStatus;
-    public $toStatus;
+    public $toStatus; 
 
     public function __construct(BloodRequest $bloodRequest, string $fromStatus)
     {

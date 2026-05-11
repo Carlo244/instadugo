@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InstaDugo | Blood Donation & Matching</title>
     <meta name="description"
-        content="InstaDugo connects donors, recipients, and hospitals for faster blood request matching and safer donation coordination.">
+        content="InstaDugo helps donors, recipients, and hospitals manage blood requests, donation schedules, and compatibility matching.">
     <meta property="og:title" content="InstaDugo | Blood Donation & Matching">
     <meta property="og:description"
-        content="Real-time blood request and donor matching platform with hospital coordination.">
+        content="Blood request, donation scheduling, and hospital coordination platform with rule-based matching.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="{{ asset('logo.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -55,10 +55,11 @@
     <!-- Hero Section -->
     <header class="hero-section text-center">
         <div class="container">
-            <p class="hero-badge mb-3"><i class="bi bi-clock-history me-1"></i>24/7 Blood Request & Donor Matching</p>
-            <h1 class="display-3 fw-bold mb-3">Save a Life in <span>Real-Time.</span></h1>
-            <p class="lead mb-2 text-white-50">A Web-Based Blood Donation and Compatibility Matching System</p>
-            <p class="hero-tech-badge mb-5">Powered by Multilevel Queue &amp; Rule-Based Algorithms</p>
+            <p class="hero-badge mb-3"><i class="bi bi-clock-history me-1"></i>Blood Request & Donation Coordination</p>
+            <h1 class="display-3 fw-bold mb-3">Save a Life with <span>Live Coordination.</span></h1>
+            <p class="lead mb-2 text-white-50">A Web-Based Blood Request, Donation Scheduling, and Compatibility
+                Matching System</p>
+            <p class="hero-tech-badge mb-5">Built with Multilevel Queue Prioritization and Rule-Based Matching</p>
             <div class="d-flex justify-content-center gap-3 flex-wrap">
                 <a href="{{ route('register') }}" class="btn btn-donate btn-lg">
                     <i class="bi bi-heart-fill me-2"></i>I want to Donate
@@ -67,8 +68,9 @@
                     <i class="bi bi-droplet-half me-2"></i>I need Blood
                 </a>
             </div>
-            <p class="mt-4 hero-sub-note"><i class="bi bi-shield-check me-1"></i>Free to use &middot; Hospital-verified
-                &middot; Secure & Private</p>
+            <p class="mt-4 hero-sub-note"><i class="bi bi-shield-check me-1"></i>Request tracking &middot; Hospital
+                coordination
+                &middot; Account-based access</p>
         </div>
     </header>
 
@@ -80,8 +82,8 @@
                     <div class="trust-item">
                         <div class="trust-icon"><i class="bi bi-hospital"></i></div>
                         <div>
-                            <div class="trust-label">Verified Hospitals</div>
-                            <div class="trust-desc">Partner Network</div>
+                            <div class="trust-label">Partner Hospitals</div>
+                            <div class="trust-desc">Hospital Coordination</div>
                         </div>
                     </div>
                 </div>
@@ -89,8 +91,8 @@
                     <div class="trust-item">
                         <div class="trust-icon"><i class="bi bi-shield-lock"></i></div>
                         <div>
-                            <div class="trust-label">Secure Data</div>
-                            <div class="trust-desc">Encrypted & Private</div>
+                            <div class="trust-label">Stored Records</div>
+                            <div class="trust-desc">Account-Based Access</div>
                         </div>
                     </div>
                 </div>
@@ -98,8 +100,8 @@
                     <div class="trust-item">
                         <div class="trust-icon"><i class="bi bi-lightning-charge"></i></div>
                         <div>
-                            <div class="trust-label">Real-Time</div>
-                            <div class="trust-desc">Instant Matching</div>
+                            <div class="trust-label">Queue Prioritization</div>
+                            <div class="trust-desc">Urgency-Based Sorting</div>
                         </div>
                     </div>
                 </div>
@@ -107,8 +109,8 @@
                     <div class="trust-item">
                         <div class="trust-icon"><i class="bi bi-bell"></i></div>
                         <div>
-                            <div class="trust-label">Live Alerts</div>
-                            <div class="trust-desc">Instant Updates</div>
+                            <div class="trust-label">Live Notifications</div>
+                            <div class="trust-desc">Request & Schedule Updates</div>
                         </div>
                     </div>
                 </div>
@@ -116,7 +118,7 @@
                     <div class="trust-item">
                         <div class="trust-icon"><i class="bi bi-geo-alt"></i></div>
                         <div>
-                            <div class="trust-label">Local Network</div>
+                            <div class="trust-label">Cavite-Based</div>
                             <div class="trust-desc">Cavite-Based</div>
                         </div>
                     </div>
@@ -130,7 +132,7 @@
         <div class="container text-center">
             <span class="section-eyebrow">Our Impact</span>
             <h2 class="fw-bold mb-2">Growing Every Day</h2>
-            <p class="text-muted mb-5">Real numbers from our live platform — updated continuously.</p>
+            <p class="text-muted mb-5">Current counts based on the platform records.</p>
             <div class="row g-4">
                 <div class="col-6 col-md-3">
                     <div class="glass-card stat-card h-100">
@@ -219,17 +221,19 @@
             <div class="row align-items-center g-5">
                 <div class="col-lg-6">
                     <span class="section-eyebrow">Why InstaDugo</span>
-                    <h2 class="fw-bold mb-4">Smarter Blood Coordination, Faster.</h2>
+                    <h2 class="fw-bold mb-4">Faster Blood Coordination for Hospitals and Donors.</h2>
                     <p class="text-muted mb-4">
-                        InstaDugo connects donors, recipients, and partner hospitals in one unified platform so
-                        urgent blood needs are addressed faster and more safely. Built for Emilio Aguinaldo College
-                        Cavite with real clinical coordination in mind.
+                        InstaDugo connects donors, recipients, and partner hospitals in one platform so blood requests
+                        and donation schedules can be organized and tracked in one place. Built for Emilio Aguinaldo
+                        College Cavite with hospital coordination and request tracking in mind.
                     </p>
                     <ul class="about-feature-list list-unstyled">
                         <li><i class="bi bi-check-circle-fill text-danger me-2"></i>Urgency-based multilevel queue
                             prioritization</li>
                         <li><i class="bi bi-check-circle-fill text-danger me-2"></i>ABO/Rh rule-based compatibility
                             matching</li>
+                        <li><i class="bi bi-check-circle-fill text-danger me-2"></i>Donation scheduling and reminder
+                            notifications</li>
                         <li><i class="bi bi-check-circle-fill text-danger me-2"></i>Real-time notifications to matched
                             donors</li>
                         <li><i class="bi bi-check-circle-fill text-danger me-2"></i>Secure hospital admin coordination
@@ -245,8 +249,8 @@
                         </div>
                         <h5 class="fw-bold mb-2">Every Second Counts</h5>
                         <p class="text-muted mb-3">
-                            Blood has a limited shelf life. Our system ensures the right blood reaches the right
-                            patient as quickly as possible — prioritizing emergency cases automatically.
+                            Blood has a limited shelf life. Our system helps hospitals and donors coordinate the right
+                            blood requests, donation schedules, and request priorities more efficiently.
                         </p>
                         <div class="row g-3 text-start">
                             <div class="col-6">
@@ -291,27 +295,27 @@
                     <div class="glass-card process-card h-100">
                         <div class="step-circle"><i class="bi bi-person-plus-fill"></i></div>
                         <div class="step-label">Step 1</div>
-                        <h5 class="fw-bold mt-2">Create Your Profile</h5>
-                        <p class="text-muted small">Register as a donor or recipient. Provide your blood type and
-                            health details to join our verified network.</p>
+                        <h5 class="fw-bold mt-2">Create Your Account</h5>
+                        <p class="text-muted small">Register as a donor, recipient, or hospital admin depending on your
+                            role in the system.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="glass-card process-card h-100">
                         <div class="step-circle"><i class="bi bi-calendar2-event-fill"></i></div>
                         <div class="step-label">Step 2</div>
-                        <h5 class="fw-bold mt-2">Smart Queue Entry</h5>
-                        <p class="text-muted small">Submit a blood request or availability. Our <strong>Multilevel
-                                Queue</strong> instantly prioritizes urgent and rare cases.</p>
+                        <h5 class="fw-bold mt-2">Queue-Based Request Entry</h5>
+                        <p class="text-muted small">Submit a blood request or donation schedule. The <strong>Multilevel
+                                Queue</strong> organizes requests by urgency and blood type priority.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="glass-card process-card h-100">
                         <div class="step-circle"><i class="bi bi-patch-check-fill"></i></div>
                         <div class="step-label">Step 3</div>
-                        <h5 class="fw-bold mt-2">Automated Matching</h5>
-                        <p class="text-muted small">The <strong>Rule-Based Algorithm</strong> verifies ABO/Rh
-                            compatibility and notifies the best-matched donor instantly.</p>
+                        <h5 class="fw-bold mt-2">Rule-Based Matching</h5>
+                        <p class="text-muted small">The <strong>Rule-Based Algorithm</strong> checks ABO/Rh
+                            compatibility and notifies the matching donor based on the stored rules.</p>
                     </div>
                 </div>
             </div>
@@ -350,7 +354,7 @@
                         <div class="accordion-body text-muted">
                             The system uses a <strong>Multilevel Queue</strong> that ranks requests by urgency level
                             (<strong>Emergency</strong>, <strong>High</strong>, <strong>Normal</strong>) and blood type
-                            rarity. Emergency and rare blood type cases are always processed first.
+                            priority.
                         </div>
                     </div>
                 </div>
@@ -363,9 +367,8 @@
                     </h2>
                     <div id="faqThree" class="accordion-collapse collapse" data-bs-parent="#landingFaq">
                         <div class="accordion-body text-muted">
-                            Yes. While the matching and coordination happen on InstaDugo, the actual donation and
-                            fulfillment take place at a partner hospital or blood center for your safety and proper
-                            medical supervision.
+                            Yes. InstaDugo is used for coordination and tracking, while the actual donation and
+                            fulfillment take place at a partner hospital or blood center.
                         </div>
                     </div>
                 </div>
@@ -412,11 +415,11 @@
             <div class="row g-4 g-lg-5">
                 <div class="col-lg-4">
                     <img src="{{ asset('logo.png') }}" class="footer-logo mb-3" alt="InstaDugo Logo">
-                    <p class="footer-brand-text mb-3">A blood donation and compatibility matching system designed for
-                        fast, safe, and coordinated blood support in Cavite.</p>
+                    <p class="footer-brand-text mb-3">A blood donation and compatibility matching system for blood
+                        requests, donation scheduling, and hospital coordination in Cavite.</p>
                     <div class="footer-badges">
-                        <span class="footer-badge"><i class="bi bi-shield-check"></i> Hospital Verified</span>
-                        <span class="footer-badge"><i class="bi bi-lightning-charge"></i> Real-Time Matching</span>
+                        <span class="footer-badge"><i class="bi bi-shield-check"></i> Hospital Coordination</span>
+                        <span class="footer-badge"><i class="bi bi-lightning-charge"></i> Queue-Based Matching</span>
                     </div>
                 </div>
 
@@ -458,7 +461,7 @@
             <hr class="footer-divider">
             <div class="footer-meta d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <small class="footer-meta-text">&copy; {{ date('Y') }} InstaDugo. All rights reserved.</small>
-                <small class="footer-meta-text">Developed by: Balinado, Lapuz, Montemayor &amp; Sanchez</small>
+                <small class="footer-meta-text">Developed by: Sanchez, Balinado, Lapuz &amp; Montemayor</small>
             </div>
         </div>
     </footer>
