@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BloodRequest;
 use App\Models\Donation;
 use App\Models\HospitalAdmin;
+use App\Notifications\HospitalAdminDashboardNotification;
 use App\Notifications\DonorFoundNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -122,6 +123,21 @@ class UserDonationController extends Controller
             report($e);
         }
 
+        $hospital = HospitalAdmin::find($donation->hospital_admin_id);
+        if ($hospital) {
+            $hospital->notify(new HospitalAdminDashboardNotification(
+                'donation_created',
+                'New donation scheduled for ' . $donation->donation_date . ' at ' . $donation->donation_time . '.',
+                route('hospital.donations'),
+                [
+                    'donation_id' => $donation->id,
+                    'donation_date' => $donation->donation_date,
+                    'donation_time' => $donation->donation_time,
+                    'blood_type' => $donation->blood_type,
+                ]
+            ));
+        }
+
         return back()->with('success', 'Donation scheduled successfully.');
     }
 
@@ -201,6 +217,21 @@ class UserDonationController extends Controller
 
             // 4. Update the Blood Request status
             $bloodRequest->update(['status' => 'accepted']);
+
+            $hospital = HospitalAdmin::find($validated['hospital_admin_id']);
+            if ($hospital) {
+                $hospital->notify(new HospitalAdminDashboardNotification(
+                    'donation_created',
+                    $donor->name . ' accepted a donation invitation.',
+                    route('hospital.donations'),
+                    [
+                        'donation_id' => $donation->id,
+                        'blood_request_id' => $bloodRequest->id,
+                        'donor_name' => $donor->name,
+                        'blood_type' => $donor->blood_type,
+                    ]
+                ));
+            }
 
             // 5. Notify the Original Requester
             // We notify the user who created the blood request ($bloodRequest->user)

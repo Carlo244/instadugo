@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\BloodRequest;
 use App\Models\HospitalAdmin;
+use App\Notifications\HospitalAdminDashboardNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -56,6 +57,21 @@ class UserBloodRequestController extends Controller
             event(new \App\Events\BloodRequestCreated($bloodRequest));
         } catch (\Throwable $e) {
             report($e);
+        }
+
+        $hospital = HospitalAdmin::find($bloodRequest->hospital_admin_id);
+        if ($hospital) {
+            $hospital->notify(new HospitalAdminDashboardNotification(
+                'blood_request_created',
+                'New blood request for ' . $bloodRequest->blood_type . ' has been submitted.',
+                route('hospital.requests'),
+                [
+                    'blood_request_id' => $bloodRequest->id,
+                    'blood_type' => $bloodRequest->blood_type,
+                    'quantity' => $bloodRequest->quantity,
+                    'urgency' => $bloodRequest->urgency,
+                ]
+            ));
         }
 
         return back()->with('success', 'Your blood request has been submitted.');

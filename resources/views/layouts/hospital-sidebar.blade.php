@@ -8,29 +8,53 @@
             <h4 class="fw-bold text-black-800 mb-0">Hospital Admin</h4>
             <small class="fw-bold text-black-50">InstaDugo System</small>
         </div>
-        
+
         <!-- Notification Bell -->
         <div class="notification-bell-container mb-3">
-            <div class="dropdown w-100">
-                <button class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 position-relative"
-                    type="button" id="notificationBellBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-bell-fill fs-5"></i>
-                    <span class="fw-bold">Notifications</span>
-                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle-x" 
-                        id="notificationBadge" style="display: none;">0</span>
+            <div class="notification-bell-shell">
+                <button
+                    class="notification-bell-trigger btn w-100 d-flex align-items-center justify-content-between gap-3 position-relative"
+                    type="button" id="notificationBellBtn" onclick="toggleNotificationDropdown(event)"
+                    aria-expanded="false">
+                    <span class="d-flex align-items-center gap-3 text-start">
+                        <span class="notification-bell-icon-wrap">
+                            <i class="bi bi-bell-fill"></i>
+                        </span>
+                        <span class="d-flex flex-column">
+                            <span class="notification-bell-label">Notifications</span>
+                            <small class="notification-bell-subtitle">Hospital updates and actions</small>
+                        </span>
+                    </span>
+                    <span class="notification-bell-meta d-flex align-items-center gap-2">
+                        <span class="badge notification-count-badge" id="notificationBadge"
+                            style="display: none;">0</span>
+                        <i class="bi bi-chevron-down notification-bell-chevron"></i>
+                    </span>
                 </button>
-                
-                <ul class="dropdown-menu dropdown-menu-end w-100" aria-labelledby="notificationBellBtn" id="notificationDropdown" style="max-width: 350px;">
-                    <li class="dropdown-header">Recent Updates</li>
-                    <li><hr class="dropdown-divider"></li>
-                    <div id="notificationsList" class="notification-items-container" style="max-height: 400px; overflow-y: auto;">
-                        <li class="dropdown-item text-muted text-center py-3">
-                            <small>Loading notifications...</small>
-                        </li>
-                    </div>
-                    <li><hr class="dropdown-divider"></li>
+
+                <ul class="dropdown-menu dropdown-menu-end w-100 notification-dropdown-panel"
+                    aria-labelledby="notificationBellBtn" id="notificationDropdown" style="max-width: 350px;">
+                    <li class="notification-dropdown-header">
+                        <div>
+                            <h6 class="mb-0">Recent Updates</h6>
+                            <small>Unread alerts from your hospital dashboard</small>
+                        </div>
+                    </li>
                     <li>
-                        <button class="dropdown-item small text-center" id="markAllReadBtn" onclick="markAllNotificationsAsRead()">
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li id="notificationsList" class="notification-items-container">
+                        <button type="button"
+                            class="dropdown-item text-muted text-center py-3 w-100 notification-empty-state">
+                            <small>Loading notifications...</small>
+                        </button>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item small text-center notification-mark-all-btn"
+                            id="markAllReadBtn" onclick="markAllNotificationsAsRead()">
                             Mark all as read
                         </button>
                     </li>

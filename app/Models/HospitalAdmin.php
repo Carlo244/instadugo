@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class HospitalAdmin extends Authenticatable
 {
+    use Notifiable;
+
     protected $fillable = [
         'hospital_name',
         'email',
@@ -30,11 +33,6 @@ class HospitalAdmin extends Authenticatable
     public function donations()
     {
         return $this->hasMany(Donation::class, 'hospital_admin_id');
-    }
-
-    public function notifications()
-    {
-        return $this->morphMany(Notification::class, 'notifiable');
     }
 
     protected $table = 'hospital_admins';

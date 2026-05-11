@@ -32,6 +32,196 @@ async function refreshHospitalDashboardRequests() {
     }
 }
 
+// ===== Notification Bell Management Functions =====
+async function loadNotifications() {
+    if (!window.hospitalAdminId) return;
+    
+    try {
+        console.log('[loadNotifications] Fetching unread notifications for hospital admin:', window.hospitalAdminId);
+        const response = await fetch('/hospital/notifications/unread');
+        
+        if (!response.ok) {
+            console.error('[loadNotifications] API returned error status:', response.status);
+            return;
+        }
+        
+        const data = await response.json();
+        console.log('[loadNotifications] Received notifications:', data);
+        updateNotificationBadge(data.count);
+        renderNotifications(data.notifications);
+    } catch (error) {
+        console.error('[loadNotifications] Error:', error);
+    }
+}
+
+function updateNotificationBadge(count) {
+    const badge = document.getElementById('notificationBadge');
+    if (!badge) {
+        console.warn('[updateNotificationBadge] Badge element not found!');
+        return;
+    }
+    
+    console.log('[updateNotificationBadge] Setting badge count to:', count);
+    if (count > 0) {
+        badge.textContent = count > 9 ? '9+' : count;
+        badge.style.display = 'inline-block';
+        console.log('[updateNotificationBadge] Badge now visible with count:', count);
+    } else {
+        badge.style.display = 'none';
+        console.log('[updateNotificationBadge] No notifications, hiding badge');
+    }
+}
+
+function closeNotificationDropdown() {
+    const menu = document.getElementById('notificationDropdown');
+    const button = document.getElementById('notificationBellBtn');
+
+    if (!menu || !button) {
+        return;
+    }
+
+    menu.classList.remove('show');
+    button.setAttribute('aria-expanded', 'false');
+}
+
+function toggleNotificationDropdown(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const menu = document.getElementById('notificationDropdown');
+    const button = document.getElementById('notificationBellBtn');
+
+    if (!menu || !button) {
+        return;
+    }
+
+    const willOpen = !menu.classList.contains('show');
+    closeNotificationDropdown();
+
+    if (willOpen) {
+        menu.classList.add('show');
+        button.setAttribute('aria-expanded', 'true');
+    }
+}
+
+function renderNotifications(notifications) {
+    const container = document.getElementById('notificationsList');
+    if (!container) {
+        console.warn('[renderNotifications] Container element not found!');
+        return;
+    }
+    
+    console.log('[renderNotifications] Rendering', notifications.length, 'notifications');
+    if (notifications.length === 0) {
+        console.log('[renderNotifications] No notifications to display');
+        container.innerHTML = '<li class="dropdown-item text-muted text-center py-3"><small>No notifications</small></li>';
+        return;
+    }
+    
+    const html = notifications.map(notif => {
+        const createdAt = new Date(notif.created_at);
+        const timeStr = createdAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        
+        const notificationType = notif.data?.type || notif.type || '';
+        let message = notif.data?.message || 'Update received';
+        let icon = 'bi-bell';
+        let iconClass = 'notification-item-icon--status';
+
+        if (notificationType === 'blood_request_created') {
+            icon = 'bi-droplet-fill';
+            iconClass = 'notification-item-icon--blood';
+        } else if (notificationType === 'blood_request_status_updated') {
+            icon = 'bi-arrow-repeat';
+            message = notif.data?.message || `Request status: ${notif.data?.from_status} → ${notif.data?.to_status}`;
+            iconClass = 'notification-item-icon--status';
+        } else if (notificationType === 'donation_created') {
+            icon = 'bi-heart-pulse-fill';
+            iconClass = 'notification-item-icon--donation';
+        } else if (notificationType === 'donation_status_updated') {
+            icon = 'bi-arrow-repeat';
+            message = notif.data?.message || `Donation status: ${notif.data?.from_status} → ${notif.data?.to_status}`;
+            iconClass = 'notification-item-icon--status';
+        }
+
+        const targetUrl = notif.data?.url || (notificationType.startsWith('blood_request')
+            ? '/hospital/requests'
+            : '/hospital/donations');
+        
+        return `
+            <li>
+                <button type="button" class="dropdown-item notification-item-button small" onclick="openNotification(${notif.id}, ${JSON.stringify(notif.type)}, ${JSON.stringify(targetUrl)}); return false;">
+                    <div class="notification-item-inner">
+                        <div class="notification-item-icon ${iconClass}">
+                            <i class="bi ${icon}"></i>
+                        </div>
+                        <div class="flex-grow-1" style="text-align: left;">
+                            <div class="notification-item-title">${message}</div>
+                            <small class="notification-item-time">${timeStr}</small>
+                        </div>
+                    </div>
+                </button>
+            </li>`;
+    }).join('');
+    
+    container.innerHTML = html;
+}
+
+async function markNotificationAsRead(notificationId) {
+    if (!window.hospitalAdminId) return;
+    
+    try {
+        const response = await fetch(`/hospital/notifications/${notificationId}/mark-read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
+        });
+        
+        if (response.ok) {
+            loadNotifications(); // Reload to update count and list
+        }
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+    }
+}
+
+async function markAllNotificationsAsRead() {
+    if (!window.hospitalAdminId) return;
+    
+    try {
+        const response = await fetch('/hospital/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
+        });
+        
+        if (response.ok) {
+            loadNotifications();
+        }
+    } catch (error) {
+        console.error('Error marking all notifications as read:', error);
+    }
+}
+
+async function openNotification(notificationId, notificationType, targetUrl) {
+    await markNotificationAsRead(notificationId);
+
+    if (targetUrl) {
+        window.location.href = targetUrl;
+    }
+}
+
+// Make functions globally available
+window.markNotificationAsRead = markNotificationAsRead;
+window.markAllNotificationsAsRead = markAllNotificationsAsRead;
+window.openNotification = openNotification;
+window.toggleNotificationDropdown = toggleNotificationDropdown;
+
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
@@ -40,6 +230,25 @@ document.addEventListener('DOMContentLoaded', () => {
     initAcceptInvitationModal();
     initPasswordToggle();
     initModalReset('addUserModal', 'addUserForm');
+    
+    // Load notifications for hospital admin
+    if (window.hospitalAdminId) {
+        loadNotifications();
+        // Refresh notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
+    }
+
+    document.addEventListener('click', (event) => {
+        const notificationContainer = document.querySelector('.notification-bell-container');
+
+        if (!notificationContainer) {
+            return;
+        }
+
+        if (!notificationContainer.contains(event.target)) {
+            closeNotificationDropdown();
+        }
+    });
 });
 
 // Donation listeners: subscribe to hospital-scoped channels when on a hospital page
@@ -48,6 +257,11 @@ if (window.hospitalAdminId) {
         .listen('.App\\Events\\DonationCreated', (e) => {
             console.log('New donation detected:', e.donation);
             window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
+            // Immediately update notification bell
+            setTimeout(() => {
+                console.log('[Echo Listener] Updating notification bell for new donation...');
+                loadNotifications();
+            }, 1500);
 
             const toastContainer = document.getElementById('toast-container');
             if (toastContainer) {
@@ -67,6 +281,11 @@ if (window.hospitalAdminId) {
         .listen('.App\\Events\\DonationStatusUpdated', (e) => {
             console.log('Donation status updated:', e.donation, e.fromStatus, e.toStatus);
             window.dispatchEvent(new CustomEvent('donation-updated', { detail: e.donation }));
+            // Immediately update notification bell
+            setTimeout(() => {
+                console.log('[Echo Listener] Updating notification bell for donation status change...');
+                loadNotifications();
+            }, 1500);
 
             const toastContainer = document.getElementById('toast-container');
             if (toastContainer) {
@@ -102,6 +321,11 @@ if (window.hospitalAdminId) {
 
             console.log('New blood request detected (hospital):', e.bloodRequest);
             window.dispatchEvent(new CustomEvent('bloodrequest-updated', { detail: e.bloodRequest }));
+            // Immediately update notification bell
+            setTimeout(() => {
+                console.log('[Echo Listener] Updating notification bell for new blood request...');
+                loadNotifications();
+            }, 1500);
             const toastContainer = document.getElementById('toast-container');
             if (toastContainer) {
                 const toastHTML = `
@@ -126,6 +350,11 @@ if (window.hospitalAdminId) {
                     toStatus: e.toStatus,
                 },
             }));
+            // Immediately update notification bell
+            setTimeout(() => {
+                console.log('[Echo Listener] Updating notification bell for blood request status change...');
+                loadNotifications();
+            }, 1500);
         })
         .listen('.App\\Events\\BloodRequestPriorityUpdated', (e) => {
             console.log('Blood request priority updated:', e.bloodRequest, e.fromUrgency, e.toUrgency);
@@ -455,151 +684,24 @@ if (document.getElementById('requests-table-body') && window.hospitalAdminId) {
     }, 30000);
 }
 
-// ===== Notification Bell Management =====
-async function loadNotifications() {
-    if (!window.hospitalAdminId) return;
-    
-    try {
-        const response = await fetch('/hospital/notifications/unread');
-        if (!response.ok) return;
-        
-        const data = await response.json();
-        updateNotificationBadge(data.count);
-        renderNotifications(data.notifications);
-    } catch (error) {
-        console.error('Error loading notifications:', error);
-    }
-}
-
-function updateNotificationBadge(count) {
-    const badge = document.getElementById('notificationBadge');
-    if (!badge) return;
-    
-    if (count > 0) {
-        badge.textContent = count > 9 ? '9+' : count;
-        badge.style.display = 'inline-block';
-    } else {
-        badge.style.display = 'none';
-    }
-}
-
-function renderNotifications(notifications) {
-    const container = document.getElementById('notificationsList');
-    if (!container) return;
-    
-    if (notifications.length === 0) {
-        container.innerHTML = '<li class="dropdown-item text-muted text-center py-3"><small>No notifications</small></li>';
-        return;
-    }
-    
-    const html = notifications.map(notif => {
-        const createdAt = new Date(notif.created_at);
-        const timeStr = createdAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        
-        let message = 'Update received';
-        let icon = 'bi-bell';
-        
-        if (notif.type === 'blood_request_created') {
-            message = `New blood request for ${notif.data?.blood_type || 'blood'}`;
-            icon = 'bi-droplet-fill';
-        } else if (notif.type === 'blood_request_status_updated') {
-            message = `Request status: ${notif.data?.from_status} → ${notif.data?.to_status}`;
-            icon = 'bi-arrow-repeat';
-        } else if (notif.type === 'donation_created') {
-            message = `New donation scheduled at ${notif.data?.donation_time || 'scheduled time'}`;
-            icon = 'bi-heart-pulse-fill';
-        } else if (notif.type === 'donation_status_updated') {
-            message = `Donation status: ${notif.data?.from_status} → ${notif.data?.to_status}`;
-            icon = 'bi-arrow-repeat';
-        }
-        
-        return `
-            <li>
-                <button class="dropdown-item small" onclick="markNotificationAsRead(${notif.id})">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="d-flex align-items-start gap-2 flex-grow-1">
-                            <i class="bi ${icon} mt-1" style="flex-shrink: 0;"></i>
-                            <div style="text-align: left; flex-grow: 1;">
-                                <div class="fw-normal">${message}</div>
-                                <small class="text-muted">${timeStr}</small>
-                            </div>
-                        </div>
-                    </div>
-                </button>
-            </li>`;
-    }).join('');
-    
-    container.innerHTML = html;
-}
-
-async function markNotificationAsRead(notificationId) {
-    if (!window.hospitalAdminId) return;
-    
-    try {
-        const response = await fetch(`/hospital/notifications/${notificationId}/mark-read`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            },
-        });
-        
-        if (response.ok) {
-            loadNotifications(); // Reload to update count and list
-        }
-    } catch (error) {
-        console.error('Error marking notification as read:', error);
-    }
-}
-
-async function markAllNotificationsAsRead() {
-    if (!window.hospitalAdminId) return;
-    
-    try {
-        const response = await fetch('/hospital/notifications/mark-all-read', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            },
-        });
-        
-        if (response.ok) {
-            loadNotifications();
-        }
-    } catch (error) {
-        console.error('Error marking all notifications as read:', error);
-    }
-}
-
-// Make functions globally available
-window.markNotificationAsRead = markNotificationAsRead;
-window.markAllNotificationsAsRead = markAllNotificationsAsRead;
-
-// Load notifications on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.hospitalAdminId) {
-        loadNotifications();
-        // Refresh notifications every 30 seconds
-        setInterval(loadNotifications, 30000);
-    }
-});
-
-// Update notification bell on real-time events
+// Update notification bell on real-time events - increase delay for DB writes
 window.addEventListener('bloodrequest-updated', () => {
     if (window.hospitalAdminId) {
-        setTimeout(loadNotifications, 500); // Small delay to allow DB write
+        console.log('[Notification Bell] Blood request created/updated, reloading notifications...');
+        setTimeout(loadNotifications, 1500); // Increased delay to ensure DB write completes
     }
 });
 
 window.addEventListener('bloodrequest-status-updated', () => {
     if (window.hospitalAdminId) {
-        setTimeout(loadNotifications, 500);
+        console.log('[Notification Bell] Blood request status changed, reloading notifications...');
+        setTimeout(loadNotifications, 1500);
     }
 });
 
 window.addEventListener('donation-updated', () => {
     if (window.hospitalAdminId) {
-        setTimeout(loadNotifications, 500);
+        console.log('[Notification Bell] Donation created/updated, reloading notifications...');
+        setTimeout(loadNotifications, 1500);
     }
 });

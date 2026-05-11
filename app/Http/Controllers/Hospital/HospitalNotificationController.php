@@ -29,7 +29,7 @@ class HospitalNotificationController extends Controller
             ->map(function ($notification) {
                 return [
                     'id' => $notification->id,
-                    'type' => $notification->type,
+                    'type' => $notification->data['type'] ?? $notification->type,
                     'data' => $notification->data,
                     'created_at' => $notification->created_at,
                     'read_at' => $notification->read_at,
