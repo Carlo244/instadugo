@@ -1,53 +1,75 @@
 @extends('emails.layout')
 
-@section('title', 'Donation Appointment Reminder')
+@section('title', $reminderLabel . ' - Donation Appointment Reminder')
 
 @section('content')
-    <h2 style="font-size: 22px; margin-bottom: 20px; color: #1a1a1a; text-align: center;">🩸 Donation Appointment Reminder</h2>
+    @php
+        $hospital = $donation->hospitalAdmin;
+        $user = $donation->user;
+        $date = \Carbon\Carbon::parse($donation->donation_date)->format('M d, Y');
+        $time = \Carbon\Carbon::createFromFormat('H:i:s', $donation->donation_time)->format('h:i A');
+        $isFinalReminder = str_contains(strtolower($reminderLabel), '2-hour');
+        $accentColor = $isFinalReminder ? '#b91c1c' : '#dc3545';
+        $bannerText = $isFinalReminder
+            ? 'Final reminder before your appointment'
+            : 'Your upcoming appointment reminder';
+        $introText = $isFinalReminder
+            ? 'This is your final reminder that your blood donation appointment is coming up soon.'
+            : 'This is a reminder for your upcoming blood donation appointment.';
+    @endphp
 
-    <p style="font-size: 16px; line-height: 1.6;">Hi {{ $donorName }},</p>
+    <h2 style="margin: 0 0 14px 0; color: {{ $accentColor }}; font-size: 24px; font-weight: 800; text-align: center;">
+        {{ $bannerText }}</h2>
 
-    <p style="font-size: 16px; line-height: 1.6;">This is a friendly reminder that you have a blood donation appointment scheduled <strong>tomorrow</strong>!</p>
+    <p style="margin: 0 0 18px 0; font-size: 16px; line-height: 1.7;">Hi {{ $user->name }},</p>
 
-    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;">
-        <p style="font-size: 14px; color: #856404; text-transform: uppercase; font-weight: 800; margin: 0 0 10px 0; letter-spacing: 0.5px;">Your Appointment Details</p>
-        <table border="0" cellpadding="10" cellspacing="0" width="100%">
-            <tr>
-                <td style="font-size: 14px; line-height: 1.8; color: #333;">
-                    <strong style="color: #dc3545;">Hospital:</strong> {{ $hospital }}<br>
-                    <strong style="color: #dc3545;">Date:</strong> {{ \Carbon\Carbon::parse($donationDate)->format('l, F j, Y') }}<br>
-                    <strong style="color: #dc3545;">Time:</strong> {{ \Carbon\Carbon::parse($donationTime)->format('h:i A') }}<br>
-                    <strong style="color: #dc3545;">Blood Type:</strong> {{ $donation->blood_type }}
-                </td>
-            </tr>
-        </table>
+    <div
+        style="background-color: #fff5f5; border-left: 4px solid {{ $accentColor }}; padding: 18px 20px; border-radius: 8px; margin-bottom: 22px;">
+        <p style="margin: 0; font-size: 15px; line-height: 1.7;">{{ $introText }}</p>
     </div>
 
-    <div style="background-color: #ffe0e0; border-left: 4px solid #dc3545; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;">
-        <p style="font-size: 14px; color: #dc3545; text-transform: uppercase; font-weight: 800; margin: 0 0 10px 0; letter-spacing: 0.5px;">Please Remember:</p>
-        <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #333; line-height: 1.8;">
-            <li>Arrive 10-15 minutes early</li>
-            <li>Bring a valid ID and proof of address</li>
-            <li>Stay hydrated before your appointment</li>
-            <li>Eat a light meal beforehand</li>
-            <li>Get adequate rest the night before</li>
-        </ul>
-    </div>
-
-    <p style="font-size: 16px; line-height: 1.6; margin: 25px 0;">Your donation will help save lives. Thank you for your generous contribution to our community!</p>
-
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 22px;">
         <tr>
-            <td align="center" style="padding: 10px 0 35px 0;">
-                <a href="{{ route('user.donate-schedule') }}" class="button"
-                    style="background-color: #dc3545; color: #ffffff !important; padding: 16px 35px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">
-                    View My Donation Schedule
-                </a>
+            <td style="background-color: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 18px;">
+                <p
+                    style="margin: 0 0 10px 0; font-size: 13px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">
+                    Appointment Details</p>
+                <p style="margin: 0; font-size: 15px; line-height: 1.8; color: #111827;">
+                    <strong>Hospital:</strong> {{ $hospital?->hospital_name ?? 'the selected hospital' }}<br>
+                    <strong>Date:</strong> {{ $date }}<br>
+                    <strong>Time:</strong> {{ $time }}<br>
+                    <strong>Blood Type:</strong> {{ $donation->blood_type }}
+                </p>
             </td>
         </tr>
     </table>
 
-    <p style="font-size: 15px; color: #666666; margin-top: 40px;">Regards,<br>
-        <span style="color: #dc3545; font-weight: bold;">The InstaDugo Team</span>
-    </p>
+    <div
+        style="background-color: #f8fafc; border: 1px solid #e5e7eb; padding: 18px 20px; border-radius: 8px; margin-bottom: 22px;">
+        <p
+            style="margin: 0 0 10px 0; font-size: 14px; color: #374151; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;">
+            Please remember</p>
+        <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">
+            <li>Arrive 10-15 minutes early</li>
+            <li>Bring a valid ID</li>
+            <li>Stay hydrated and eat a light meal before the appointment</li>
+            <li>If you need to make changes, open your donation tab below</li>
+        </ul>
+    </div>
+
+    <p style="margin: 0 0 14px 0; font-size: 15px; line-height: 1.7;">If you need to review or update your appointment, open
+        your donation tab below.</p>
+
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 18px;">
+        <tr>
+            <td align="center">
+                <a href="{{ route('user.donate-schedule') }}" class="button"
+                    style="display: inline-block; background-color: {{ $accentColor }}; color: #ffffff !important; padding: 14px 28px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px;">Cancel
+                    / view my donation tab</a>
+            </td>
+        </tr>
+    </table>
+
+    <p style="margin: 0; font-size: 14px; line-height: 1.7; color: #6b7280; text-align: center;">Thank you for donating.
+        Your contribution saves lives.</p>
 @endsection

@@ -35,7 +35,8 @@
             <a href="#" class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="modal"
                 data-bs-target="#notificationsModal">
                 <span><i class="bi bi-bell-fill me-2"></i> Notifications</span>
-                <span class="badge bg-danger rounded-pill">{{ auth()->user()->unreadNotifications->count() }}</span>
+                <span id="userNotificationBadge"
+                    class="badge bg-danger rounded-pill">{{ auth()->user()->unreadNotifications->count() }}</span>
             </a>
 
             <hr class="my-2">

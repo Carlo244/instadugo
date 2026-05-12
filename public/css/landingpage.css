@@ -319,26 +319,30 @@ section>.container>div.text-center>.section-eyebrow::after {
     letter-spacing: 0.03em;
 }
 
-/* Login page styling (scoped to pages that render .login-scene) */
-body:has(.login-scene) {
+/* Login/auth page styling (scoped to pages that render .login-scene or .auth-scene) */
+body:has(.login-scene),
+body:has(.auth-scene) {
     min-height: 100%;
     background: #ffe5e8;
 }
 
-body:has(.login-scene) main.py-4 {
+body:has(.login-scene) main.py-4,
+body:has(.auth-scene) main.py-4 {
     padding: 0 !important;
     min-height: 100vh;
     background: #ffe5e8;
 }
 
-.login-scene {
+.login-scene,
+.auth-scene {
     min-height: 100vh;
     width: 100%;
     background: #ffe5e8;
     position: relative;
 }
 
-.login-panel {
+.login-panel,
+.auth-panel {
     backdrop-filter: blur(6px);
     background: rgba(255, 255, 255, 0.88);
     border: 1px solid rgba(255, 255, 255, 0.55);
@@ -347,21 +351,26 @@ body:has(.login-scene) main.py-4 {
 }
 
 @media (max-width: 576px) {
-    body:has(.login-scene) {
+
+    body:has(.login-scene),
+    body:has(.auth-scene) {
         min-height: 100dvh;
         background: #ffe5e8;
     }
 
-    body:has(.login-scene) main.py-4 {
+    body:has(.login-scene) main.py-4,
+    body:has(.auth-scene) main.py-4 {
         min-height: 100dvh;
     }
 
-    .login-scene {
+    .login-scene,
+    .auth-scene {
         min-height: 100dvh;
         padding: 16px;
     }
 
-    .login-panel {
+    .login-panel,
+    .auth-panel {
         padding: 1.25rem !important;
         border-radius: 16px;
     }

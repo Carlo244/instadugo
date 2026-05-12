@@ -10,8 +10,12 @@ use App\Models\HospitalAdmin;
 use App\Notifications\HospitalAdminDashboardNotification;
 use App\Notifications\DonorFoundNotification;
 use Carbon\Carbon;
+use App\Jobs\SendDonationReminder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 
 class UserDonationController extends Controller
 {
@@ -115,6 +119,52 @@ class UserDonationController extends Controller
             'notes' => $request->notes,
             'status' => 'scheduled',
         ]);
+
+        // Schedule email reminders (24h before or previous evening 19:00 if within 24h, and 2h before)
+        try {
+            $scheduled = Carbon::parse($donation->donation_date . ' ' . $donation->donation_time, config('app.timezone'));
+
+            // First reminder: 24h before
+            $first = $scheduled->copy()->subDay();
+            if ($first->lt(now())) {
+                // Use previous evening 19:00 of the scheduled day if still in the future
+                $first = $scheduled->copy()->setTime(19, 0);
+                if ($first->lt(now())) {
+                    $first = now()->addMinutes(5);
+                }
+            }
+
+            // Second reminder: 2 hours before
+            $second = $scheduled->copy()->subHours(2);
+            if ($second->lt(now())) {
+                $second = now()->addMinutes(5);
+            }
+
+            // Use Queue::later to capture job ids when using the "database" queue driver
+            $firstJobId = null;
+            $secondJobId = null;
+
+            try {
+                $firstJobId = Queue::later($first, new SendDonationReminder($donation->id, '24-hour reminder'));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            try {
+                $secondJobId = Queue::later($second, new SendDonationReminder($donation->id, '2-hour reminder'));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            if ($firstJobId || $secondJobId) {
+                $donation->update([
+                    'reminder_24_job_id' => $firstJobId,
+                    'reminder_2h_job_id' => $secondJobId,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         // 🔴 Fire event immediately for real-time notification
         try {
@@ -283,7 +333,23 @@ class UserDonationController extends Controller
 
         if ($donation->status === 'scheduled') {
             $fromStatus = (string) $donation->status;
-            $donation->update(['status' => 'cancelled']);
+
+            // If using database queue and we have job ids, remove them from jobs table
+            try {
+                $driver = Config::get('queue.default');
+                if ($driver === 'database') {
+                    if (!empty($donation->reminder_24_job_id)) {
+                        DB::table('jobs')->where('id', $donation->reminder_24_job_id)->delete();
+                    }
+                    if (!empty($donation->reminder_2h_job_id)) {
+                        DB::table('jobs')->where('id', $donation->reminder_2h_job_id)->delete();
+                    }
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            $donation->update(['status' => 'cancelled', 'reminder_24_job_id' => null, 'reminder_2h_job_id' => null]);
             event(new DonationStatusUpdated($donation->fresh('user'), $fromStatus, 'cancelled'));
             return back()->with('success', 'Schedule cancelled successfully.');
         }

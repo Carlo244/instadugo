@@ -238,6 +238,31 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(loadNotifications, 30000);
     }
 
+    // Load notifications for regular user (badge updates)
+    if (window.currentUserId) {
+        loadUserNotifications();
+        setInterval(loadUserNotifications, 30000);
+    }
+
+    // Load notifications when modal opens (real-time update)
+    const notificationsModal = document.getElementById('notificationsModal');
+    if (notificationsModal) {
+        notificationsModal.addEventListener('show.bs.modal', async () => {
+            if (window.currentUserId) {
+                try {
+                    const response = await fetch('/user/notifications/unread');
+                    if (response.ok) {
+                        const data = await response.json();
+                        renderUserNotificationsModal(data.notifications);
+                        updateUserNotificationBadge(data.count);
+                    }
+                } catch (err) {
+                    console.error('[notificationsModal] Error loading notifications:', err);
+                }
+            }
+        });
+    }
+
     document.addEventListener('click', (event) => {
         const notificationContainer = document.querySelector('.notification-bell-container');
 
@@ -250,6 +275,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// ===== User notification helpers =====
+async function loadUserNotifications() {
+    if (!window.currentUserId) return;
+
+    try {
+        const response = await fetch('/user/notifications/unread');
+        if (!response.ok) return;
+
+        const data = await response.json();
+        updateUserNotificationBadge(data.count);
+    } catch (err) {
+        console.error('[loadUserNotifications] Error:', err);
+    }
+}
+
+function updateUserNotificationBadge(count) {
+    const badge = document.getElementById('userNotificationBadge');
+    if (!badge) return;
+
+    if (count > 0) {
+        badge.textContent = count > 9 ? '9+' : count;
+        badge.style.display = 'inline-block';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+async function renderUserNotificationsModal(notifications) {
+    const container = document.getElementById('userNotificationsList');
+    if (!container) return;
+
+    if (notifications.length === 0) {
+        container.innerHTML = `
+            <div class="p-4 text-center text-muted">
+                <i class="bi bi-bell-slash d-block mb-2" style="font-size: 2rem;"></i>
+                No notifications yet.
+            </div>`;
+        return;
+    }
+
+    const html = notifications.map(notif => {
+        const createdAt = new Date(notif.created_at);
+        const diffStr = createdAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const title = notif.data?.title || 'InstaDugo Alert';
+        const message = notif.data?.message || 'You have a new update.';
+        const link = notif.data?.link || '#';
+        const priority = notif.data?.priority === 'urgent' ? '<span class="badge bg-danger">Urgent</span>' : '';
+        const isRead = notif.read_at ? 'opacity-75' : 'bg-light border-start border-danger border-4';
+
+        return `
+            <a href="${link}" class="list-group-item list-group-item-action ${isRead}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-1 ${notif.read_at ? '' : 'fw-bold text-danger'}">
+                        ${title}
+                    </h6>
+                    <small class="text-muted">${diffStr}</small>
+                </div>
+                <p class="mb-1 small">${message}</p>
+                ${priority}
+            </a>`;
+    }).join('');
+
+    container.innerHTML = html;
+}
 
 // Donation listeners: subscribe to hospital-scoped channels when on a hospital page
 if (window.hospitalAdminId) {
@@ -371,6 +461,30 @@ if (window.hospitalAdminId) {
     window.Echo.private('blood-requests').listen('.App\\Events\\BloodRequestCreated', (e) => {
         window.dispatchEvent(new CustomEvent('bloodrequest-updated', { detail: e.bloodRequest }));
     });
+}
+
+// User notification updates — real-time Echo listener
+if (window.currentUserId) {
+    window.Echo.private(`user.${window.currentUserId}`)
+        .listen('.App\\Events\\NotificationCreated', (e) => {
+            console.log('[Echo] User notification received:', e);
+            // Reload badge and modal immediately
+            loadUserNotifications();
+            const notificationModal = document.getElementById('notificationsModal');
+            if (notificationModal && notificationModal.classList.contains('show')) {
+                // Modal is open, update it immediately
+                try {
+                    fetch('/user/notifications/unread')
+                        .then(r => r.json())
+                        .then(data => {
+                            renderUserNotificationsModal(data.notifications);
+                            updateUserNotificationBadge(data.count);
+                        });
+                } catch (err) {
+                    console.error('[Echo] Error updating modal:', err);
+                }
+            }
+        });
 }
 
 // Hospital-side: optimistic insert + AJAX refresh when a relevant donation is created

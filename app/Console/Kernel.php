@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Console\Commands\SendDonationReminders;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -13,10 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // Send donation reminders daily at 9:00 AM
-        $schedule->command(SendDonationReminders::class)
-            ->dailyAt('09:00')
-            ->description('Send donation appointment reminders');
+        // Run donation reminder scanner every 15 minutes to automatically dispatch 24h and 2h emails
+        $schedule->command('donations:send-reminders')
+            ->everyFifteenMinutes()
+            ->description('Scan donations and dispatch 24h/2h reminders');
     }
 
     /**

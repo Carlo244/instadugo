@@ -112,6 +112,10 @@ Route::middleware(['auth:web', 'verified'])
             return back();
         })->name('notifications.markAllRead');
 
+        // AJAX: unread notifications (for client-side badge updates)
+        Route::get('notifications/unread', [App\Http\Controllers\User\UserNotificationController::class, 'getUnread'])->name('notifications.unread');
+        Route::post('notifications/{id}/mark-read', [App\Http\Controllers\User\UserNotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+
         Route::post('notify-donor', [UserDashboardController::class, 'notifyDonor'])
             ->middleware('throttle:5,1')
             ->name('notify-donor');

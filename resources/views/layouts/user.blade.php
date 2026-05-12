@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name') }} | User Dashboard</title>
 
@@ -111,17 +112,19 @@
                 </div>
             `;
             container.appendChild(toastEl);
-            new bootstrap.Toast(toastEl, { delay: 5000 }).show();
+            new bootstrap.Toast(toastEl, {
+                delay: 5000
+            }).show();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            @if(session('success'))
+            @if (session('success'))
                 showToast(@json(session('success')), 'success');
             @endif
-            @if(session('error'))
+            @if (session('error'))
                 showToast(@json(session('error')), 'danger');
             @endif
-            @if($errors->any())
+            @if ($errors->any())
                 showToast('Please fix the errors in the form.', 'danger');
             @endif
         });
