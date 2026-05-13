@@ -31,7 +31,9 @@ class SendScheduledDonationReminders extends Command
 
         foreach ($donations as $donation) {
             try {
-                $scheduled = Carbon::parse($donation->donation_date . ' ' . $donation->donation_time, config('app.timezone'));
+                // Extract just the date part (handle both date and datetime formats)
+                $dateOnly = Carbon::parse($donation->donation_date)->toDateString();
+                $scheduled = Carbon::parse($dateOnly . ' ' . $donation->donation_time, config('app.timezone'));
 
                 // 24h
                 if (is_null($donation->reminder_24_sent_at) && $scheduled->between($lower24, $upper24)) {
