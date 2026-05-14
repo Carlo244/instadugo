@@ -173,9 +173,9 @@
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#acceptInvitationModal"
                                                                 data-request-id="{{ $invite->id }}"
-                                                                data-hospital="{{ $hospitalName }}"
+                                                                data-hospital="Healthcare Facility"
                                                                 data-hospital-id="{{ $hospitalId }}"
-                                                                data-requester="{{ $requesterName }}">
+                                                                data-requester="Anonymous Requester">
                                                                 Accept
                                                             </button>
 
@@ -377,8 +377,8 @@
                     </div>
 
                     <div class="modal-body p-4">
-                        <p>You are accepting the request from <strong id="reqName"></strong> at <strong
-                                id="hospName"></strong>.</p>
+                        <p>You are accepting an anonymous invitation from <strong>Anonymous Requester</strong> at
+                            <strong>Healthcare Facility</strong>.</p>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">When can you visit?</label>
