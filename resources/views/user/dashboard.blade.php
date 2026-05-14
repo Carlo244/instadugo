@@ -121,17 +121,16 @@
                                     <tbody>
                                         @forelse($invitations as $invite)
                                             @php
-                                                $requesterName = optional($invite->user)->name ?? 'N/A';
-                                                $hospitalName = optional($invite->hospital)->hospital_name ?? 'N/A';
                                                 $hospitalId = optional($invite->hospital)->id;
                                             @endphp
                                             <tr>
                                                 <td class="small text-muted">{{ $invite->created_at->format('M d, Y') }}
                                                 </td>
                                                 <td>
-                                                    <div class="fw-bold">{{ $requesterName }}</div>
-                                                    <div class="small text-muted"><i class="bi bi-geo-alt"></i>
-                                                        {{ $hospitalName }}</div>
+                                                    <div class="fw-bold"><i class="bi bi-person-slash me-2"></i>Anonymous
+                                                        Requester</div>
+                                                    <div class="small text-muted"><i class="bi bi-hospital me-1"></i>
+                                                        Healthcare Facility</div>
                                                 </td>
                                                 <td>
                                                     @php
@@ -229,7 +228,34 @@
                         <div class="tab-pane fade" id="requests">@include('partials.user-requests-table')</div>
                         <div class="tab-pane fade" id="donations">
                             <div id="dashboard-donations">
-                                @include('partials.user-donations-table')
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Hospital</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($donationHistory as $donation)
+                                                <tr>
+                                                    <td>{{ $donation->donation_date->format('M d, Y') }}</td>
+                                                    <td class="small">{{ $donation->hospitalAdmin->hospital_name }}</td>
+                                                    <td>
+                                                        <span
+                                                            class="badge rounded-pill bg-{{ $donation->status == 'completed' ? 'success' : 'danger' }}">{{ ucfirst($donation->status) }}</span>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="text-center py-4 text-muted">No completed
+                                                        donations yet.</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>

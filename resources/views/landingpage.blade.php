@@ -194,8 +194,8 @@
                     <div class="glass-card h-100 eligibility-card">
                         <div class="eligibility-icon"><i class="bi bi-calendar2-check"></i></div>
                         <h5 class="fw-bold mt-3 mb-2">Donation Interval</h5>
-                        <p class="text-muted mb-0 small">At least 56 days (8 weeks) must pass since your last completed
-                            whole blood donation.</p>
+                        <p class="text-muted mb-0 small">At least 3 months must pass since your last completed
+                            whole blood donation, in line with Red Cross Philippines guidance.</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6">

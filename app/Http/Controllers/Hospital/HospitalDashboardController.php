@@ -51,7 +51,7 @@ class HospitalDashboardController extends Controller
         ];
 
         // User directory
-        $users = User::latest()->paginate(10);
+        $users = User::latest()->get();
 
         // Priority queue - with blood type filter - FILTERED BY HOSPITAL
         $queueRequestsQuery = BloodRequest::with(['user', 'hospitalAdmin'])
@@ -63,7 +63,7 @@ class HospitalDashboardController extends Controller
 
         $queueRequests = $this->priorityService->applyPriorityOrder($queueRequestsQuery)
             ->orderBy('created_at', 'asc')
-            ->paginate(10, ['*'], 'requests_page');
+            ->get();
 
         // Today's donations schedule
         $donations = Donation::with('user')

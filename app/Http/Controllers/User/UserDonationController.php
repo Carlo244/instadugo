@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BloodRequest;
 use App\Models\Donation;
 use App\Models\HospitalAdmin;
+use App\Models\User;
 use App\Notifications\HospitalAdminDashboardNotification;
 use App\Notifications\DonorFoundNotification;
 use Carbon\Carbon;
@@ -24,11 +25,17 @@ class UserDonationController extends Controller
         $user = Auth::user();
         $userId = Auth::id();
 
-        // 1. Get user's donations
-        $donations = Donation::where('user_id', $userId)
+        // 1. Separate upcoming (scheduled) and past (history) donations
+        $upcomingDonations = Donation::where('user_id', $userId)
+            ->where('status', 'scheduled')
+            ->orderBy('donation_date', 'asc')
+            ->orderBy('donation_time', 'asc')
+            ->get();
+
+        $pastDonations = Donation::where('user_id', $userId)
+            ->where('status', '!=', 'scheduled')
             ->orderBy('donation_date', 'desc')
             ->orderBy('donation_time', 'desc')
-            ->take(10)
             ->get();
 
         // 2. Calculate eligibility
@@ -39,7 +46,7 @@ class UserDonationController extends Controller
 
         if ($lastCompleted) {
             $lastDate = Carbon::parse($lastCompleted->donation_date)->setTimeFromTimeString($lastCompleted->donation_time);
-            $nextDate = $lastDate->copy()->addDays(56);
+            $nextDate = $lastDate->copy()->addMonthsNoOverflow(User::DONATION_WAIT_MONTHS);
             $isEligible = now()->greaterThanOrEqualTo($nextDate);
             $nextEligibleDate = $nextDate->format('M d, Y');
         }
@@ -55,7 +62,7 @@ class UserDonationController extends Controller
         $hospitals = HospitalAdmin::all();
 
         // Removed compatibleRequests from the return
-        return view('user.donate-schedule', compact('donations', 'hospitals', 'isEligible', 'nextEligibleDate', 'hasActiveSchedule', 'activeScheduledDonation'));
+        return view('user.donate-schedule', compact('upcomingDonations', 'pastDonations', 'hospitals', 'isEligible', 'nextEligibleDate', 'hasActiveSchedule', 'activeScheduledDonation'));
     }
 
     public function store(Request $request)

@@ -1,4 +1,40 @@
 <aside class="sidebar-modern d-flex flex-column" id="adminSidebar">
+    <style>
+        /* Compact notification item styles */
+        .notification-items-container .notification-item-button.compact {
+            padding: .25rem .5rem;
+            gap: .5rem;
+            white-space: nowrap;
+        }
+
+        .notification-item-icon {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        .notification-item-title {
+            font-size: 0.85rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .notification-item-time {
+            font-size: 0.72rem;
+            color: #6c757d;
+            flex: 0 0 auto;
+            margin-left: .5rem;
+            white-space: nowrap;
+        }
+
+        .notification-items-container .dropdown-item.notification-empty-state {
+            padding: .5rem .75rem;
+        }
+    </style>
     <div class="p-4 pb-0">
         <div class="d-lg-none text-end mb-2">
             <button class="btn-close" onclick="toggleSidebar()"></button>
@@ -32,31 +68,27 @@
                     </span>
                 </button>
 
-                <ul class="dropdown-menu dropdown-menu-end w-100 notification-dropdown-panel"
-                    aria-labelledby="notificationBellBtn" id="notificationDropdown" style="max-width: 350px;">
-                    <li class="notification-dropdown-header">
-                        <div>
-                            <h6 class="mb-0">Recent Updates</h6>
-                            <small>Unread alerts from your hospital dashboard</small>
-                        </div>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li id="notificationsList" class="notification-items-container">
-                        <button type="button"
-                            class="dropdown-item text-muted text-center py-3 w-100 notification-empty-state">
-                            <small>Loading notifications...</small>
-                        </button>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li>
-                        <button type="button" class="dropdown-item small text-center notification-mark-all-btn"
+                <ul class="dropdown-menu dropdown-menu-end w-100 notification-dropdown-panel p-0"
+                    aria-labelledby="notificationBellBtn" id="notificationDropdown"
+                    style="max-width: 350px; overflow: hidden;">
+                    <li
+                        class="notification-dropdown-header px-3 py-3 d-flex align-items-start justify-content-between gap-3">
+                        <button type="button" class="btn btn-sm btn-link text-danger p-0 text-decoration-none"
                             id="markAllReadBtn" onclick="markAllNotificationsAsRead()">
-                            Mark all as read
+                            Mark all read
                         </button>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider my-0">
+                    </li>
+                    <li class="px-2 py-2">
+                        <div id="notificationsList" class="notification-items-container"
+                            style="max-height: 320px; overflow-y: auto;">
+                            <button type="button"
+                                class="dropdown-item text-muted text-center py-3 w-100 notification-empty-state">
+                                <small>Loading notifications...</small>
+                            </button>
+                        </div>
                     </li>
                 </ul>
             </div>

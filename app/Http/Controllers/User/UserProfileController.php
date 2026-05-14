@@ -25,7 +25,6 @@ class UserProfileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email',
             'contact' => 'nullable|string|max:15',
-            'blood_type' => 'nullable|string',
             'age' => 'nullable|integer',
             'sex' => 'nullable|string',
             'address' => 'nullable|string',

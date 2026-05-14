@@ -63,55 +63,94 @@
                 </div>
             </form>
         </div>
-        <!-- LIST OF USER REQUESTS -->
-        <div class="glass-card">
-            <h5 class="fw-bold mb-3">Request History</h5>
+        <!-- REQUESTS: Tabs for Active and History -->
+        <div class="glass-card mb-4">
+            <ul class="nav nav-pills mb-3" id="requestTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active btn-sm" id="active-tab" data-bs-toggle="pill" data-bs-target="#active"
+                        type="button" role="tab">Active</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link btn-sm" id="req-history-tab" data-bs-toggle="pill" data-bs-target="#req-history"
+                        type="button" role="tab">History</button>
+                </li>
+            </ul>
 
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Blood</th>
-                        <th>Units</th>
-                        <th>Urgency</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="active" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Blood</th>
+                                    <th>Units</th>
+                                    <th>Urgency</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($currentRequests as $request)
+                                    <tr>
+                                        <td>{{ $request->created_at->format('M d, Y') }}</td>
+                                        <td>{{ $request->blood_type }}</td>
+                                        <td>{{ $request->quantity }}</td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{{ $request->urgency == 'Emergency' ? 'danger' : ($request->urgency == 'High' ? 'warning' : 'secondary') }}">{{ $request->urgency }}</span>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{{ $request->status == 'pending' ? 'warning' : 'info' }}">{{ ucfirst($request->status) }}</span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No active requests.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                <tbody>
-                    @forelse($userRequests as $request)
-                        <tr>
-                            <td>{{ $request->created_at->format('M d, Y') }}</td>
-                            <td>{{ $request->blood_type }}</td>
-                            <td>{{ $request->quantity }}</td>
-
-                            {{-- Urgency --}}
-                            <td>
-                                <span
-                                    class="badge 
-                            bg-{{ $request->urgency == 'Emergency' ? 'danger' : ($request->urgency == 'High' ? 'warning' : 'secondary') }}">
-                                    {{ $request->urgency }}
-                                </span>
-                            </td>
-
-                            {{-- Status --}}
-                            <td>
-                                <span
-                                    class="badge 
-                            bg-{{ $request->status == 'pending' ? 'warning' : ($request->status == 'completed' ? 'success' : 'danger') }}">
-                                    {{ ucfirst($request->status) }}
-                                </span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">
-                                No requests yet.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                <div class="tab-pane fade" id="req-history" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Blood</th>
+                                    <th>Units</th>
+                                    <th>Urgency</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($historyRequests as $request)
+                                    <tr>
+                                        <td>{{ $request->created_at->format('M d, Y') }}</td>
+                                        <td>{{ $request->blood_type }}</td>
+                                        <td>{{ $request->quantity }}</td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{{ $request->urgency == 'Emergency' ? 'danger' : ($request->urgency == 'High' ? 'warning' : 'secondary') }}">{{ $request->urgency }}</span>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{{ $request->status == 'fulfilled' ? 'success' : 'danger' }}">{{ ucfirst($request->status) }}</span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No past requests.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 @endsection

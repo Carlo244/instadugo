@@ -97,13 +97,23 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @if ($user->blood_type)
-                                        <span class="badge bg-light text-danger border border-danger px-2">
-                                            <i class="bi bi-droplet-fill me-1"></i>{{ $user->blood_type }}
-                                        </span>
-                                    @else
-                                        <span class="text-muted small italic">Not Set</span>
-                                    @endif
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        @if ($user->blood_type)
+                                            <span class="badge bg-light text-danger border border-danger px-2">
+                                                <i class="bi bi-droplet-fill me-1"></i>{{ $user->blood_type }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted small italic">Not Set</span>
+                                        @endif
+
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-danger rounded-pill py-0 px-2 edit-blood-type-btn"
+                                            data-bs-toggle="modal" data-bs-target="#editBloodTypeModal"
+                                            data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}"
+                                            data-blood-type="{{ $user->blood_type }}">
+                                            <i class="bi bi-pencil-square me-1"></i>Edit
+                                        </button>
+                                    </div>
                                 </td>
                                 <td>
                                     @if ($user->isEligible())
@@ -138,11 +148,8 @@
             </div>
 
             <div class="mt-4 d-flex justify-content-between align-items-center">
-                <p class="text-muted small">Showing {{ $users->count() }} out of {{ $users->total() ?? $users->count() }}
-                    users</p>
-                <nav>
-                    {{-- {{ $users->links() }} --}}
-                </nav>
+                <p class="text-muted small">Showing {{ $users->count() }} users</p>
+                <nav></nav>
             </div>
         </div>
     </main>
@@ -322,6 +329,58 @@
     </div>
     {{-- ===================== END MODAL ===================== --}}
 
+    {{-- ===================== EDIT BLOOD TYPE MODAL ===================== --}}
+    <div class="modal fade" id="editBloodTypeModal" tabindex="-1" aria-labelledby="editBloodTypeModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header text-white border-0 px-4 pt-4 pb-3"
+                    style="background: linear-gradient(135deg, #c0392b, #e74c3c);">
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0" id="editBloodTypeModalLabel">
+                            <i class="bi bi-droplet-fill me-2"></i>Edit Blood Type
+                        </h5>
+                        <p class="small mb-0 opacity-75" id="editBloodTypeUserLabel">Update donor blood type.</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-4 py-4">
+                    <form id="editBloodTypeForm" method="POST" action="">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="mb-3">
+                            <label for="edit_blood_type" class="form-label">Blood Type <span
+                                    class="text-danger">*</span></label>
+                            <select name="blood_type" id="edit_blood_type"
+                                class="form-select @error('blood_type') is-invalid @enderror" required>
+                                <option value="" disabled>Select Type</option>
+                                @foreach (['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $type)
+                                    <option value="{{ $type }}">{{ $type }}</option>
+                                @endforeach
+                            </select>
+                            @error('blood_type')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="text-end">
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- ===================== END EDIT BLOOD TYPE MODAL ===================== --}}
+
     <style>
         .role-card {
             transition: border-color 0.2s, background-color 0.2s;
@@ -336,6 +395,27 @@
 
 @push('scripts')
     <script>
+        @if (session('success'))
+            document.addEventListener('DOMContentLoaded', function() {
+                const toastContainer = document.getElementById('toast-container');
+                if (!toastContainer) return;
+
+                const message = @json(session('success'));
+                const toastHTML = `
+                <div class="toast align-items-center text-bg-success border-0 show mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>`;
+
+                toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+                setTimeout(() => toastContainer.lastElementChild?.remove(), 5000);
+            });
+        @endif
+
         // Search and filter functionality
         let searchTimeout;
         const searchInput = document.getElementById('search-users');
@@ -377,6 +457,23 @@
         if (bloodTypeFilter) {
             bloodTypeFilter.addEventListener('change', applyFilters);
         }
+
+        const editBloodTypeModal = document.getElementById('editBloodTypeModal');
+        const editBloodTypeForm = document.getElementById('editBloodTypeForm');
+        const editBloodTypeSelect = document.getElementById('edit_blood_type');
+        const editBloodTypeUserLabel = document.getElementById('editBloodTypeUserLabel');
+
+        document.querySelectorAll('.edit-blood-type-btn').forEach((button) => {
+            button.addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                const userName = this.dataset.userName;
+                const bloodType = this.dataset.bloodType || '';
+
+                editBloodTypeForm.action = `{{ url('hospital/manageusers') }}/${userId}/blood-type`;
+                editBloodTypeUserLabel.textContent = `Update blood type for ${userName}.`;
+                editBloodTypeSelect.value = bloodType;
+            });
+        });
 
         // Keyboard shortcut to focus search (Ctrl+K or Cmd+K)
         document.addEventListener('keydown', function(e) {

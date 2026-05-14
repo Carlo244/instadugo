@@ -30,7 +30,8 @@
             @if (!$isEligible)
                 <div class="alert alert-warning border-0 shadow-sm mb-4">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    You are not eligible to donate yet. You can schedule again after
+                    You are not eligible to donate yet. Under the three-month whole blood donation interval, you can
+                    schedule again after
                     <strong>{{ $nextEligibleDate }}</strong>.
                 </div>
             @endif
@@ -112,51 +113,91 @@
                 </fieldset>
             </form>
         </div>
-        <!-- USER DONATION HISTORY -->
+        <!-- DONATIONS: Tabs for Upcoming and History -->
         <div class="glass-card mb-4">
-            <h5 class="fw-bold mb-3">My Donation History</h5>
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Hospital</th>
-                        <th>Blood Type</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($donations as $donation)
-                        <tr>
-                            <td>{{ $donation->donation_date->format('M d, Y') }}</td>
-                            <td>{{ $donation->hospitalAdmin->hospital_name }}</td>
-                            <td>{{ $donation->blood_type }}</td>
-                            <td>
-                                <span
-                                    class="badge bg-{{ $donation->status == 'scheduled' ? 'info' : ($donation->status == 'completed' ? 'success' : 'danger') }}">
-                                    {{ ucfirst($donation->status) }}
-                                </span>
-                            </td>
-                            <td>
-                                @if ($donation->status == 'scheduled')
-                                    <form action="{{ route('user.donations.cancel', $donation->id) }}" method="POST"
-                                        onsubmit="return confirm('Are you sure you want to cancel this schedule?');">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
-                                    </form>
-                                @else
-                                    <span class="text-muted small">N/A</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">No donations scheduled yet.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+            <ul class="nav nav-pills mb-3" id="donationTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active btn-sm" id="upcoming-tab" data-bs-toggle="pill"
+                        data-bs-target="#upcoming" type="button" role="tab">Upcoming</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link btn-sm" id="history-tab" data-bs-toggle="pill" data-bs-target="#history"
+                        type="button" role="tab">History</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Hospital</th>
+                                    <th>Blood Type</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($upcomingDonations as $donation)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($donation->donation_date)->format('M d, Y') }}</td>
+                                        <td>{{ $donation->hospitalAdmin->hospital_name }}</td>
+                                        <td>{{ $donation->blood_type }}</td>
+                                        <td><span class="badge bg-info">{{ ucfirst($donation->status) }}</span></td>
+                                        <td>
+                                            <form action="{{ route('user.donations.cancel', $donation->id) }}"
+                                                method="POST"
+                                                onsubmit="return confirm('Are you sure you want to cancel this schedule?');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">No upcoming donations.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="history" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Hospital</th>
+                                    <th>Blood Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($pastDonations as $donation)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($donation->donation_date)->format('M d, Y') }}</td>
+                                        <td>{{ $donation->hospitalAdmin->hospital_name }}</td>
+                                        <td>{{ $donation->blood_type }}</td>
+                                        <td>
+                                            <span
+                                                class="badge bg-{{ $donation->status == 'completed' ? 'success' : 'danger' }}">{{ ucfirst($donation->status) }}</span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No donation history yet.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 @endsection

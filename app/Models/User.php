@@ -14,6 +14,8 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
+    public const DONATION_WAIT_MONTHS = 3;
+
     protected $fillable = ['name', 'email', 'password', 'contact', 'age', 'sex', 'blood_type', 'address'];
     protected $hidden = ['password', 'remember_token'];
     protected $casts = [
@@ -38,14 +40,14 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isEligible()
     {
-        // We only need the date for the 56-day rule usually
+        // We only need the date for the standard three-month waiting period.
         $lastDonation = $this->donations()
             ->where('status', 'completed')
             ->latest('donation_date') // latest() is shorthand for orderBy desc
             ->first();
 
         if ($lastDonation) {
-            $nextDate = \Carbon\Carbon::parse($lastDonation->donation_date)->addDays(56);
+            $nextDate = \Carbon\Carbon::parse($lastDonation->donation_date)->addMonthsNoOverflow(self::DONATION_WAIT_MONTHS);
             // Use isPast() or greaterThan to see if we've reached that day
             return now()->startOfDay()->greaterThanOrEqualTo($nextDate->startOfDay());
         }
@@ -61,7 +63,7 @@ class User extends Authenticatable implements MustVerifyEmail
             return now()->startOfDay();
         }
 
-        return \Carbon\Carbon::parse($lastDonation->donation_date)->addDays(56)->startOfDay();
+        return \Carbon\Carbon::parse($lastDonation->donation_date)->addMonthsNoOverflow(self::DONATION_WAIT_MONTHS)->startOfDay();
     }
 
     public function daysUntilEligible()

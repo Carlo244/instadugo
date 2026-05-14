@@ -63,26 +63,8 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Blood Type</label>
-                                <select name="blood_type" class="form-select">
-                                    <option value="{{ auth()->user()->blood_type }}" selected>
-                                        {{ auth()->user()->blood_type }}
-                                    </option>
-                                    <option>A+</option>
-                                    <option>A-</option>
-                                    <option>B+</option>
-                                    <option>B-</option>
-                                    <option>AB+</option>
-                                    <option>AB-</option>
-                                    <option>O+</option>
-                                    <option>O-</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6">
                                 <label class="form-label">Age</label>
-                                <input type="number" name="age" class="form-control"
-                                    value="{{ auth()->user()->age }}">
+                                <input type="number" name="age" class="form-control" value="{{ auth()->user()->age }}">
                             </div>
 
                             <div class="col-md-6">

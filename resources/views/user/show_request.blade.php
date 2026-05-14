@@ -52,8 +52,8 @@
                                 class="{{ (int) $selectedInvitationId === (int) $invite->id ? 'table-warning' : '' }}">
                                 <td class="small text-muted">{{ $invite->created_at->format('M d, Y') }}</td>
                                 <td>
-                                    <div class="fw-bold">{{ optional($invite->user)->name ?? 'N/A' }}</div>
-                                    <div class="small text-muted">{{ optional($invite->hospital)->hospital_name ?? 'N/A' }}
+                                    <div class="fw-bold"><i class="bi bi-person-slash me-2"></i>Anonymous Requester</div>
+                                    <div class="small text-muted"><i class="bi bi-hospital me-1"></i>Healthcare Facility
                                     </div>
                                 </td>
                                 <td><span class="fw-semibold text-danger">{{ $invite->blood_type }}</span></td>
@@ -70,13 +70,10 @@
                                 <td class="text-end">
                                     <button type="button"
                                         class="btn btn-sm btn-outline-dark rounded-pill px-3 view-invite-btn"
-                                        data-id="{{ $invite->id }}"
-                                        data-requester="{{ optional($invite->user)->name ?? 'N/A' }}"
-                                        data-hospital="{{ optional($invite->hospital)->hospital_name ?? 'N/A' }}"
-                                        data-blood-type="{{ $invite->blood_type }}"
+                                        data-id="{{ $invite->id }}" data-requester="Anonymous Requester"
+                                        data-hospital="Healthcare Facility" data-blood-type="{{ $invite->blood_type }}"
                                         data-quantity="{{ $invite->quantity }}" data-urgency="{{ $invite->urgency }}"
-                                        data-status="{{ $invite->status }}"
-                                        data-date-needed="{{ $dateNeeded }}"
+                                        data-status="{{ $invite->status }}" data-date-needed="{{ $dateNeeded }}"
                                         data-message="{{ $invite->reason ?: 'No additional message provided.' }}"
                                         data-selected="{{ (int) $selectedInvitationId === (int) $invite->id ? '1' : '0' }}">
                                         View
@@ -117,11 +114,11 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-muted">Requester</label>
-                                <div id="modalRequester"></div>
+                                <div id="modalRequester"><i class="bi bi-person-slash me-1"></i>Anonymous Requester</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold small text-muted">Hospital</label>
-                                <div id="modalHospital"></div>
+                                <div id="modalHospital"><i class="bi bi-hospital me-1"></i>Healthcare Facility</div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-bold small text-muted">Blood Type</label>

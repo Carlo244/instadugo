@@ -48,49 +48,47 @@ Route::get('/', function () {
         ];
     }
 
-    
-    return view('landingpage', compact('landingStats'));
-});
-
-/*
-|--------------------------------------------------------------------------
-| Production-safe debug endpoint (guarded by token)
-|--------------------------------------------------------------------------
-| Usage: GET /debug/reminder/{id}?token=YOUR_SECRET_TOKEN
-| Set the token in the environment variable DEBUG_REMINDER_TOKEN
-*/
-Route::get('/debug/reminder/{id}', function (\Illuminate\Http\Request $request, $id) {
-    $token = $request->query('token');
-    if (empty($token) || $token !== env('DEBUG_REMINDER_TOKEN')) {
-        return response()->json(['error' => 'Unauthorized'], 403);
-    }
-
-    try {
-        $donation = \App\Models\Donation::find($id);
-        if (! $donation) {
-            return response()->json(['error' => 'Donation not found'], 404);
+    /*
+    |--------------------------------------------------------------------------
+    | Production-safe debug endpoint (guarded by token)
+    |--------------------------------------------------------------------------
+    | Usage: GET /debug/reminder/{id}?token=YOUR_SECRET_TOKEN
+    | Set the token in the environment variable DEBUG_REMINDER_TOKEN
+    */
+    Route::get('/debug/reminder/{id}', function (\Illuminate\Http\Request $request, $id) {
+        $token = $request->query('token');
+        if (empty($token) || $token !== env('DEBUG_REMINDER_TOKEN')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Dispatch the reminder job (manual label) and process the emails queue once
-        \App\Jobs\SendDonationReminder::dispatch($donation->id, 'manual-debug');
+        try {
+            $donation = \App\Models\Donation::find($id);
+            if (! $donation) {
+                return response()->json(['error' => 'Donation not found'], 404);
+            }
 
-        \Artisan::call('queue:work', [
-            'connection' => 'database',
-            '--once' => true,
-            '--queue' => 'emails',
-            '--timeout' => 60,
-            '--tries' => 3,
-        ]);
+            // Dispatch the reminder job (manual label) and process the emails queue once
+            \App\Jobs\SendDonationReminder::dispatch($donation->id, 'manual-debug');
 
-        return response()->json([
-            'status' => 'dispatched',
-            'donation_id' => $donation->id,
-            'artisan_output' => \Artisan::output(),
-        ]);
-    } catch (\Throwable $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
-})->name('debug.reminder.prod');
+            \Artisan::call('queue:work', [
+                'connection' => 'database',
+                '--once' => true,
+                '--queue' => 'emails',
+                '--timeout' => 60,
+                '--tries' => 3,
+            ]);
+
+            return response()->json([
+                'status' => 'dispatched',
+                'donation_id' => $donation->id,
+                'artisan_output' => \Artisan::output(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    })->name('debug.reminder.prod');
+    return view('landingpage', compact('landingStats'));
+});
 Broadcast::routes(['middleware' => ['web', 'auth:web,hospital_admin']]);
 
 // Auth
@@ -185,6 +183,7 @@ Route::prefix('hospital')
         Route::get('manageusers', [HospitalManageUsersController::class, 'index'])->name('manageusers');
         Route::get('manageusers/create', [HospitalManageUsersController::class, 'create'])->name('manageusers.create');
         Route::post('manageusers', [HospitalManageUsersController::class, 'store'])->name('manageusers.store');
+        Route::put('manageusers/{user}/blood-type', [HospitalManageUsersController::class, 'updateBloodType'])->name('manageusers.blood-type.update');
 
         // Profile
         Route::get('profile', [HospitalProfileController::class, 'index'])->name('profile');

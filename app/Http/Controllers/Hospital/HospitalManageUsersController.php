@@ -34,12 +34,12 @@ class HospitalManageUsersController extends Controller
         // which is too expensive for large datasets. Use client-side filtering in view instead.
         
         // Fetch users with pagination
-        $users = $query->latest()->paginate(15);
+        $users = $query->latest()->get();
         
         // Get counts for statistics
         $totalUsers = User::count();
         
-        // Count eligible users (users with no completed donations or last donation > 56 days ago)
+        // Count eligible users (users with no completed donations or last donation older than three months)
         // This is expensive but only runs once per page load for the stat card
         $eligibleCount = User::with(['donations' => function($query) {
             $query->where('status', 'completed')->latest('donation_date')->limit(1);
@@ -90,4 +90,20 @@ class HospitalManageUsersController extends Controller
 
     return redirect()->route('hospital.manageusers')->with('success', 'User created successfully.');
 }
+
+    public function updateBloodType(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'blood_type' => 'required|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+        ], [
+            'blood_type.required' => 'Please select a blood type.',
+            'blood_type.in' => 'Please select a valid blood type.',
+        ]);
+
+        $user->update([
+            'blood_type' => $validated['blood_type'],
+        ]);
+
+        return back()->with('success', 'User blood type updated successfully.');
+    }
 }

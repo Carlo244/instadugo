@@ -48,6 +48,7 @@ async function loadNotifications() {
         const data = await response.json();
         console.log('[loadNotifications] Received notifications:', data);
         updateNotificationBadge(data.count);
+        updateMarkAllReadButton(data.count);
         renderNotifications(data.notifications);
     } catch (error) {
         console.error('[loadNotifications] Error:', error);
@@ -70,6 +71,15 @@ function updateNotificationBadge(count) {
         badge.style.display = 'none';
         console.log('[updateNotificationBadge] No notifications, hiding badge');
     }
+}
+
+function updateMarkAllReadButton(count) {
+    const button = document.getElementById('markAllReadBtn');
+    if (!button) {
+        return;
+    }
+
+    button.style.display = count > 0 ? 'inline-flex' : 'none';
 }
 
 function closeNotificationDropdown() {
@@ -116,14 +126,13 @@ function renderNotifications(notifications) {
     console.log('[renderNotifications] Rendering', notifications.length, 'notifications');
     if (notifications.length === 0) {
         console.log('[renderNotifications] No notifications to display');
-        container.innerHTML = '<li class="dropdown-item text-muted text-center py-3"><small>No notifications</small></li>';
+        container.innerHTML = '<div class="dropdown-item text-muted text-center py-3"><small>No notifications</small></div>';
         return;
     }
-    
     const html = notifications.map(notif => {
         const createdAt = new Date(notif.created_at);
         const timeStr = createdAt.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        
+
         const notificationType = notif.data?.type || notif.type || '';
         let message = notif.data?.message || 'Update received';
         let icon = 'bi-bell';
@@ -148,23 +157,21 @@ function renderNotifications(notifications) {
         const targetUrl = notif.data?.url || (notificationType.startsWith('blood_request')
             ? '/hospital/requests'
             : '/hospital/donations');
-        
+
         return `
             <li>
-                <button type="button" class="dropdown-item notification-item-button small" onclick="openNotification(${notif.id}, ${JSON.stringify(notif.type)}, ${JSON.stringify(targetUrl)}); return false;">
-                    <div class="notification-item-inner">
-                        <div class="notification-item-icon ${iconClass}">
-                            <i class="bi ${icon}"></i>
-                        </div>
-                        <div class="flex-grow-1" style="text-align: left;">
-                            <div class="notification-item-title">${message}</div>
-                            <small class="notification-item-time">${timeStr}</small>
-                        </div>
+                <button type="button" class="dropdown-item notification-item-button compact d-flex align-items-center" onclick="openNotification(${JSON.stringify(notif.id)}, ${JSON.stringify(notificationType)}, ${JSON.stringify(targetUrl)}); return false;">
+                    <div class="notification-item-icon ${iconClass}">
+                        <i class="bi ${icon}"></i>
+                    </div>
+                    <div class="flex-grow-1 d-flex align-items-center">
+                        <div class="notification-item-title text-truncate">${message}</div>
+                        <small class="notification-item-time ms-2">${timeStr}</small>
                     </div>
                 </button>
             </li>`;
     }).join('');
-    
+
     container.innerHTML = html;
 }
 

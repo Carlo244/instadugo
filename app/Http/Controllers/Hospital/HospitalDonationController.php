@@ -32,13 +32,13 @@ class HospitalDonationController extends Controller
         if ($request->boolean('ajax')) {
             $tab = $request->get('tab', 'today');
             if ($tab === 'today') {
-                $donations = (clone $query)->whereDate('donation_date', $today)->where('status', 'scheduled')->orderBy('donation_time', 'asc')->paginate(15);
+                $donations = (clone $query)->whereDate('donation_date', $today)->where('status', 'scheduled')->orderBy('donation_time', 'asc')->get();
                 $showActions = true;
             } elseif ($tab === 'upcoming') {
-                $donations = (clone $query)->whereDate('donation_date', '>', $today)->where('status', 'scheduled')->orderBy('donation_date', 'asc')->paginate(15);
+                $donations = (clone $query)->whereDate('donation_date', '>', $today)->where('status', 'scheduled')->orderBy('donation_date', 'asc')->get();
                 $showActions = false;
             } else { // history
-                $donations = (clone $query)->whereIn('status', ['completed', 'cancelled'])->latest()->paginate(15);
+                $donations = (clone $query)->whereIn('status', ['completed', 'cancelled'])->latest()->get();
                 $showActions = false;
             }
 
@@ -50,14 +50,14 @@ class HospitalDonationController extends Controller
 
         return view('hospital.donations', [
             // 1. Scheduled for today
-            'todayQueue' => (clone $query)->whereDate('donation_date', $today)->where('status', 'scheduled')->orderBy('donation_time', 'asc')->paginate(15, ['*'], 'today_page'),
+            'todayQueue' => (clone $query)->whereDate('donation_date', $today)->where('status', 'scheduled')->orderBy('donation_time', 'asc')->get(),
             // 2. Scheduled for future dates
-            'upcoming' => (clone $query)->whereDate('donation_date', '>', $today)->where('status', 'scheduled')->orderBy('donation_date', 'asc')->paginate(15, ['*'], 'upcoming_page'),
+            'upcoming' => (clone $query)->whereDate('donation_date', '>', $today)->where('status', 'scheduled')->orderBy('donation_date', 'asc')->get(),
             // 3. Any completed or cancelled
             'history' => (clone $query)
                 ->whereIn('status', ['completed', 'cancelled'])
                 ->latest()
-                ->paginate(15, ['*'], 'history_page'),
+                ->get(),
             // Get phlebotomist count for the hospital
             'phlebotomistCount' => auth('hospital_admin')->user()->phlebotomist_count ?? 1,
         ]);

@@ -52,8 +52,30 @@ class UserDashboardController extends Controller
     {
         $user = auth()->user();
 
-        // Latest 5 donations scheduled BY this user
-        $donations = Donation::where('user_id', $user->id)->orderBy('donation_date', 'desc')->orderBy('donation_time', 'desc')->take(5)->get();
+        // Upcoming donations: only scheduled donations in the future (today with future time or future date)
+        $today = now()->toDateString();
+        $nowTime = now()->format('H:i:s');
+
+        $donations = Donation::where('user_id', $user->id)
+            ->where('status', 'scheduled')
+            ->where(function ($q) use ($today, $nowTime) {
+                $q->whereDate('donation_date', '>', $today)
+                    ->orWhere(function ($q2) use ($today, $nowTime) {
+                        $q2->whereDate('donation_date', $today)
+                            ->where('donation_time', '>=', $nowTime);
+                    });
+            })
+            ->orderBy('donation_date', 'asc')
+            ->orderBy('donation_time', 'asc')
+            ->take(5)
+            ->get();
+
+        // Donation history: completed donations
+        $donationHistory = Donation::where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->orderBy('donation_date', 'desc')
+            ->take(10)
+            ->get();
 
         if ($request->boolean('ajax')) {
             return view('partials.user-donations-table', compact('donations'));
@@ -90,13 +112,21 @@ class UserDashboardController extends Controller
 
         $compatibleDonors = User::whereIn('blood_type', $compatibleBloodTypes)
             ->where('id', '!=', $user->id)
-            // Eligibility check: No completed donations in the last 56 days
+            // Eligibility check: No completed donations in the last three months
             ->whereDoesntHave('donations', function ($query) {
-                $query->where('status', 'completed')->where('donation_date', '>', now()->subDays(56));
+                $query->where('status', 'completed')->where('donation_date', '>', now()->subMonthsNoOverflow(User::DONATION_WAIT_MONTHS));
             })
             ->get();
 
-        return view('user.dashboard', compact('hospitals', 'userRequests', 'donations', 'compatibleDonors', 'invitations', 'user'));
+        // Urgent public requests (for dashboard quick view)
+        $urgentRequests = BloodRequest::with('hospital', 'user')
+            ->where('urgency', 'Emergency')
+            ->where('status', 'pending')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('user.dashboard', compact('hospitals', 'userRequests', 'donations', 'donationHistory', 'compatibleDonors', 'invitations', 'user', 'urgentRequests'));
     }
 
 

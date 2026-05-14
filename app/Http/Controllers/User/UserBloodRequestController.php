@@ -18,13 +18,20 @@ class UserBloodRequestController extends Controller
     {
         $hospitals = HospitalAdmin::all();
 
-        $userRequests = BloodRequest::with('hospitalAdmin')
+        // Split into active (pending/accepted) and history (fulfilled/declined/cancelled)
+        $currentRequests = BloodRequest::with('hospitalAdmin')
             ->where('user_id', Auth::id())
+            ->whereIn('status', ['pending', 'accepted'])
             ->latest()
-            ->take(10)
             ->get();
 
-        return view('user.blood-requests', compact('hospitals', 'userRequests'));
+        $historyRequests = BloodRequest::with('hospitalAdmin')
+            ->where('user_id', Auth::id())
+            ->whereIn('status', ['fulfilled', 'declined', 'cancelled'])
+            ->latest()
+            ->get();
+
+        return view('user.blood-requests', compact('hospitals', 'currentRequests', 'historyRequests'));
     }
 
     /**
