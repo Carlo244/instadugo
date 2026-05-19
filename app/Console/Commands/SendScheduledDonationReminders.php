@@ -37,7 +37,7 @@ class SendScheduledDonationReminders extends Command
 
                 // 24h
                 if (is_null($donation->reminder_24_sent_at) && $scheduled->between($lower24, $upper24)) {
-                    SendDonationReminder::dispatch($donation->id, '24-hour reminder');
+                    SendDonationReminder::dispatchSync($donation->id, '24-hour reminder');
                     $donation->reminder_24_sent_at = $now;
                     $donation->save();
                     $this->info("Dispatched 24h reminder for donation {$donation->id}");
@@ -46,7 +46,7 @@ class SendScheduledDonationReminders extends Command
 
                 // 2h
                 if (is_null($donation->reminder_2h_sent_at) && $scheduled->between($lower2, $upper2)) {
-                    SendDonationReminder::dispatch($donation->id, '2-hour reminder');
+                    SendDonationReminder::dispatchSync($donation->id, '2-hour reminder');
                     $donation->reminder_2h_sent_at = $now;
                     $donation->save();
                     $this->info("Dispatched 2h reminder for donation {$donation->id}");

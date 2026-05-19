@@ -14,7 +14,7 @@ class SendDonationReminders extends Command
      *
      * @var string
      */
-    protected $signature = 'donations:send-reminders {--date= : Send reminders for a specific date (YYYY-MM-DD), defaults to tomorrow}';
+    protected $signature = 'donations:send-tomorrow-reminders {--date= : Send reminders for a specific date (YYYY-MM-DD), defaults to tomorrow}';
 
     /**
      * The description of the console command.

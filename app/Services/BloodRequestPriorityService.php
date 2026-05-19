@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class BloodRequestPriorityService
 {
@@ -34,8 +35,25 @@ class BloodRequestPriorityService
             ->whereIn('status', $activeStatuses ?? $this->activeStatuses());
     }
 
-    public function buildQueues(Collection $requests, ?array $activeStatuses = null): array
+    /**
+     * Build multi-level priority queues from a collection (or paginator/array) of requests.
+     * Normalizes incoming data to a Collection so callers may pass a Paginator or array.
+     *
+     * @param  Collection|LengthAwarePaginator|array  $requests
+     */
+    public function buildQueues($requests, ?array $activeStatuses = null): array
     {
+        // Normalize to Collection if a paginator or array was provided
+        if ($requests instanceof LengthAwarePaginator) {
+            $requests = collect($requests->items());
+        } elseif (is_array($requests)) {
+            $requests = collect($requests);
+        }
+
+        if (! $requests instanceof Collection) {
+            $requests = collect($requests);
+        }
+
         $queues = [];
         $totalActive = 0;
 
