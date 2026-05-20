@@ -129,7 +129,8 @@ class UserDonationController extends Controller
 
         // Schedule email reminders (24h before or previous evening 19:00 if within 24h, and 2h before)
         try {
-            $scheduled = Carbon::parse($donation->donation_date . ' ' . $donation->donation_time, config('app.timezone'));
+            $scheduled = Carbon::parse($donation->donation_date, config('app.timezone'))
+                ->setTimeFromTimeString($donation->donation_time);
 
             // First reminder: 24h before
             $first = $scheduled->copy()->subDay();
