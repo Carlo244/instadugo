@@ -378,7 +378,8 @@
 
                     <div class="modal-body p-4">
                         <p>You are accepting an anonymous invitation from <strong>Anonymous Requester</strong> at
-                            <strong>Healthcare Facility</strong>.</p>
+                            <strong>Healthcare Facility</strong>.
+                        </p>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">When can you visit?</label>

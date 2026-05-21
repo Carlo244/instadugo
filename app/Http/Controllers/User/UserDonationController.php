@@ -11,10 +11,8 @@ use App\Models\User;
 use App\Notifications\HospitalAdminDashboardNotification;
 use App\Notifications\DonorFoundNotification;
 use Carbon\Carbon;
-use App\Jobs\SendDonationReminder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 
@@ -148,28 +146,13 @@ class UserDonationController extends Controller
                 $second = now()->addMinutes(5);
             }
 
-            // Use Queue::later to capture job ids when using the "database" queue driver
-            $firstJobId = null;
-            $secondJobId = null;
-
-            try {
-                $firstJobId = Queue::later($first, new SendDonationReminder($donation->id, '24-hour reminder'));
-            } catch (\Throwable $e) {
-                report($e);
-            }
-
-            try {
-                $secondJobId = Queue::later($second, new SendDonationReminder($donation->id, '2-hour reminder'));
-            } catch (\Throwable $e) {
-                report($e);
-            }
-
-            if ($firstJobId || $secondJobId) {
-                $donation->update([
-                    'reminder_24_job_id' => $firstJobId,
-                    'reminder_2h_job_id' => $secondJobId,
-                ]);
-            }
+            // Reminders are sent by the scheduled scanner command, so keep the
+            // stored job identifiers empty and avoid creating delayed queue jobs
+            // that would survive cancellation.
+            $donation->update([
+                'reminder_24_job_id' => null,
+                'reminder_2h_job_id' => null,
+            ]);
         } catch (\Throwable $e) {
             report($e);
         }
